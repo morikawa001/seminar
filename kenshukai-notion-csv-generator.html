@@ -225,7 +225,6 @@
         }
 
         input[type="text"],
-        input[type="file"],
         textarea {
             width: 100%;
             padding: 10px 12px;
@@ -246,6 +245,46 @@
         textarea {
             min-height: 150px;
             resize: vertical;
+        }
+
+        /* ファイル選択ボタン カスタムスタイル */
+        input[type="file"] {
+            display: none;
+        }
+        .file-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            min-height: 44px;
+            padding: 0 20px;
+            background: var(--button-bg);
+            border: 1px solid var(--green);
+            border-radius: var(--radius-sm);
+            color: var(--green);
+            font-family: inherit;
+            font-size: .9em;
+            font-weight: 800;
+            letter-spacing: .08em;
+            cursor: pointer;
+            transition: background .15s, border-color .15s, box-shadow .15s;
+            box-sizing: border-box;
+        }
+        .file-label:hover {
+            background: var(--panel3);
+            border-color: var(--green);
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--green) 25%, transparent);
+        }
+        .file-label-icon { font-size: 1.1em; flex-shrink: 0; }
+        .file-label-text { flex: 1; }
+        .file-name-display {
+            margin-top: 6px;
+            font-size: .82em;
+            color: var(--green);
+            letter-spacing: .04em;
+            min-height: 1.2em;
+            padding-left: 4px;
+            word-break: break-all;
         }
 
         /* ボタン */
@@ -551,8 +590,12 @@
         <div class="panel">
             <div class="panel-title">FILE INPUT</div>
             <div class="input-group">
-                <label for="excelFile">対象Excelファイル選択</label>
-                <input type="file" id="excelFile" accept=".xlsx,.xls" />
+                <label class="file-label" for="excelFile">
+                    <span class="file-label-icon">📂</span>
+                    <span class="file-label-text" id="fileLabelText">Excelファイルを選択</span>
+                </label>
+                <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="updateFileLabel(this)" />
+                <div class="file-name-display" id="fileNameDisplay"></div>
             </div>
             <div class="input-group">
                 <label for="dateInput">処理日付 (YYYYMMDD形式)</label>
@@ -612,7 +655,7 @@
         <div class="panel">
             <div class="panel-title">EXPORT</div>
             <button class="btn btn-secondary" onclick="exportToExcel()" id="exportBtn" disabled>
-                処理済みデータをダウンロード
+                処理済みCSVをダウンロード
             </button>
         </div>
     </div>
@@ -728,6 +771,63 @@
     '鮫島', '鳥居', '鳥海', '鳫', '鴇田', '鵜飼', '鹿島', '鹿野', '麻生', '黒川', '黒木', '黒沢', '黒澤', '黒田', '齊藤', '齋藤', '龍崎'
   ]);
 
+        /* ── 姓名入れ替えリスト（888件） ── */
+        const SWAP_NAME_LIST = new Set([
+    '七部', '三ツ矢', '三上', '三原', '三吉', '三好', '三宅', '三木', '三浦', '三輪', '上原', '上坂', '上山', '上村', '上林', '上田',
+    '上野', '下平', '下村', '下田', '並木', '中', '中上', '中井', '中原', '中垣', '中尾', '中屋', '中山', '中島', '中嶋', '中川', '中村',
+    '中林', '中沢', '中田', '中神', '中西', '中谷', '中里', '中野', '丸山', '丹羽', '久保', '久保田', '久山', '久村', '乙部', '九鬼',
+    '亀山', '五十嵐', '五味', '井上', '井下', '井出', '井原', '井口', '今井', '今村', '今泉', '今田', '今西', '今野', '伊佐治', '伊勢',
+    '伊東', '伊藤', '佐々木', '佐久間', '佐伯', '佐藤', '佐野', '保坂', '倉本', '倉田', '光岡', '八木', '兼子', '内山', '内村', '内海',
+    '内田', '内藤', '冨田', '出口', '前田', '加納', '加藤', '勝又', '勝田', '北', '北原', '北島', '北川', '北村', '北野', '千田', '千葉',
+    '半田', '南', '南雲', '原', '原口', '原田', '及川', '古岩井', '古川', '古田', '古谷', '古賀', '只野', '吉井', '吉原', '吉川', '吉本',
+    '吉村', '吉沢', '吉澤', '吉田', '名取', '向井', '和久井', '和久田', '和佐', '和田', '品川', '唐澤', '喜多', '國府', '園田', '土井',
+    '土屋', '土田', '坂井', '坂口', '坂本', '坂田', '坪田', '城戸', '堀', '堀内', '堀口', '堀川', '堀江', '堀田', '堂崎', '堰端', '塩田',
+    '塩野', '境', '増井', '増田', '墨', '外山', '多田', '大久保', '大倉', '大内', '大和田', '大坪', '大城', '大場', '大塚', '大宮', '大山',
+    '大島', '大川', '大平', '大庭', '大木', '大村', '大森', '大槻', '大橋', '大江', '大沢', '大沼', '大津', '大浦', '大滝', '大瀧', '大田',
+    '大矢', '大石', '大竹', '大西', '大谷', '大野', '天野', '太田', '奈良', '奥', '奥山', '奥村', '奥田', '奥野', '妻木', '安井', '安原',
+    '安田', '安藤', '安部', '宍戸', '室井', '宮下', '宮内', '宮原', '宮城', '宮崎', '宮川', '宮本', '宮沢', '宮田', '富岡', '富永', '富田',
+    '寒川', '寺本', '寺田', '對馬', '小倉', '小原', '小口', '小坂', '小堀', '小室', '小宮', '小山', '小岩', '小島', '小嶋', '小川', '小幡',
+    '小日向', '小早川', '小暮', '小杉', '小松', '小林', '小柳', '小柴', '小森', '小沢', '小沼', '小泉', '小津', '小澤', '小田', '小笠原',
+    '小谷', '小野', '小野塚', '小野寺', '小野田', '小関', '小高', '尾崎', '尾瀬', '山下', '山中', '山内', '山口', '山岡', '山岸', '山崎',
+    '山川', '山本', '山村', '山根', '山梨', '山森', '山瀬', '山田', '山縣', '山脇', '岡', '岡和田', '岡崎', '岡本', '岡村', '岡田', '岡部',
+    '岡野', '岩下', '岩井', '岩佐', '岩崎', '岩本', '岩瀬', '岩田', '岩谷', '岩間', '岸', '岸川', '岸本', '岸田', '峰岸', '島', '島守',
+    '島崎', '島田', '嶋田', '川上', '川下', '川久保', '川原', '川口', '川合', '川島', '川崎', '川本', '川村', '川田', '川端', '川辺',
+    '川野', '工藤', '市原', '市川', '市村', '市野', '布目', '常峰', '干川', '平井', '平塚', '平山', '平岡', '平川', '平松', '平田', '平野',
+    '幸田', '庄司', '廣岡', '廣瀬', '引地', '弥富', '当山', '後藤', '徳永', '徳田', '志村', '志賀', '戸田', '手塚', '手島', '折田', '押川',
+    '押田', '持田', '指田', '斎藤', '新井', '新垣', '新庄', '新田', '新谷', '日下', '日野', '日高', '早坂', '早川', '明石', '星', '星野',
+    '春田', '是永', '時田', '景山', '曽我', '有吉', '有田', '有馬', '服部', '望月', '朝倉', '木下', '木原', '木戸', '木本', '木村', '木田',
+    '末棟', '末永', '本多', '本村', '本津', '本田', '本間', '杉', '杉原', '杉山', '杉本', '杉浦', '杉田', '村上', '村井', '村山', '村木',
+    '村松', '村瀬', '村田', '東京', '東山', '松井', '松原', '松尾', '松山', '松岡', '松島', '松崎', '松本', '松村', '松林', '松浦', '松田',
+    '松野', '松阪', '板倉', '板垣', '板橋', '林', '林田', '枚田', '柏木', '柳', '柳井', '柳沢', '柴崎', '柴田', '栗原', '栗山', '栗田',
+    '根上', '根岸', '根本', '桜井', '梅本', '梅沢', '梅田', '森', '森下', '森山', '森川', '森田', '植木', '植村', '植田', '楠', '楠本',
+    '榊', '榊原', '榎本', '榛葉', '樋口', '横井', '横山', '横澤', '横田', '橋口', '橋本', '櫻井', '權田', '武井', '武元', '武内', '武山',
+    '武本', '武田', '武良', '武藤', '比嘉', '毛利', '氏家', '水上', '水元', '水原', '水品', '水本', '水谷', '水野', '氷室', '永井', '永嶺',
+    '永松', '永田', '永野', '江口', '江崎', '江川', '江藤', '池上', '池内', '池口', '池田', '池谷', '沖', '沢田', '河原', '河合', '河島',
+    '河村', '河野', '沼田', '泊', '法月', '波多野', '津田', '浅井', '浅原', '浅川', '浅沼', '浅田', '浅野', '浜口', '浜崎', '浜田', '浜野',
+    '浦嶋', '浦田', '浮田', '海野', '深井', '深山', '深沢', '深田', '清', '清川', '清水', '清田', '渋谷', '渡辺', '渡邉', '渡邊', '渡部',
+    '湯浅', '溝口', '滝沢', '滝澤', '澤田', '澵井', '瀬戸', '熊木', '片山', '片岡', '片桐', '牟田', '牧', '牧本', '牧野', '猪狩', '猪股',
+    '猪野', '玉城', '玉置', '王', '生山', '田中', '田井', '田井治', '田代', '田原', '田口', '田島', '田所', '田村', '田治', '田渕', '田畑',
+    '田端', '田辺', '甲斐', '町田', '畑中', '畑山', '畠山', '疋田', '白井', '白石', '白神', '白鳥', '百瀬', '的場', '皆川', '目黒', '直井',
+    '相原', '相川', '相沢', '相田', '相良', '相賀', '相馬', '眞野', '真田', '真鍋', '矢島', '矢崎', '矢澤', '矢田', '矢部', '矢野', '矢﨑',
+    '石', '石井', '石原', '石塚', '石山', '石崎', '石川', '石橋', '石渡', '石瀬', '石田', '石黒', '砂川', '磯部', '磯野', '神保', '神山',
+    '神田', '神谷', '祥雲', '福井', '福原', '福山', '福岡', '福島', '福本', '福永', '福田', '秋元', '秋吉', '秋山', '秋本', '秋田', '秦',
+    '種村', '稲垣', '稲田', '稲葉', '窪田', '立花', '竹下', '竹中', '竹内', '竹原', '竹山', '竹本', '竹村', '竹田', '笠井', '笠原', '笹川',
+    '笹木', '笹沼', '筒井', '篠原', '篠崎', '篠田', '米原', '米山', '米田', '粉川', '糟谷', '紀', '納谷', '細川', '細谷', '結城', '網野',
+    '綿貫', '緒方', '織田', '美濃部', '羽田', '翁長', '臼井', '舟橋', '船橋', '良知', '色川', '芝田', '花井', '花岡', '花田', '芳賀',
+    '芹沢', '芹澤', '若山', '若松', '若林', '茅野', '荒井', '荒川', '荒木', '荒牧', '菅', '菅原', '菅沼', '菅谷', '菅野', '菊地', '菊池',
+    '菊間', '萩原', '落合', '葛西', '葦原', '蒲生', '蓮見', '藤井', '藤原', '藤岡', '藤川', '藤本', '藤村', '藤森', '藤沢', '藤田', '藤野',
+    '西', '西原', '西坂', '西堀', '西尾', '西山', '西岡', '西川', '西方', '西本', '西村', '西沢', '西潟', '西澤', '西田', '西畑', '西脇',
+    '西谷', '西野', '見城', '角田', '角野', '言問', '設楽', '諏訪', '谷', '谷口', '谷山', '谷川', '谷本', '谷村', '豊田', '貞包', '賀川',
+    '赤井', '赤坂', '赤城', '赤堀', '赤松', '越智', '足立', '跡部', '路傍', '車', '軍司', '軒', '近江谷', '近藤', '遠山', '遠藤', '那須',
+    '酒井', '酒向', '里見', '重山', '重松', '野中', '野口', '野呂', '野尻', '野崎', '野本', '野村', '野池', '野沢', '野田', '金井', '金城',
+    '金子', '金山', '金成', '金本', '金村', '金森', '金沢', '金田', '金谷', '針生', '鈴木', '鈴村', '鍵山', '鎌田', '鐘ヶ江', '長井',
+    '長坂', '長尾', '長岡', '長島', '長崎', '長沢', '長浜', '長瀬', '長田', '長谷', '長谷川', '長谷部', '長野', '門田', '門馬', '関',
+    '関口', '関根', '関谷', '阪本', '阿久津', '阿部', '陣内', '陳', '雨宮', '青山', '青島', '青木', '青柳', '青野', '面川', '須崎', '須田',
+    '須藤', '須賀', '飯塚', '飯尾', '飯山', '飯島', '飯沼', '飯田', '馬場', '駒井', '駿河', '高井', '高倉', '高城', '高場', '高尾', '高山',
+    '高島', '高崎', '高木', '高松', '高梨', '高橋', '高江洲', '高浜', '高瀬', '高田', '高野', '髙柳', '鬼塚', '鬼頭', '魚住', '鮫島',
+    '鳥居', '鳥海', '鳫', '鴇田', '鵜飼', '鹿島', '鹿野', '麻生', '黒川', '黒木', '黒沢', '黒澤', '黒田', '齊藤', '齋藤', '龍崎'
+  ]);
+
         let workbook = null;
         let processedData = null;
         let startTime = null;
@@ -810,38 +910,102 @@
                     return obj;
                 });
                 const originalCount = processedRows.length;
-                // 空行除外
+                // 空行除外のみ（NAME_FILTERによる行削除は行わない）
                 processedRows = processedRows.filter(row => Object.values(row).some(v => v!==undefined&&v!==null&&v!==''));
-                // 姓フィルタリング：「名」列がNAME_FILTERに含まれる行のみ残す
-                const beforeNameFilter = processedRows.length;
-                processedRows = processedRows.filter(row => {
-                    const sei = String(row['名'] ?? '').trim();
-                    return NAME_FILTER.has(sei);
-                });
-                const filteredCount = (originalCount - processedRows.length);
-                addLog(`フィルタリング完了: 空行除外 + 姓フィルタで ${filteredCount} 行を除外 (残り ${processedRows.length} 行)`);
+                const filteredCount = originalCount - processedRows.length;
+                addLog(`フィルタリング完了: 空行除外で ${filteredCount} 行を除外 (残り ${processedRows.length} 行)`);
 
                 updateProgress(50,4); addLog('データをクレンジングしています...'); await sleep(300);
+                const CANONICAL_AFFILIATION = '静岡県立静岡がんセンター';
+                // 列名リネームマップ（「ご」を削除）
+                const COL_RENAME = { 'ご所属施設': '所属施設', 'ご所属部署': '所属部署', '職種：該当する職種にチェックを入れてください。': '職種' };
+                let normalizeCount = 0;
                 processedRows = processedRows.map(row => {
                     const clean = {};
                     Object.keys(row).forEach(k => {
                         let v = row[k];
-                        if(typeof v==='string'){ v=v.trim().replace(/　/g,' ').replace(/'/g,''); }
-                        clean[k]=v;
+                        const newKey = COL_RENAME[k] || k;  // 列名リネーム
+                        if(typeof v==='string'){
+                            v = v.trim().replace(/　/g,' ').replace(/'/g,'');
+                            // 「登録時間」列を YYYY/MM/DD HH:MM 形式に変換
+                            if(newKey === '登録時間'){
+                                const d = new Date(v);
+                                if(!isNaN(d.getTime())){
+                                    const yyyy = d.getFullYear();
+                                    const mm   = String(d.getMonth()+1).padStart(2,'0');
+                                    const dd   = String(d.getDate()).padStart(2,'0');
+                                    const hh   = String(d.getHours()).padStart(2,'0');
+                                    const mi   = String(d.getMinutes()).padStart(2,'0');
+                                    v = `${yyyy}/${mm}/${dd} ${hh}:${mi}`;
+                                }
+                            }
+                            // 「所属施設」列の表記揺れ正規化
+                            if(newKey === '所属施設'){
+                                const norm = v.replace(/[Ａ-Ｚ]/g, c => String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+                                              .toLowerCase();
+                                const hasSCC   = /\bscc\b/.test(norm);
+                                const hasShizu = v.includes('静岡');
+                                const hasGan   = /[がんガン癌]/.test(v);
+                                if(hasSCC || (hasShizu && hasGan)){
+                                    if(v !== CANONICAL_AFFILIATION) normalizeCount++;
+                                    v = CANONICAL_AFFILIATION;
+                                }
+                            }
+                        }
+                        clean[newKey] = v;
                     });
                     return clean;
                 });
-                addLog('データクレンジング完了');
+                if(normalizeCount > 0) addLog(`所属施設正規化: ${normalizeCount} 件を「静岡県立静岡がんセンター」に統一しました`, 'warning');
+                addLog('データクレンジング完了（列名リネーム・所属施設正規化）');
+
+                // 姓名入れ替え処理
+                let swapCount = 0;
+                processedRows = processedRows.map(row => {
+                    const mei = String(row['名'] ?? '').trim();
+                    if(SWAP_NAME_LIST.has(mei)){
+                        // 名列の値が姓リストに一致 → 名列と姓列を入れ替え
+                        const tmp = row['名'];
+                        row['名'] = row['姓'];
+                        row['姓'] = tmp;
+                        swapCount++;
+                    }
+                    return row;
+                });
+                if(swapCount > 0) addLog(`姓名入れ替え: ${swapCount} 件を補正しました`, 'warning');
 
                 updateProgress(65,5); addLog('列を追加・整形しています...'); await sleep(300);
-                processedRows = processedRows.map((row,i) => ({...row,'連番':i+1,'処理日':dateInput,'ステータス':'処理済み'}));
-                addLog('列の追加・整形完了');
+                // 出力列順の定義（先頭に通し番号、以降は指定順、末尾に不明列）
+                const COL_ORDER = [
+                    '通し番号',
+                    '氏名', '所属施設', '所属部署', '職種', 'メール', '役割',
+                    '登録時間', '承認ステータス', '電話番号', '名', '姓',
+                    '質問とコメント', '本研修会をどのように知りましたか。'
+                ];
+                processedRows = processedRows.map((row, i) => {
+                    const fullName = ((row['姓']||'') + ' ' + (row['名']||'')).trim();
+                    // 氏名列・通し番号を加えた中間オブジェクト
+                    const base = { ...row, '氏名': fullName, '通し番号': i + 1 };
+                    // COL_ORDERの順に正確に並べる
+                    const ordered = {};
+                    COL_ORDER.forEach(col => {
+                        if (col in base) ordered[col] = base[col];
+                    });
+                    // COL_ORDERにない列を末尾に追加
+                    Object.keys(base).forEach(k => {
+                        if (!(k in ordered)) ordered[k] = base[k];
+                    });
+                    return ordered;
+                });
+                addLog('列の追加・整形完了（通し番号先頭・指定列順済み）');
 
                 updateProgress(80,6); addLog('各行のデータを処理しています...'); await sleep(500);
                 let errorCount = 0;
                 processedRows.forEach((row,i) => {
                     try {
-                        if(row['メールアドレス'] && !validateEmail(row['メールアドレス'])){ row['エラー']='メールアドレス形式不正'; errorCount++; }
+                        if(row['メール'] && !validateEmail(row['メール'])){ row['エラー']='メールアドレス形式不正'; errorCount++; }
+                        // ※旧キー名フォールバック（念のため）
+                        // メールバリデーション（上記で処理済み）
                     } catch(e){ addLog(`行 ${i+1} でエラー: ${e.message}`,'warning'); errorCount++; }
                 });
                 addLog(`行データ処理完了: エラー ${errorCount} 件`);
@@ -869,13 +1033,45 @@
             if(!processedData){ addLog('処理済みデータがありません','error'); return; }
             try {
                 const dateInput = document.getElementById('dateInput').value;
-                const ws = XLSX.utils.json_to_sheet(processedData);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-                XLSX.writeFile(wb, `処理済み_${dateInput}.xlsx`);
-                addLog(`ファイルをエクスポートしました: 処理済み_${dateInput}.xlsx`,'success');
+                // 先頭行のキー順を基準にし、仙6行にしかないキーを末尾に追加
+                const allKeys = Object.keys(processedData[0] || {});
+                processedData.forEach(row => {
+                    Object.keys(row).forEach(k => { if(!allKeys.includes(k)) allKeys.push(k); });
+                });
+                // BOM付きUTF-8 CSV生成（Excelで開いた際の文字化け防止）
+                const csvRows = [];
+                csvRows.push(allKeys.map(k => '"' + String(k).replace(/"/g,'""') + '"').join(','));
+                processedData.forEach(row => {
+                    csvRows.push(allKeys.map(k => {
+                        const v = row[k] !== undefined && row[k] !== null ? String(row[k]) : '';
+                        return '"' + v.replace(/"/g,'""') + '"';
+                    }).join(','));
+                });
+                const csvStr = '\uFEFF' + csvRows.join('\r\n');
+                const blob = new Blob([csvStr], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `処理済み_${dateInput}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+                addLog(`ファイルをエクスポートしました: 処理済み_${dateInput}.csv`,'success');
             } catch(error){
                 addLog(`エクスポートエラー: ${error.message}`,'error');
+            }
+        }
+
+        function updateFileLabel(input){
+            const display = document.getElementById('fileNameDisplay');
+            const labelText = document.getElementById('fileLabelText');
+            if(input.files && input.files.length > 0){
+                const name = input.files[0].name;
+                labelText.textContent = '選択済み';
+                display.textContent = '▶ ' + name;
+            } else {
+                labelText.textContent = 'Excelファイルを選択';
+                display.textContent = '';
             }
         }
 

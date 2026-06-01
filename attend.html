@@ -302,8 +302,8 @@ td.ok{color:var(--accent);}
       <div class="summary-card"><div class="val" id="sumSCC">—</div><div class="lbl">SCC受講者</div></div>
     </div>
     <div style="font-family:var(--font-mono);font-size:.8em;color:var(--text-dim);margin-bottom:10px;">
-      研修会時間: <span id="sumSemTime" style="color:var(--green);">—</span> 分　
-      受講認定時間: <span id="sumCertTime" style="color:var(--green);">—</span> 分
+      研修会時間: <span id="sumSemTime" style="color:var(--green);">—</span>　
+      受講認定時間（3/4）: <span id="sumCertTime" style="color:var(--green);">—</span>
     </div>
     <button class="btn btn-success" id="btnExport" onclick="exportCSV()" disabled>💾 処理済みCSVをダウンロード</button>
   </div>
@@ -367,21 +367,45 @@ function excelSerialToDateTime(serial){
   return `${yyyy}/${mo}/${dd} ${hh}:${mi}`;
 }
 
-// HH:MM → 分数
-function hhmmToMin(s){
+// HH:MM:SS → 秒数（HH:MMのみも対応）
+function hhmmssToSec(s){
   if(!s || typeof s !== 'string') return null;
-  const m = s.match(/^(\d{1,2}):(\d{2})/);
+  const m = s.match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?/);
   if(!m) return null;
-  return parseInt(m[1])*60 + parseInt(m[2]);
+  return parseInt(m[1])*3600 + parseInt(m[2])*60 + parseInt(m[3]||'0');
+}
+// 後方互換エイリアス（分単位→秒単位に変換して使用）
+function hhmmToMin(s){ return hhmmssToSec(s); }
+
+// 秒数 → HH:MM:SS（グローバル版）
+function toHHMMSS(v){
+  if(v === null || v === undefined || v === '') return '';
+  if(typeof v === 'number'){
+    const frac = ((v % 1) + 1) % 1;
+    const totalSec = Math.round(frac * 86400);
+    const h = Math.floor(totalSec / 3600) % 24;
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+  const str = String(v);
+  const mt = str.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  if(mt){
+    return mt[1].padStart(2,'0')+':'+mt[2]+':'+(mt[3]||'00').padStart(2,'0');
+  }
+  return '';
 }
 
-// 分数 → HH:MM
-function minToHHMM(m){
-  if(m === null || m === undefined || isNaN(m)) return '';
-  const h = Math.floor(m/60);
-  const mn = Math.abs(m % 60);
-  return `${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}`;
+// 秒数 → HH:MM:SS
+function secToHHMMSS(sec){
+  if(sec === null || sec === undefined || isNaN(sec)) return '';
+  const h  = Math.floor(sec / 3600);
+  const m  = Math.floor((sec % 3600) / 60);
+  const s  = Math.abs(sec % 60);
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
 }
+// 後方互換エイリアス
+function minToHHMM(m){ return secToHHMMSS(m); }
 
 // ====== ログ ======
 function log(msg, type='info'){
@@ -408,12 +432,13 @@ function calcTimeInfo(){
   const s = document.getElementById('inputStart').value;
   const e = document.getElementById('inputEnd').value;
   if(!s||!e) return;
-  const sm = hhmmToMin(s), em = hhmmToMin(e);
-  if(sm===null||em===null) return;
-  const semMin = em - sm;
-  const certMin = Math.floor(semMin * 3/4);
+  const ss = hhmmssToSec(s), es = hhmmssToSec(e);
+  if(ss===null||es===null) return;
+  const semSec  = es - ss;
+  const certSec = Math.floor(semSec * 3/4);
+  const toMM = sec => `${Math.floor(sec/60)}分${sec%60>0?sec%60+'秒':''}`;
   document.getElementById('timeInfo').textContent =
-    `研修会時間: ${semMin}分 ／ 受講認定時間（3/4）: ${certMin}分`;
+    `研修会時間: ${secToHHMMSS(semSec)} (${toMM(semSec)}) ／ 受講認定時間（3/4）: ${secToHHMMSS(certSec)} (${toMM(certSec)})`;
 }
 document.getElementById('inputStart').addEventListener('change', calcTimeInfo);
 document.getElementById('inputEnd').addEventListener('change', calcTimeInfo);
@@ -457,8 +482,8 @@ async function startProcess(){
   const target    = document.getElementById('inputTarget').value;
   const startStr  = document.getElementById('inputStart').value;
   const endStr    = document.getElementById('inputEnd').value;
-  const startMin  = hhmmToMin(startStr);
-  const endMin    = hhmmToMin(endStr);
+  const startMin  = hhmmssToSec(startStr);  // 秒単位
+  const endMin    = hhmmssToSec(endStr);
   const semMin    = endMin - startMin;
   const certMin   = Math.floor(semMin * 3/4);
 
@@ -649,12 +674,13 @@ async function startProcess(){
       const exitResult = (exitRaw > endMin) ? endMin : exitRaw;
       r['退出時刻'] = minToHHMM(exitResult);
 
-      // 聴講時間（分）
-      const listenMin = exitResult - joinResult;
-      r['聴講時間'] = listenMin >= 0 ? listenMin : 0;
+      // 聴講時間（秒）→ HH:MM:SS
+      const listenSec = exitResult - joinResult;
+      const listenClamped = listenSec >= 0 ? listenSec : 0;
+      r['聴講時間'] = secToHHMMSS(listenClamped);
 
-      // 判定
-      r['判定'] = r['聴講時間'] >= certMin ? 1 : 0;
+      // 判定（秒数で比較）
+      r['判定'] = listenClamped >= certMin ? 1 : 0;
 
       return r;
     });
@@ -733,8 +759,8 @@ async function startProcess(){
     document.getElementById('sumPass').textContent  = pass;
     document.getElementById('sumFail').textContent  = total - pass;
     document.getElementById('sumSCC').textContent   = scc;
-    document.getElementById('sumSemTime').textContent  = semMin;
-    document.getElementById('sumCertTime').textContent = certMin;
+    document.getElementById('sumSemTime').textContent  = secToHHMMSS(semMin);
+    document.getElementById('sumCertTime').textContent = secToHHMMSS(certMin);
     document.getElementById('summaryPanel').style.display = '';
     document.getElementById('btnExport').disabled = false;
 
@@ -850,4 +876,3 @@ function exportCSV(){
 </script>
 </body>
 </html>
-

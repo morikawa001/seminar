@@ -1,1 +1,853 @@
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>受講者データ処理システム</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg: #080f0a;
+  --panel: #0b150d;
+  --panel2: #0f1d10;
+  --panel3: #142016;
+  --line: #1a3320;
+  --line2: #1f3d26;
+  --green: #00c853;
+  --green2: #00e676;
+  --green-dim: #2e7d32;
+  --green-dark: #1b5e20;
+  --text: #b2dfb8;
+  --text-strong: #e8f5e9;
+  --text-dim: #4a7a52;
+  --accent: #69f0ae;
+  --warn: #ffab40;
+  --error: #ef5350;
+  --radius: 6px;
+  --font-mono: 'Share Tech Mono', monospace;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:14px;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Noto Sans JP',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* === 背景Canvas === */
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.18;}
+
+/* === レイアウト === */
+.app-wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:16px;}
+
+/* === ヘッダー === */
+.app-header{
+  text-align:center;
+  padding:18px 0 10px;
+  border-bottom:1px solid var(--line2);
+  margin-bottom:18px;
+}
+.app-header h1{
+  font-family:var(--font-mono);
+  font-size:1.3em;
+  color:var(--green);
+  letter-spacing:.18em;
+  text-shadow:0 0 12px rgba(0,200,83,.5);
+}
+.app-header .sub{
+  font-size:.78em;
+  color:var(--text-dim);
+  letter-spacing:.12em;
+  font-family:var(--font-mono);
+  margin-top:4px;
+}
+
+/* === パネル === */
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line2);
+  border-radius:var(--radius);
+  padding:14px 16px;
+  margin-bottom:14px;
+}
+.panel-title{
+  font-family:var(--font-mono);
+  font-size:.78em;
+  color:var(--green);
+  letter-spacing:.16em;
+  border-bottom:1px solid var(--line);
+  padding-bottom:6px;
+  margin-bottom:12px;
+  text-shadow:0 0 8px rgba(0,200,83,.4);
+}
+
+/* === グリッド === */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+@media(max-width:640px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+
+/* === フォーム部品 === */
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group label{font-size:.82em;color:var(--text-dim);letter-spacing:.06em;}
+input[type=text],input[type=time]{
+  background:var(--panel2);
+  border:1px solid var(--line2);
+  border-radius:var(--radius);
+  color:var(--text-strong);
+  font-family:var(--font-mono);
+  font-size:.95em;
+  padding:8px 10px;
+  width:100%;
+  transition:border-color .2s,box-shadow .2s;
+}
+input:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 2px rgba(0,200,83,.15);}
+select{
+  background:var(--panel2);
+  border:1px solid var(--line2);
+  border-radius:var(--radius);
+  color:var(--text-strong);
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:.9em;
+  padding:8px 10px;
+  width:100%;
+  cursor:pointer;
+  appearance:none;
+  -webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%2300c853'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 10px center;
+}
+select:focus{outline:none;border-color:var(--green);}
+
+/* ファイル選択 */
+input[type=file]{display:none;}
+.file-label{
+  display:flex;align-items:center;gap:10px;
+  width:100%;min-height:44px;padding:0 16px;
+  background:var(--panel2);
+  border:1px solid var(--green);
+  border-radius:var(--radius);
+  color:var(--green);
+  font-family:var(--font-mono);font-size:.88em;font-weight:700;
+  letter-spacing:.08em;cursor:pointer;
+  transition:background .15s,box-shadow .15s;
+}
+.file-label:hover{background:var(--panel3);box-shadow:0 0 0 2px rgba(0,200,83,.25);}
+.file-name{margin-top:5px;font-size:.78em;color:var(--accent);font-family:var(--font-mono);word-break:break-all;}
+
+/* ボタン */
+.btn{
+  min-height:40px;padding:0 18px;
+  background:var(--panel2);
+  border:1px solid var(--line2);
+  border-radius:var(--radius);
+  color:var(--text-strong);
+  font-family:'Noto Sans JP',sans-serif;font-size:.88em;font-weight:700;
+  letter-spacing:.06em;cursor:pointer;
+  transition:background .15s,border-color .15s,box-shadow .15s;
+  width:100%;
+}
+.btn:hover{background:var(--panel3);border-color:var(--green);box-shadow:0 0 0 1px rgba(0,200,83,.2);}
+.btn:active{transform:translateY(1px);}
+.btn:disabled{opacity:.35;cursor:not-allowed;}
+.btn-primary{background:var(--green-dark);border-color:var(--green);color:#fff;}
+.btn-primary:hover{background:var(--green-dim);border-color:var(--green2);}
+.btn-success{background:#1b4a20;border-color:var(--accent);color:var(--accent);}
+.btn-success:hover{background:#1f5a25;}
+
+/* === ログ === */
+.log-box{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  height:160px;overflow-y:auto;
+  padding:8px 10px;
+  font-family:var(--font-mono);font-size:.78em;
+}
+.log-line{margin-bottom:2px;line-height:1.5;}
+.log-ok{color:var(--green);}
+.log-warn{color:var(--warn);}
+.log-err{color:var(--error);}
+.log-info{color:var(--text-dim);}
+
+/* === プログレス === */
+.prog-wrap{margin:10px 0;}
+.prog-label{font-family:var(--font-mono);font-size:.76em;color:var(--text-dim);margin-bottom:4px;display:flex;justify-content:space-between;}
+.prog-bar-bg{background:var(--panel3);border-radius:3px;height:6px;overflow:hidden;}
+.prog-bar{height:6px;border-radius:3px;background:var(--green);width:0%;transition:width .4s ease;box-shadow:0 0 8px rgba(0,200,83,.5);}
+
+/* === ステップ === */
+.steps{display:flex;flex-direction:column;gap:6px;}
+.step{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:.8em;color:var(--text-dim);}
+.step-num{width:20px;height:20px;border-radius:50%;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;font-size:.72em;flex-shrink:0;}
+.step.done .step-num{background:var(--green);border-color:var(--green);color:#000;}
+.step.done{color:var(--text);}
+.step.active .step-num{border-color:var(--green);color:var(--green);}
+.step.active{color:var(--text-strong);}
+
+/* === テーブル === */
+.table-wrap{overflow-x:auto;margin-top:10px;}
+table{border-collapse:collapse;width:100%;font-size:.78em;font-family:var(--font-mono);}
+th{background:var(--panel3);color:var(--green);border:1px solid var(--line2);padding:5px 8px;white-space:nowrap;text-align:left;}
+td{border:1px solid var(--line);padding:4px 8px;white-space:nowrap;color:var(--text);}
+tr:nth-child(even) td{background:rgba(255,255,255,.02);}
+td.ng{color:var(--error);}
+td.ok{color:var(--accent);}
+
+/* === ステータスバッジ === */
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:.75em;font-family:var(--font-mono);}
+.badge-ok{background:#1b4a20;color:var(--accent);}
+.badge-ng{background:#4a1010;color:var(--error);}
+.badge-idle{background:var(--panel3);color:var(--text-dim);}
+
+/* 結果サマリー */
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0;}
+.summary-card{background:var(--panel2);border:1px solid var(--line2);border-radius:var(--radius);padding:8px 10px;text-align:center;}
+.summary-card .val{font-family:var(--font-mono);font-size:1.4em;color:var(--green2);}
+.summary-card .lbl{font-size:.72em;color:var(--text-dim);margin-top:2px;}
+@media(max-width:480px){.summary-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+
+<div class="app-wrap">
+  <!-- ヘッダー -->
+  <div class="app-header">
+    <h1>▌ JUCHISHA DATA PROCESSOR ▌</h1>
+    <div class="sub">CLINICAL RESEARCH TRAINING — ATTENDANCE ANALYSIS SYSTEM v1.0</div>
+  </div>
+
+  <!-- 入力設定パネル -->
+  <div class="panel">
+    <div class="panel-title">▸ CONFIG — 処理パラメータ設定</div>
+    <div class="grid-2" style="margin-bottom:12px;">
+      <div class="form-group">
+        <label>DAY（研修会識別子）</label>
+        <input type="text" id="inputDay" placeholder="例: 260528">
+      </div>
+      <div class="form-group">
+        <label>PARTICIPATION（参加形態）</label>
+        <select id="inputParticipation">
+          <option value="web">web</option>
+          <option value="hall">hall</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>TARGET（対象区分）</label>
+        <select id="inputTarget">
+          <option value="研究者">研究者</option>
+          <option value="研究支援者">研究支援者</option>
+          <option value="委員会">委員会</option>
+        </select>
+      </div>
+      <div class="form-group"><!-- placeholder --></div>
+      <div class="form-group">
+        <label>開始時刻</label>
+        <input type="time" id="inputStart" value="18:00">
+      </div>
+      <div class="form-group">
+        <label>（質疑応答）終了時刻</label>
+        <input type="time" id="inputEnd" value="20:00">
+      </div>
+    </div>
+    <div id="timeInfo" style="font-family:var(--font-mono);font-size:.8em;color:var(--accent);margin-bottom:12px;min-height:1.4em;"></div>
+    <div class="form-group" style="margin-bottom:12px;">
+      <label class="file-label" for="fileInput">
+        <span>📂</span>
+        <span id="fileLabelText">Excelファイル（出席者レポート）を選択</span>
+      </label>
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" onchange="onFileSelected(this)">
+      <div class="file-name" id="fileName"></div>
+    </div>
+    <button class="btn btn-primary" id="btnProcess" onclick="startProcess()" disabled>▶ 処理開始</button>
+  </div>
+
+  <!-- 処理状況 -->
+  <div class="grid-2">
+    <div class="panel">
+      <div class="panel-title">▸ PROCESS STEPS</div>
+      <div class="steps">
+        <div class="step" id="s1"><div class="step-num">1</div><div>ファイル解析・セクション分割</div></div>
+        <div class="step" id="s2"><div class="step-num">2</div><div>出席者データ抽出・列整理</div></div>
+        <div class="step" id="s3"><div class="step-num">3</div><div>姓名入れ替え・氏名生成</div></div>
+        <div class="step" id="s4"><div class="step-num">4</div><div>所属施設正規化</div></div>
+        <div class="step" id="s5"><div class="step-num">5</div><div>参加時刻・退出時刻・聴講時間算出</div></div>
+        <div class="step" id="s6"><div class="step-num">6</div><div>判定・列整列・CSV生成</div></div>
+      </div>
+      <div class="prog-wrap" style="margin-top:12px;">
+        <div class="prog-label"><span id="progLabel">READY</span><span id="progPct">0%</span></div>
+        <div class="prog-bar-bg"><div class="prog-bar" id="progBar"></div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">▸ PROCESS LOG</div>
+      <div class="log-box" id="logBox"></div>
+    </div>
+  </div>
+
+  <!-- 結果サマリー -->
+  <div class="panel" id="summaryPanel" style="display:none;">
+    <div class="panel-title">▸ RESULT SUMMARY</div>
+    <div class="summary-grid">
+      <div class="summary-card"><div class="val" id="sumTotal">—</div><div class="lbl">総受講者数</div></div>
+      <div class="summary-card"><div class="val" id="sumPass" style="color:var(--accent);">—</div><div class="lbl">認定（判定:1）</div></div>
+      <div class="summary-card"><div class="val" id="sumFail" style="color:var(--error);">—</div><div class="lbl">未達（判定:0）</div></div>
+      <div class="summary-card"><div class="val" id="sumSCC">—</div><div class="lbl">SCC受講者</div></div>
+    </div>
+    <div style="font-family:var(--font-mono);font-size:.8em;color:var(--text-dim);margin-bottom:10px;">
+      研修会時間: <span id="sumSemTime" style="color:var(--green);">—</span> 分　
+      受講認定時間: <span id="sumCertTime" style="color:var(--green);">—</span> 分
+    </div>
+    <button class="btn btn-success" id="btnExport" onclick="exportCSV()" disabled>💾 処理済みCSVをダウンロード</button>
+  </div>
+
+  <!-- データプレビュー -->
+  <div class="panel" id="previewPanel" style="display:none;">
+    <div class="panel-title">▸ DATA PREVIEW <span style="font-size:.8em;color:var(--text-dim);" id="previewCount"></span></div>
+    <div class="table-wrap" id="tableWrap"></div>
+  </div>
+</div>
+
+<script>
+// ====== 姓リスト ======
+const SWAP_NAMES = new Set(["七部","三ツ矢","三上","三原","三吉","三好","三宅","三木","三浦","三輪","上原","上山","上村","上林","上田","上野","下平","下村","下田","並木","中","中上","中井","中原","中山","中尾","中島","中川","中村","中沢","中田","中神","中西","中谷","中野","中里","中林","中嶋","丸山","丹羽","久保","久保田","久村","乙部","九鬼","五十嵐","五味","井上","井下","井口","井原","井出","今井","今泉","今田","今西","今野","今村","伊佐治","伊東","伊藤","佐久間","佐々木","佐伯","佐藤","佐野","倉田","倉本","光岡","八木","兼子","内海","内田","内村","内山","内藤","冨田","出口","加納","加藤","勝又","勝田","北","北原","北島","北川","北村","北野","千田","千葉","半田","南","南雲","原","原口","原田","及川","古岩井","古川","古田","古谷","古賀","只野","吉原","吉井","吉川","吉本","吉村","吉沢","吉澤","吉田","名取","向井","和久井","和田","品川","唐澤","喜多","國府","園田","土井","土屋","土田","坂井","坂口","坂本","坂田","坪田","城戸","堀","堀内","堀口","堀川","堀江","堀田","堂崎","塩田","境","増井","増田","墨","外山","多田","大久保","大内","大倉","大和田","大城","大塚","大場","大宮","大山","大島","大川","大平","大庭","大木","大村","大森","大槻","大江","大沼","大沢","大津","大浦","大滝","大瀧","大田","大矢","大石","大竹","大西","大谷","大野","大橋","天野","太田","奈良","奥","奥山","奥村","奥田","奥野","妻木","安井","安原","安田","安藤","安部","宍戸","室井","宮下","宮内","宮原","宮城","宮崎","宮川","宮本","宮沢","宮田","富田","富永","寒川","寺本","寺田","小倉","小原","小口","小坂","小堀","小室","小宮","小山","小岩","小島","小嶋","小川","小幡","小早川","小暮","小杉","小松","小林","小柳","小柴","小森","小沼","小泉","小津","小沢","小澤","小田","小笠原","小谷","小野","小野塚","小野寺","小野田","小関","小高","尾崎","尾瀬","山下","山中","山内","山口","山岡","山岸","山崎","山川","山村","山根","山森","山瀬","山田","山縣","山脇","山本","岡","岡崎","岡田","岡村","岡本","岡部","岡野","岩下","岩井","岩佐","岩崎","岩本","岩瀬","岩田","岩谷","岩間","岸","岸川","岸本","岸田","峰岸","島","島守","島崎","島田","嶋田","川上","川下","川久保","川合","川原","川口","川崎","川島","川村","川本","川田","川端","川辺","川野","工藤","市原","市川","市村","布目","干川","平井","平塚","平山","平岡","平川","平松","平田","平野","廣岡","庄司","引地","弥富","当山","後藤","徳永","徳田","志村","志賀","手塚","手島","戸田","折田","押田","持田","指田","斎藤","新井","新垣","新庄","新田","新谷","日下","日高","日野","早坂","早川","明石","星","星野","春田","是永","時田","景山","曽我","有吉","有田","有馬","服部","望月","朝倉","木下","木原","木戸","木本","木村","木田","末永","本多","本村","本田","本間","杉","杉原","杉山","杉本","杉田","杉浦","村上","村井","村山","村木","村田","村瀬","東京","東山","松井","松原","松岡","松崎","松島","松尾","松山","松岡","松崎","松島","松村","松林","松浦","松田","松野","松阪","松本","松野","板倉","板垣","板橋","林","林田","枚田","柳","柳井","柳沢","柴崎","柴田","栗原","栗山","栗田","根岸","根本","桜井","梅沢","梅田","梅本","森","森下","森山","森川","森田","植木","植村","植田","楠","楠本","榊","榊原","榎本","横井","横山","横田","横澤","橋口","橋本","櫻井","武井","武元","武内","武山","武本","武田","武藤","武良","比嘉","毛利","水上","水元","水原","水品","水本","水谷","水野","氷室","永井","永松","永田","永野","永嶺","江口","江川","江崎","江藤","池上","池内","池口","池田","池谷","沖","沢田","河合","河原","河島","河村","河野","沼田","小泉","泊","法月","波多野","津田","浅井","浅原","浅川","浅沼","浅田","浅野","浜口","浜崎","浜田","浜野","浦田","浮田","海野","深井","深山","深沢","深田","清","清水","清田","清川","渋谷","渡部","渡辺","渡邊","渡邉","湯浅","溝口","滝沢","滝澤","澤田","瀬戸","片岡","片山","片桐","牟田","牧","牧本","牧野","猪狩","猪股","猪野","玉城","玉置","王","田中","田井","田井治","田代","田口","田島","田所","田村","田治","田渕","田畑","田端","田辺","甲斐","町田","畑中","畑山","畠山","白井","白石","白鳥","百瀬","的場","皆川","目黒","直井","相川","相原","相沢","相田","相良","相馬","真田","真鍋","矢崎","矢島","矢崎","矢澤","矢田","矢部","矢野","矢﨑","石","石井","石原","石塚","石山","石崎","石川","石橋","石渡","石田","石黒","砂川","磯部","磯野","神谷","神保","神山","神田","祥雲","福井","福原","福山","福岡","福島","福本","福永","福田","秋元","秋山","秋本","秋田","秋吉","種村","秦","稲垣","稲田","稲葉","窪田","立花","竹下","竹中","竹内","竹原","竹村","竹本","竹田","竹山","笠井","笠原","笹川","笹木","筒井","篠原","篠崎","篠田","米山","米原","米田","粉川","糟谷","紀","納谷","細川","細谷","結城","緒方","織田","網野","綿貫","美濃部","羽田","翁長","臼井","舟橋","船橋","良知","色川","花井","花岡","花田","芳賀","芹沢","芹澤","若林","若松","茅野","荒井","荒川","荒木","荒牧","菅","菅原","菅沼","菅谷","菅野","菊地","菊池","萩原","落合","葛西","葦原","蒲生","蓮見","藤井","藤原","藤岡","藤川","藤本","藤村","藤森","藤沢","藤田","藤野","西","西原","西坂","西堀","西山","西岡","西川","西村","西本","西沢","西澤","西田","西畑","西方","西脇","西谷","西野","西潟","見城","角田","角野","言問","設楽","諏訪","谷","谷口","谷川","谷本","谷村","谷山","豊田","貞包","赤井","赤坂","赤城","赤堀","赤松","越智","足立","跡部","路傍","車","軍司","軒","近江谷","近藤","遠山","遠藤","那須","酒井","酒向","里見","重松","野口","野呂","野崎","野尻","野村","野池","野沢","野田","野中","野本","金子","金山","金成","金本","金森","金沢","金田","金谷","金城","金井","針生","鈴木","鈴村","鐘ヶ江","鍵山","鎌田","長井","長坂","長尾","長岡","長島","長崎","長瀬","長田","長谷","長谷川","長谷部","長沢","長浜","長野","門田","門馬","関","関口","関根","関谷","阪本","阿久津","阿部","陣内","陳","雨宮","青山","青木","青柳","青山","面川","須賀","須崎","須田","須藤","飯島","飯塚","飯尾","飯山","飯沼","飯田","馬場","駒井","駿河","高井","高倉","高城","高尾","高山","高島","高崎","高木","高松","高橋","高梨","高江洲","高浜","高瀬","高田","高野","鬼塚","鬼頭","魚住","鮫島","鳥居","鳥海","鴇田","鵜飼","鹿島","鹿野","麻生","黒川","黒木","黒沢","黒澤","黒田","齋藤","龍崎","芝田","田原","前田","亀山","西潟","西潟","上坂","對馬","笹沼","岡和田","村松","富岡","熊木","樋口","浦嶋","幸田","小日向","本津","疋田","高場","齊藤","氏家","和佐","末棟","鳫","常峰","重山","中屋","柏木","大坪","石瀬","和久田","髙柳","山梨","澵井","賀川","塩野","廣瀬","押川","菊間","生山","西尾","金村","若山","白神","保坂","眞野","市野","久山","伊勢","中垣","堰端","青野","青島","榛葉","相賀","根上","權田"]);
+
+// ====== Excelシリアル変換ユーティリティ ======
+// Excelシリアル値 → JSのDateオブジェクト（ローカル時刻として扱う）
+function excelSerialToDate(serial){
+  if(typeof serial !== 'number') return null;
+  // Excelエポック: 1899/12/30（Excelのうるう年バグ補正済み）
+  // 1日 = 86400000ms
+  const msPerDay = 86400000;
+  const epochMs = Date.UTC(1899, 11, 30);
+  return new Date(epochMs + serial * msPerDay);
+}
+
+// Excelシリアル値 → "HH:MM" 文字列（小数部=時刻）
+function excelSerialToHHMM(serial){
+  if(serial === null || serial === undefined) return '';
+  if(typeof serial === 'string'){
+    const m = serial.match(/^(\d{1,2}):(\d{2})/);
+    if(m) return `${m[1].padStart(2,'0')}:${m[2]}`;
+    return '';
+  }
+  if(typeof serial !== 'number') return '';
+  // 小数部のみ = 時刻部分（整数部は日付なので捨てる）
+  const frac = ((serial % 1) + 1) % 1;  // 負数対策
+  const totalSec = Math.round(frac * 86400);
+  const h = Math.floor(totalSec / 3600) % 24;
+  const mi = Math.floor((totalSec % 3600) / 60);
+  return `${String(h).padStart(2,'0')}:${String(mi).padStart(2,'0')}`;
+}
+
+// Excelシリアル値または日時文字列 → "YYYY/MM/DD HH:MM" 文字列
+function excelSerialToDateTime(serial){
+  if(serial === null || serial === undefined) return '';
+  if(typeof serial === 'string'){
+    // すでに日時文字列の場合はそのまま返す（必要なら整形）
+    const m = serial.match(/(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\s+(\d{1,2}):(\d{2})/);
+    if(m) return `${m[1]}/${m[2].padStart(2,'0')}/${m[3].padStart(2,'0')} ${m[4].padStart(2,'0')}:${m[5]}`;
+    return serial;
+  }
+  if(typeof serial !== 'number') return '';
+  const d = excelSerialToDate(serial);
+  if(!d) return '';
+  const yyyy = d.getUTCFullYear();
+  const mo   = String(d.getUTCMonth()+1).padStart(2,'0');
+  const dd   = String(d.getUTCDate()).padStart(2,'0');
+  const hh   = String(d.getUTCHours()).padStart(2,'0');
+  const mi   = String(d.getUTCMinutes()).padStart(2,'0');
+  return `${yyyy}/${mo}/${dd} ${hh}:${mi}`;
+}
+
+// HH:MM → 分数
+function hhmmToMin(s){
+  if(!s || typeof s !== 'string') return null;
+  const m = s.match(/^(\d{1,2}):(\d{2})/);
+  if(!m) return null;
+  return parseInt(m[1])*60 + parseInt(m[2]);
+}
+
+// 分数 → HH:MM
+function minToHHMM(m){
+  if(m === null || m === undefined || isNaN(m)) return '';
+  const h = Math.floor(m/60);
+  const mn = Math.abs(m % 60);
+  return `${String(h).padStart(2,'0')}:${String(mn).padStart(2,'0')}`;
+}
+
+// ====== ログ ======
+function log(msg, type='info'){
+  const box = document.getElementById('logBox');
+  const d = document.createElement('div');
+  d.className = `log-line log-${type}`;
+  d.textContent = `[${new Date().toLocaleTimeString('ja')}] ${msg}`;
+  box.appendChild(d);
+  box.scrollTop = box.scrollHeight;
+}
+function setStep(n, state){
+  const el = document.getElementById(`s${n}`);
+  el.className = `step ${state}`;
+}
+function setProgress(pct, label){
+  document.getElementById('progBar').style.width = pct+'%';
+  document.getElementById('progPct').textContent = pct+'%';
+  document.getElementById('progLabel').textContent = label;
+}
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+// ====== 研修会時間計算 ======
+function calcTimeInfo(){
+  const s = document.getElementById('inputStart').value;
+  const e = document.getElementById('inputEnd').value;
+  if(!s||!e) return;
+  const sm = hhmmToMin(s), em = hhmmToMin(e);
+  if(sm===null||em===null) return;
+  const semMin = em - sm;
+  const certMin = Math.floor(semMin * 3/4);
+  document.getElementById('timeInfo').textContent =
+    `研修会時間: ${semMin}分 ／ 受講認定時間（3/4）: ${certMin}分`;
+}
+document.getElementById('inputStart').addEventListener('change', calcTimeInfo);
+document.getElementById('inputEnd').addEventListener('change', calcTimeInfo);
+calcTimeInfo();
+
+// ====== ファイル選択 ======
+let rawWorkbook = null;
+function onFileSelected(input){
+  const fn = document.getElementById('fileName');
+  const lt = document.getElementById('fileLabelText');
+  if(input.files && input.files.length > 0){
+    lt.textContent = '選択済み';
+    fn.textContent = '▶ ' + input.files[0].name;
+    document.getElementById('btnProcess').disabled = false;
+    readFile(input.files[0]);
+  }
+}
+function readFile(file){
+  const reader = new FileReader();
+  reader.onload = e => {
+    const data = new Uint8Array(e.target.result);
+    rawWorkbook = XLSX.read(data, {type:'array', cellDates:false, raw:true});
+    log(`ファイル読み込み完了: ${file.name}`, 'ok');
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ====== メイン処理 ======
+let processedData = [];
+
+async function startProcess(){
+  if(!rawWorkbook){ log('ファイルを先に選択してください','err'); return; }
+  document.getElementById('btnProcess').disabled = true;
+  document.getElementById('summaryPanel').style.display = 'none';
+  document.getElementById('previewPanel').style.display = 'none';
+  processedData = [];
+  document.getElementById('logBox').innerHTML = '';
+
+  const day       = document.getElementById('inputDay').value.trim() || '';
+  const part      = document.getElementById('inputParticipation').value;
+  const target    = document.getElementById('inputTarget').value;
+  const startStr  = document.getElementById('inputStart').value;
+  const endStr    = document.getElementById('inputEnd').value;
+  const startMin  = hhmmToMin(startStr);
+  const endMin    = hhmmToMin(endStr);
+  const semMin    = endMin - startMin;
+  const certMin   = Math.floor(semMin * 3/4);
+
+  try{
+    // STEP 1: ファイル解析
+    setStep(1,'active'); setProgress(10,'STEP 1: ファイル解析');
+    await sleep(200);
+    const ws = rawWorkbook.Sheets[rawWorkbook.SheetNames[0]];
+    // raw:true でセル値をそのまま取得（数値シリアルを保持）
+    const rawRows = XLSX.utils.sheet_to_json(ws, {header:1, defval:null, raw:true});
+    log(`全行数: ${rawRows.length}`, 'ok');
+
+    // ヘッダー行の選択：
+    // 優先1: A列が'参加済み' かつ '名','姓','参加時間','退出時間' を全て含む行
+    // 優先2: '名','姓','参加時間','退出時間' を全て含む行（A列問わず）
+    // 優先3: A列が'参加済み' で最も列数が多い行
+    const REQUIRED_COLS = ['名','姓','参加時間','退出時間'];
+    let attendeeHeaderIdx = -1;
+    let maxCols = 0;
+
+    for(let i=0; i<rawRows.length; i++){
+      const row = rawRows[i];
+      if(!row) continue;
+      const rowVals = row.map(v => v !== null && v !== undefined ? String(v) : '');
+      const hasRequired = REQUIRED_COLS.every(c => rowVals.includes(c));
+      if(hasRequired){
+        // 必須列を全て含む行を最優先で選ぶ
+        const colCount = row.filter(v=>v!==null&&v!==undefined).length;
+        if(colCount > maxCols){ maxCols = colCount; attendeeHeaderIdx = i; }
+      }
+    }
+
+    // フォールバック: 参加済みA列で最多列
+    if(attendeeHeaderIdx === -1){
+      for(let i=0; i<rawRows.length; i++){
+        const row = rawRows[i];
+        if(row && String(row[0]||'') === '参加済み'){
+          const colCount = row.filter(v=>v!==null&&v!==undefined).length;
+          if(colCount > maxCols){ maxCols = colCount; attendeeHeaderIdx = i; }
+        }
+      }
+    }
+
+    if(attendeeHeaderIdx === -1){ log('出席者ヘッダー行が見つかりません','err'); throw new Error('header not found'); }
+    log(`出席者ヘッダー行: ${attendeeHeaderIdx+1}行目 (列数:${maxCols})`, 'ok');
+    setStep(1,'done');
+
+    // STEP 2: 出席者データ抽出（列番号→列名マッピングを厳密に構築）
+    setStep(2,'active'); setProgress(25,'STEP 2: データ抽出');
+    await sleep(200);
+
+    const headerRow = rawRows[attendeeHeaderIdx];
+    // 列番号→列名マップ（完全一致・厳密構築）
+    const colMap = {};
+    headerRow.forEach((v, ci) => {
+      if(v !== null && v !== undefined){
+        colMap[ci] = ci === 0 ? '_status' : String(v);
+      }
+    });
+    const colNames = Object.values(colMap).filter(c => c !== '_status');
+    log(`列名(${colNames.length}): ${colNames.join(', ')}`, 'info');
+
+    // 列名→列番号の逆引きマップ
+    const nameToIdx = {};
+    Object.entries(colMap).forEach(([ci, name]) => { nameToIdx[name] = parseInt(ci); });
+
+    // データ行を rawRows から直接列番号で取得
+    let dataRows = [];
+    for(let i=attendeeHeaderIdx+1; i<rawRows.length; i++){
+      const row = rawRows[i];
+      if(!row) continue;
+      if(row.every(v=>v===null||v===undefined||v==='')) continue;
+      const obj = {};
+      Object.entries(colMap).forEach(([ci, name]) => {
+        obj[name] = row[parseInt(ci)] !== undefined ? row[parseInt(ci)] : null;
+      });
+      dataRows.push(obj);
+    }
+    log(`有効出席者: ${dataRows.length}件`, 'ok');
+
+    // 参加時間・退出時間: あらゆる形式に対応して HH:MM に変換
+    // XLSXライブラリは raw:true でも日時セルを "YYYY/M/D H:MM" 文字列にすることがある
+    function toHHMM(v){
+      if(v === null || v === undefined || v === '') return '';
+      if(typeof v === 'number'){
+        // Excelシリアル値: 小数部=時刻
+        const frac = ((v % 1) + 1) % 1;
+        const totalSec = Math.round(frac * 86400);
+        const h = Math.floor(totalSec / 3600) % 24;
+        const m = Math.floor((totalSec % 3600) / 60);
+        return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+      }
+      const s = String(v);
+      // "2026/5/28 14:20" / "2026/05/28 14:20:00" → 末尾のHH:MMを抽出
+      let mt = s.match(/(\d{1,2}):(\d{2})(?::\d{2})?(?:\s*$|[^:\d])/);
+      if(!mt) mt = s.match(/(\d{1,2}):(\d{2})/);
+      if(mt) return mt[1].padStart(2,'0') + ':' + mt[2];
+      return '';
+    }
+
+    dataRows = dataRows.map(row => {
+      const r = {...row};
+      r['参加時間'] = toHHMM(r['参加時間']);
+      r['退出時間'] = toHHMM(r['退出時間']);
+      return r;
+    });
+
+    // デバッグ: 先頭行確認
+    if(dataRows.length > 0){
+      const d0 = dataRows[0];
+      log(`先頭行確認: 参加時間="${d0['参加時間']}" 退出時間="${d0['退出時間']}" 名="${d0['名']||''}" 姓="${d0['姓']||''}"`, 'info');
+    }
+    setStep(2,'done');
+
+    // STEP 3: 姓名入れ替え・氏名生成
+    setStep(3,'active'); setProgress(45,'STEP 3: 姓名処理');
+    await sleep(200);
+    let swapCount = 0;
+    const CANONICAL = '静岡県立静岡がんセンター';
+
+    dataRows = dataRows.map(row => {
+      const r = {...row};
+      let sei = String(r['姓']||'').trim();
+      let mei = String(r['名']||'').trim();
+      // 名列がSWAP_NAMESにあれば姓名入れ替え
+      if(mei && SWAP_NAMES.has(mei)){
+        [r['姓'], r['名']] = [mei, sei];
+        sei = r['姓']; mei = r['名'];
+        swapCount++;
+      }
+      // 姓名どちらかが空でも行は保持（氏名はあるだけ結合）
+      r['氏名'] = [sei, mei].filter(Boolean).join(' ');
+      return r;
+    });
+    log(`姓名入れ替え: ${swapCount}件`, swapCount>0?'warn':'ok');
+    setStep(3,'done');
+
+    // STEP 4: 所属施設正規化
+    setStep(4,'active'); setProgress(60,'STEP 4: 所属施設正規化');
+    await sleep(200);
+    let normCount = 0;
+    // 所属施設列: ご所属施設 or 所属施設
+    const affiliCol = dataRows[0] && ('ご所属施設' in dataRows[0]) ? 'ご所属施設' : '所属施設';
+    dataRows = dataRows.map(row => {
+      const r = {...row};
+      let v = String(r[affiliCol]||'').trim();
+      const norm = v.replace(/[Ａ-Ｚａ-ｚ]/g, c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).toLowerCase();
+      const hasSCC = /\bscc\b/.test(norm);
+      const hasShizu = v.includes('静岡');
+      const hasGan = /[がんガン癌]/.test(v);
+      if(hasSCC||(hasShizu&&hasGan)){
+        if(v!==CANONICAL) normCount++;
+        v = CANONICAL;
+      }
+      r['所属施設'] = v;
+      return r;
+    });
+    log(`所属施設正規化: ${normCount}件`, normCount>0?'warn':'ok');
+    setStep(4,'done');
+
+    // STEP 5: 時刻計算
+    setStep(5,'active'); setProgress(75,'STEP 5: 時刻・聴講時間計算');
+    await sleep(200);
+
+    dataRows = dataRows.map(row => {
+      const r = {...row};
+
+      // STEP2でtoHHMM変換済み → そのままhhmmToMinに渡す
+      const joinStr = r['参加時間'] || '';
+      const exitStr = r['退出時間'] || '';
+      const joinRaw = hhmmToMin(joinStr);
+      const exitRaw = hhmmToMin(exitStr);
+
+      // 参加時間か退出時間が空・変換不能の場合は計算しない（行は保持）
+      if(joinRaw === null || exitRaw === null){
+        r['参加時刻'] = joinStr;
+        r['退出時刻'] = exitStr;
+        r['聴講時間'] = '';
+        r['判定'] = '';
+        return r;
+      }
+
+      // 参加時刻: 参加時間 < 開始時刻 → 開始時刻、それ以外 → 参加時間
+      const joinResult = (joinRaw < startMin) ? startMin : joinRaw;
+      r['参加時刻'] = minToHHMM(joinResult);
+
+      // 退出時刻: 退出時間 > 終了時刻 → 終了時刻、それ以外 → 退出時間
+      const exitResult = (exitRaw > endMin) ? endMin : exitRaw;
+      r['退出時刻'] = minToHHMM(exitResult);
+
+      // 聴講時間（分）
+      const listenMin = exitResult - joinResult;
+      r['聴講時間'] = listenMin >= 0 ? listenMin : 0;
+
+      // 判定
+      r['判定'] = r['聴講時間'] >= certMin ? 1 : 0;
+
+      return r;
+    });
+    log(`聴講時間・判定算出完了`, 'ok');
+    setStep(5,'done');
+
+    // STEP 6: 列整列・追加列生成
+    setStep(6,'active'); setProgress(90,'STEP 6: 列整列・CSV準備');
+    await sleep(200);
+
+    // 実際のデータ行から列名を動的に検索
+    const actualKeys = dataRows.length > 0 ? Object.keys(dataRows[0]) : [];
+    const findCol = (...candidates) => {
+      for(const c of candidates){
+        const found = actualKeys.find(k => k === c);  // 完全一致のみ
+        if(found) return found;
+      }
+      return candidates[0];
+    };
+    const deptCol    = findCol('ご所属部署','所属部署');
+    const shokuCol   = findCol('職種：該当する職種にチェックを入れてください。','職種');
+    const yakuCol    = findCol('役割');
+    const mailCol    = findCol('メール','email','Email');
+    const torokuCol  = findCol('登録時間');
+    const approveCol = findCol('承認ステータス');
+    const telCol     = findCol('電話番号');
+    const q1Col      = findCol('質問とコメント');
+    const q2Col      = findCol('本研修会をどのように知りましたか。');
+    log(`列マップ: メール=${mailCol}, 所属施設=${affiliCol}, 部署=${deptCol}, 職種=${shokuCol}`, 'info');
+
+    let no = 1;
+    processedData = dataRows.map(row => {
+      const dept = String(row[deptCol]||'').replace(/\u3000/g,' ').trim();
+      const shoku = String(row[shokuCol]||'').trim();
+      const loginRaw = row[torokuCol];
+      const loginStr = excelSerialToDateTime(loginRaw);
+
+      return {
+        '#': '',
+        'day': day,
+        'No': no++,
+        'facility_group': row['所属施設']===CANONICAL ? 'scc' : 'other',
+        'participation': part,
+        'target': target,
+        '氏名': row['氏名']||'',
+        '所属施設': row['所属施設']||'',
+        '所属部署': dept,
+        'メール': row[mailCol]||'',
+        '職種': shoku,
+        '役割': row[yakuCol]||'',
+        '登録時間': loginStr,
+        '承認ステータス': row[approveCol]||'',
+        '電話番号': row[telCol]||'',
+        '名': row['名']||'',
+        '姓': row['姓']||'',
+        '質問とコメント': row[q1Col]||'',
+        '本研修会をどのように知りましたか。': row[q2Col]||'',
+        '参加時刻':       row['参加時刻']   ?? '',
+        '退出時刻':       row['退出時刻']   ?? '',
+        '聴講時間':       row['聴講時間']   ?? '',
+        '判定':           row['判定']       ?? '',
+        '参加時間':       row['参加時間']   ?? '',
+        '退出時間':       row['退出時間']   ?? '',
+        'セッション時間（分）': row['セッション時間（分）'] ?? '',
+      };
+    });
+    setStep(6,'done');
+    setProgress(100,'完了');
+    log(`処理完了: ${processedData.length}件`, 'ok');
+
+    // サマリー
+    const total = processedData.length;
+    const pass  = processedData.filter(r=>r['判定']===1).length;
+    const scc   = processedData.filter(r=>r['facility_group']==='scc').length;
+    document.getElementById('sumTotal').textContent = total;
+    document.getElementById('sumPass').textContent  = pass;
+    document.getElementById('sumFail').textContent  = total - pass;
+    document.getElementById('sumSCC').textContent   = scc;
+    document.getElementById('sumSemTime').textContent  = semMin;
+    document.getElementById('sumCertTime').textContent = certMin;
+    document.getElementById('summaryPanel').style.display = '';
+    document.getElementById('btnExport').disabled = false;
+
+    // プレビュー
+    renderTable(processedData.slice(0,20));
+    document.getElementById('previewPanel').style.display = '';
+    document.getElementById('previewCount').textContent = `（先頭20件 / 全${total}件）`;
+
+  } catch(err){
+    log('処理中にエラーが発生しました: '+err.message, 'err');
+  } finally {
+    document.getElementById('btnProcess').disabled = false;
+  }
+}
+
+// ====== テーブル描画 ======
+function renderTable(data){
+  if(!data||!data.length) return;
+  const cols = Object.keys(data[0]);
+  let html = '<table><thead><tr>';
+  cols.forEach(c=>{ html += `<th>${c}</th>`; });
+  html += '</tr></thead><tbody>';
+  data.forEach(row => {
+    html += '<tr>';
+    cols.forEach(c => {
+      const v = row[c] === null || row[c] === undefined ? '' : row[c];
+      let cls = '';
+      if(c==='判定'){ cls = v===1 ? 'ok' : 'ng'; }
+      html += `<td class="${cls}">${v}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody></table>';
+  document.getElementById('tableWrap').innerHTML = html;
+}
+
+// ====== CSVエクスポート ======
+function exportCSV(){
+  if(!processedData.length) return;
+  const cols = Object.keys(processedData[0]);
+  const rows = [];
+  rows.push(cols.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(','));
+  processedData.forEach(row=>{
+    rows.push(cols.map(c=>{
+      const v = row[c]===null||row[c]===undefined ? '' : String(row[c]);
+      return `"${v.replace(/"/g,'""')}"`;
+    }).join(','));
+  });
+  const csv = '\uFEFF' + rows.join('\r\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const day = document.getElementById('inputDay').value.trim() || 'output';
+  a.download = `受講者処理済み_${day}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(()=>{ document.body.removeChild(a); URL.revokeObjectURL(url); },200);
+  log(`CSVエクスポート完了: 受講者処理済み_${day}.csv`, 'ok');
+}
+
+// ====== 背景Canvas ======
+(function(){
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+  function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize',resize); resize();
+
+  // 回路グリッド
+  function drawGrid(){
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle='rgba(0,200,83,0.12)';
+    ctx.lineWidth=0.5;
+    const gs=40;
+    for(let x=0;x<W;x+=gs){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
+    for(let y=0;y<H;y+=gs){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
+    // ノード
+    ctx.fillStyle='rgba(0,200,83,0.25)';
+    for(let x=0;x<W;x+=gs){
+      for(let y=0;y<H;y+=gs){
+        if(Math.random()<0.12){
+          ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill();
+        }
+      }
+    }
+  }
+
+  // コードスクロール
+  const chars='01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモラリルレロワヲン';
+  const cols=Math.floor(W/18);
+  const drops=Array.from({length:cols},()=>Math.random()*H);
+  function drawCode(){
+    ctx.fillStyle='rgba(8,15,10,0.04)';
+    ctx.fillRect(0,0,W,H);
+    ctx.font='13px Share Tech Mono';
+    for(let i=0;i<drops.length;i++){
+      const c=chars[Math.floor(Math.random()*chars.length)];
+      const alpha=Math.random()*0.15+0.05;
+      ctx.fillStyle=`rgba(0,200,83,${alpha})`;
+      ctx.fillText(c,i*18,drops[i]);
+      if(drops[i]>H&&Math.random()>0.975) drops[i]=0;
+      drops[i]+=14;
+    }
+  }
+
+  drawGrid();
+  setInterval(drawCode,80);
+})();
+</script>
+</body>
+</html>
+

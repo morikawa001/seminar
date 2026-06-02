@@ -1,10 +1,12 @@
 
+
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>データ処理システム - TOHA HEAVY INDUSTRIES</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         /* ── CSS変数（Training Dashboard と完全統一） ── */
         :root,[data-theme="dark"]{
@@ -79,7 +81,7 @@
         * { margin:0; padding:0; box-sizing:border-box; }
 
         body {
-            font-family: 'Share Tech Mono','Courier New', monospace;
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
             background-color: var(--bg);
             background-image:
                 linear-gradient(var(--page-grid-line) 1px, transparent 1px),
@@ -162,18 +164,23 @@
         }
 
         h1 {
-            font-size: 2.2em;
-            color: var(--text-strong);
-            text-shadow: 0 0 8px color-mix(in srgb, var(--green) 30%, transparent);
-            letter-spacing: 4px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.3em;
+            color: var(--green);
+            text-shadow: 0 0 12px rgba(91,255,156,.5);
+            letter-spacing: .18em;
             margin-bottom: 8px;
         }
-        [data-theme="light"] h1 { text-shadow: none; }
+        [data-theme="light"] h1 {
+            color: var(--green2);
+            text-shadow: none;
+        }
 
         .subtitle {
-            font-size: .9em;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: .78em;
             color: var(--muted);
-            letter-spacing: 2px;
+            letter-spacing: .12em;
         }
 
         /* パネル共通 */
@@ -556,7 +563,7 @@
     <div class="container">
         <!-- ヘッダー -->
         <header class="hologram">
-            <h1>TOHA HEAVY INDUSTRIES</h1>
+            <h1>▌ TOHA HEAVY INDUSTRIES ▌</h1>
             <div class="subtitle">DATA PROCESSING SYSTEM ver. 2.0</div>
         </header>
 
@@ -592,9 +599,9 @@
             <div class="input-group">
                 <label class="file-label" for="excelFile">
                     <span class="file-label-icon">📂</span>
-                    <span class="file-label-text" id="fileLabelText">Excelファイルを選択</span>
+                    <span class="file-label-text" id="fileLabelText">Excel/CSVファイルを選択</span>
                 </label>
-                <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="updateFileLabel(this)" />
+                <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" onchange="updateFileLabel(this)" />
                 <div class="file-name-display" id="fileNameDisplay"></div>
             </div>
             <div class="input-group">
@@ -890,13 +897,17 @@
             addLog('処理を開始します...');
 
             try {
-                updateProgress(10,1); addLog('Excelファイルを読み込んでいます...'); await sleep(500);
+                updateProgress(10,1); addLog('ファイルを読み込んでいます...'); await sleep(500);
                 const file = fileInput.files[0];
+                const fileName = file.name.toLowerCase();
                 const data = await file.arrayBuffer();
-                workbook = XLSX.read(data, {type:'array'});
+                const readOpts = fileName.endsWith('.csv')
+                    ? {type:'array', raw:false}
+                    : {type:'array'};
+                workbook = XLSX.read(data, readOpts);
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                 let jsonData = XLSX.utils.sheet_to_json(firstSheet, {header:1});
-                addLog(`ファイル読み込み完了: ${jsonData.length} 行`);
+                addLog(`ファイル読み込み完了: ${jsonData.length} 行 (${fileName.endsWith('.csv') ? 'CSV' : 'Excel'})`);
 
                 updateProgress(20,2); addLog('不要な行を削除しています...'); await sleep(300);
                 jsonData = jsonData.slice(5);
@@ -1070,7 +1081,7 @@
                 labelText.textContent = '選択済み';
                 display.textContent = '▶ ' + name;
             } else {
-                labelText.textContent = 'Excelファイルを選択';
+                labelText.textContent = 'Excel/CSVファイルを選択';
                 display.textContent = '';
             }
         }

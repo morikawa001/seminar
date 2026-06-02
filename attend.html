@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -261,7 +262,7 @@ td.ok{color:var(--accent);}
     <div class="form-group" style="margin-bottom:12px;">
       <label class="file-label" for="fileInput">
         <span>📂</span>
-        <span id="fileLabelText">Excelファイル（出席者レポート）を選択</span>
+        <span id="fileLabelText">Excel/CSVファイル（出席者レポート）を選択</span>
       </label>
       <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" onchange="onFileSelected(this)">
       <div class="file-name" id="fileName"></div>
@@ -822,56 +823,41 @@ function exportCSV(){
   log(`CSVエクスポート完了: 受講者処理済み_${day}.csv`, 'ok');
 }
 
-// ====== 背景Canvas ======
+// ====== 背景Canvas（マトリックス風 — 文字が上から下に流れる） ======
 (function(){
   const canvas = document.getElementById('bgCanvas');
   const ctx = canvas.getContext('2d');
-  let W, H;
+  const fontSize = 14;
+  const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+  let drops = [];
+
   function resize(){
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const cols = Math.floor(canvas.width / fontSize);
+    // 既存ドロップ数を維持しつつリサイズ
+    drops = Array.from({length: cols}, (_, i) => drops[i] ?? Math.random() * -50);
   }
-  window.addEventListener('resize',resize); resize();
+  window.addEventListener('resize', resize);
+  resize();
 
-  // 回路グリッド
-  function drawGrid(){
-    ctx.clearRect(0,0,W,H);
-    ctx.strokeStyle='rgba(0,200,83,0.12)';
-    ctx.lineWidth=0.5;
-    const gs=40;
-    for(let x=0;x<W;x+=gs){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
-    for(let y=0;y<H;y+=gs){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
-    // ノード
-    ctx.fillStyle='rgba(0,200,83,0.25)';
-    for(let x=0;x<W;x+=gs){
-      for(let y=0;y<H;y+=gs){
-        if(Math.random()<0.12){
-          ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill();
-        }
+  function drawMatrix(){
+    // フェードで軌跡を残す
+    ctx.fillStyle = 'rgba(8,15,10,0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = fontSize + 'px "Share Tech Mono",monospace';
+    for(let i = 0; i < drops.length; i++){
+      const c = chars[Math.floor(Math.random() * chars.length)];
+      // 先頭文字は明るく、後続はやや薄く
+      ctx.fillStyle = 'rgba(0,200,83,0.85)';
+      ctx.fillText(c, i * fontSize, drops[i] * fontSize);
+      if(drops[i] * fontSize > canvas.height && Math.random() > 0.975){
+        drops[i] = 0;
       }
+      drops[i]++;
     }
   }
-
-  // コードスクロール
-  const chars='01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモラリルレロワヲン';
-  const cols=Math.floor(W/18);
-  const drops=Array.from({length:cols},()=>Math.random()*H);
-  function drawCode(){
-    ctx.fillStyle='rgba(8,15,10,0.04)';
-    ctx.fillRect(0,0,W,H);
-    ctx.font='13px Share Tech Mono';
-    for(let i=0;i<drops.length;i++){
-      const c=chars[Math.floor(Math.random()*chars.length)];
-      const alpha=Math.random()*0.15+0.05;
-      ctx.fillStyle=`rgba(0,200,83,${alpha})`;
-      ctx.fillText(c,i*18,drops[i]);
-      if(drops[i]>H&&Math.random()>0.975) drops[i]=0;
-      drops[i]+=14;
-    }
-  }
-
-  drawGrid();
-  setInterval(drawCode,80);
+  setInterval(drawMatrix, 80);
 })();
 </script>
 </body>

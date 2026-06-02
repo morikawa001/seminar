@@ -1,4 +1,5 @@
 
+
 <!doctype html>
 <html lang="ja">
 <head>
@@ -6,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>受講証ジェネレーター</title>
 
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
@@ -18,39 +20,40 @@
 
   <style>
     :root {
-      --bg: #06110d;
-      --panel: rgba(10,28,21,0.88);
-      --panel-border: rgba(98,255,179,0.28);
-      --text: #d8ffe9;
-      --muted: #88b79b;
-      --accent: #66f2a3;
-      --accent-strong: #1aff8c;
-      --accent-dim: rgba(102,242,163,0.10);
-      --danger: #ff7c7c;
-      --warn: #ffe066;
-      --shadow: 0 0 30px rgba(36,255,149,0.14);
-      --radius: 18px;
-      --radius-sm: 12px;
+      --bg: #080f0a;
+      --panel: rgba(11,21,13,0.92);
+      --panel-border: rgba(0,200,83,0.25);
+      --text: #b2dfb8;
+      --text-strong: #e8f5e9;
+      --muted: #4a7a52;
+      --accent: #69f0ae;
+      --accent-strong: #00c853;
+      --accent-dim: rgba(0,200,83,0.10);
+      --danger: #ef5350;
+      --warn: #ffab40;
+      --shadow: 0 0 30px rgba(0,200,83,0.12);
+      --radius: 14px;
+      --radius-sm: 8px;
+      --font-mono: 'Share Tech Mono', monospace;
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       min-height: 100vh;
-      font-family: "Segoe UI","Noto Sans JP",sans-serif;
+      font-family: 'Noto Sans JP', "Segoe UI", sans-serif;
       color: var(--text);
-      background:
-        radial-gradient(circle at top, rgba(33,90,62,0.35), transparent 30%),
-        linear-gradient(180deg,#030806 0%,#071510 100%);
+      background: var(--bg);
       overflow-x: hidden;
+      position: relative;
     }
-    .bg-grid {
-      position: fixed; inset: 0; pointer-events: none;
-      background-image:
-        linear-gradient(rgba(102,242,163,0.07) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(102,242,163,0.07) 1px,transparent 1px);
-      background-size: 36px 36px;
-      mask-image: radial-gradient(circle at center, black 45%, transparent 100%);
+    /* マトリックス背景 canvas */
+    #matrixCanvas {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0; pointer-events: none; opacity: .18;
     }
-    .app-shell { position:relative; max-width:900px; margin:0 auto; padding:48px 20px 100px; }
+    /* 旧 .bg-grid は非表示に */
+    .bg-grid { display: none; }
+    .app-shell { position:relative; z-index:1; max-width:900px; margin:0 auto; padding:48px 20px 100px; }
 
     /* Hero */
     .hero { margin-bottom:32px; }
@@ -59,8 +62,22 @@
       background:linear-gradient(90deg,transparent,var(--accent),transparent);
       margin-bottom:16px; box-shadow:0 0 18px rgba(102,242,163,0.5);
     }
-    .eyebrow { color:var(--muted); font-size:11px; letter-spacing:0.28em; margin-bottom:12px; }
-    h1 { font-size:clamp(28px,5vw,50px); line-height:1.08; text-shadow:0 0 20px rgba(26,255,140,0.2); margin-bottom:10px; }
+    .eyebrow {
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: .78em;
+      letter-spacing: .14em;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-family: var(--font-mono);
+      font-size: 1.3em;
+      line-height: 1.2;
+      letter-spacing: .18em;
+      color: var(--accent-strong);
+      text-shadow: 0 0 12px rgba(0,200,83,.5);
+      margin-bottom: 10px;
+    }
     .subtitle { color:#b8e6c9; line-height:1.8; max-width:700px; font-size:14px; }
 
     /* Panel */
@@ -212,6 +229,7 @@
   </style>
 </head>
 <body>
+<canvas id="matrixCanvas"></canvas>
 <div class="bg-grid"></div>
 <div id="previewHost"></div>
 
@@ -219,7 +237,7 @@
   <header class="hero">
     <div class="hero-line"></div>
     <p class="eyebrow">TOA HEAVY INDUSTRIES / SECTION-9 / MATRIX NODE</p>
-    <h1>受講証ジェネレーター</h1>
+    <h1>▌ 受講証ジェネレーター ▌</h1>
     <p class="subtitle">
       DOCXテンプレートの置換キーワードをCSV/Excelの氏名データで差し替え、<br>
       PDF または Word（.docx）形式で一括ZIP出力します。外部サーバー不使用。
@@ -654,6 +672,36 @@ generateBtn.addEventListener('click', async () => {
   const t = new Date();
   if (!dateInput.value)
     dateInput.value = `${t.getFullYear()}${String(t.getMonth()+1).padStart(2,'0')}${String(t.getDate()).padStart(2,'0')}`;
+})();
+
+/* ── マトリックス背景（文字が上から下に流れる） ── */
+(function(){
+  const canvas = document.getElementById('matrixCanvas');
+  const ctx = canvas.getContext('2d');
+  const fontSize = 14;
+  const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+  let drops = [];
+  function resize(){
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const cols = Math.floor(canvas.width / fontSize);
+    drops = Array.from({length: cols}, (_, i) => drops[i] ?? Math.random() * -50);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  function drawMatrix(){
+    ctx.fillStyle = 'rgba(8,15,10,0.05)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = fontSize + 'px "Share Tech Mono",monospace';
+    for(let i = 0; i < drops.length; i++){
+      const c = chars[Math.floor(Math.random() * chars.length)];
+      ctx.fillStyle = 'rgba(0,200,83,0.85)';
+      ctx.fillText(c, i * fontSize, drops[i] * fontSize);
+      if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+      drops[i]++;
+    }
+  }
+  setInterval(drawMatrix, 80);
 })();
 </script>
 </body>

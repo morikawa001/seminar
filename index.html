@@ -1,5 +1,6 @@
 
 
+
 <!doctype html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -331,12 +332,17 @@ input[readonly],textarea[readonly]{
 }
 .id-block{display:grid;gap:9px}
 .id-block h1{
-  font-size:clamp(1.7rem,1.2rem + 1.8vw,2.8rem);
-  line-height:1.12;
-  font-weight:900;
-  letter-spacing:.06em;
-  color:var(--text-strong);
-  text-shadow:var(--hero-title-shadow);
+  font-family:'Share Tech Mono','Courier New',monospace;
+  font-size:1.3em;
+  line-height:1.2;
+  font-weight:400;
+  letter-spacing:.18em;
+  color:var(--green);
+  text-shadow:0 0 12px rgba(0,200,83,.5),var(--hero-title-shadow);
+}
+[data-theme="light"] .id-block h1{
+  color:var(--green);
+  text-shadow:none;
 }
 .id-block p{
   max-width:76ch;
@@ -904,7 +910,7 @@ label[for="templateFiles"] {
 
   /* ヘイドローテキスト */
   .hero-panel{ padding:12px 14px; }
-  .hero-panel h1{ font-size:1.1rem; }
+  .hero-panel h1{ font-size:1.0rem; letter-spacing:.12em; }
 }
 
 /* ── Dual Theme Control UI ナビゲーションボタン ── */
@@ -1088,7 +1094,7 @@ label[for="templateFiles"] {
       <div class="hero-head">
         <div class="id-block">
           <div class="kicker">Clinical Research Training Control</div>
-          <h1>Clinical Research Training Dashboard</h1>
+          <h1>▌ Clinical Research Training Dashboard ▌</h1>
           <p>20XX年_臨床研究研修会計画_project_2501</p>
           <p>It serves as an operation platform that centrally manages training session planning, and the light theme provides a bright, Notion-like business UI that is easy to read.</p>
           <p>オペレーション_プラットフォームとして研修会開催計画を一元管理することができる / ライトテーマは Notion 風の明るく読みやすい業務UIとなっている</p>
@@ -1105,6 +1111,9 @@ label[for="templateFiles"] {
           <a class="btn manual-btn" href="#entryConsoleSection">Entry Console</a>
           <a class="btn manual-btn" href="#templateInjectionSection">Template Injection</a>
           <a class="btn manual-btn" href="https://example.com" target="_blank" rel="noopener noreferrer">Live Session</a>
+          <a class="btn manual-btn" id="spareBtn1" href="https://example.com" target="_blank" rel="noopener noreferrer" ondblclick="editSpareUrl(1)" title="ダブルクリックでURLを編集">予備ボタン1</a>
+          <a class="btn manual-btn" id="spareBtn2" href="https://example.com" target="_blank" rel="noopener noreferrer" ondblclick="editSpareUrl(2)" title="ダブルクリックでURLを編集">予備ボタン2</a>
+          <a class="btn manual-btn" id="spareBtn3" href="https://example.com" target="_blank" rel="noopener noreferrer" ondblclick="editSpareUrl(3)" title="ダブルクリックでURLを編集">予備ボタン3</a>
         </div>
       </div>
     </section>
@@ -1327,6 +1336,7 @@ label[for="templateFiles"] {
         <div class="control-row">
           <button class="btn primary" id="aiBrushupBtn" onclick="runAiBrushup()">司会進行テキストを作成</button>
           <button class="btn" id="aiBrushupCopyBtn" onclick="copyAiBrushupResult()" disabled>結果をコピー</button>
+          <button class="btn" id="aiBrushupClearBtn" onclick="clearAiBrushup()">クリア</button>
         </div>
 
         <div class="status-box" id="aiBrushupStatus" style="display:none"></div>
@@ -3359,6 +3369,44 @@ function copyAiBrushupResult(){
 }
 window.runAiBrushup = runAiBrushup;
 window.copyAiBrushupResult = copyAiBrushupResult;
+
+function clearAiBrushup(){
+  document.getElementById('aiBrushupInput').value = '';
+  document.getElementById('aiBrushupResult').value = '';
+  const resultWrap = document.getElementById('aiBrushupResultWrap');
+  if(resultWrap) resultWrap.style.display = 'none';
+  const status = document.getElementById('aiBrushupStatus');
+  if(status){ status.style.display = 'none'; status.textContent = ''; }
+  const copyBtn = document.getElementById('aiBrushupCopyBtn');
+  if(copyBtn) copyBtn.disabled = true;
+}
+window.clearAiBrushup = clearAiBrushup;
+
+function editSpareUrl(num){
+  const btn = document.getElementById('spareBtn' + num);
+  if(!btn) return;
+  const current = btn.getAttribute('href');
+  const newUrl = prompt('予備ボタン' + num + 'のURLを入力してください:', current || 'https://');
+  if(newUrl !== null && newUrl.trim() !== ''){
+    btn.setAttribute('href', newUrl.trim());
+    // localStorageに保存してページリロード後も持続
+    try { localStorage.setItem('spareBtn' + num + '_url', newUrl.trim()); } catch(e){}
+  }
+}
+window.editSpareUrl = editSpareUrl;
+
+// ページロード時に保存済みURLを復元
+document.addEventListener('DOMContentLoaded', function(){
+  [1,2,3].forEach(function(num){
+    try {
+      const saved = localStorage.getItem('spareBtn' + num + '_url');
+      if(saved){
+        const btn = document.getElementById('spareBtn' + num);
+        if(btn) btn.setAttribute('href', saved);
+      }
+    } catch(e){}
+  });
+});
 </script>
 </body>
 </html>

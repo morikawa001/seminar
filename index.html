@@ -1111,9 +1111,9 @@ label[for="templateFiles"] {
           <a class="btn manual-btn" href="#entryConsoleSection">Entry Console</a>
           <a class="btn manual-btn" href="#templateInjectionSection">Template Injection</a>
           <a class="btn manual-btn" href="https://example.com" target="_blank" rel="noopener noreferrer">Live Session</a>
-          <a class="btn manual-btn" id="spareBtn1" http://10.6.186.1/cms/maintenance-login.php?loggedout=true&wp_lang=ja" target="_blank" rel="noopener noreferrer" ondblclick="editSpareUrl(1)" title="ダブルクリックでURLを編集">HP作成</a>
-          <a class="btn manual-btn" id="spareBtn2" href="https://example.com" target="_blank" rel="noopener noreferrer" ondblclick="editSpareUrl(2)" title="ダブルクリックでURLを編集">予備ボタン2</a>
-          <a class="btn manual-btn" id="spareBtn3" href="https://example.com" target="_blank" rel="noopener noreferrer" ondblclick="editSpareUrl(3)" title="ダブルクリックでURLを編集">予備ボタン3</a>
+          <a class="btn manual-btn" id="spareBtn1" href="https://example.com" target="_blank" rel="noopener noreferrer" ondblclick="editSpareUrl(1)" title="ダブルクリックでURL・ラベルを編集">予備ボタン1</a>
+          <a class="btn manual-btn" id="spareBtn2" href="https://example.com" target="_blank" rel="noopener noreferrer" ondblclick="editSpareUrl(2)" title="ダブルクリックでURL・ラベルを編集">予備ボタン2</a>
+          <a class="btn manual-btn" id="spareBtn3" href="https://example.com" target="_blank" rel="noopener noreferrer" ondblclick="editSpareUrl(3)" title="ダブルクリックでURL・ラベルを編集">予備ボタン3</a>
         </div>
       </div>
     </section>
@@ -3394,31 +3394,52 @@ function clearAiBrushup(){
 }
 window.clearAiBrushup = clearAiBrushup;
 
+// ============================================================
+// 予備ボタン設定 — ここを直接編集するだけでURL・ラベルを変更できます
+// ============================================================
+const SPARE_BUTTONS = {
+  1: { url: 'http://10.6.186.1/cms/maintenance-login.php?loggedout=true&wp_lang=ja', label: 'HP編集' },
+  2: { url: 'https://example.com', label: '予備ボタン2' },
+  3: { url: 'https://example.com', label: '予備ボタン3' },
+};
+
+// 起動時に SPARE_BUTTONS の設定を適用（localStorageがあればそちらを優先）
+document.addEventListener('DOMContentLoaded', function(){
+  [1,2,3].forEach(function(num){
+    const btn = document.getElementById('spareBtn' + num);
+    if(!btn) return;
+    const cfg = SPARE_BUTTONS[num];
+    // ラベル：SPARE_BUTTONSの値を基本とし、localStorageがあれば上書き
+    try {
+      const savedLabel = localStorage.getItem('spareBtn' + num + '_label');
+      btn.textContent = savedLabel || cfg.label;
+    } catch(e){ btn.textContent = cfg.label; }
+    // URL：SPARE_BUTTONSの値を基本とし、localStorageがあれば上書き
+    try {
+      const savedUrl = localStorage.getItem('spareBtn' + num + '_url');
+      btn.setAttribute('href', savedUrl || cfg.url);
+    } catch(e){ btn.setAttribute('href', cfg.url); }
+  });
+});
+
+// ダブルクリックでURL・ラベルを変更（localStorageに保存しリロード後も持続）
 function editSpareUrl(num){
   const btn = document.getElementById('spareBtn' + num);
   if(!btn) return;
-  const current = btn.getAttribute('href');
-  const newUrl = prompt('予備ボタン' + num + 'のURLを入力してください:', current || 'https://');
-  if(newUrl !== null && newUrl.trim() !== ''){
-    btn.setAttribute('href', newUrl.trim());
-    // localStorageに保存してページリロード後も持続
-    try { localStorage.setItem('spareBtn' + num + '_url', newUrl.trim()); } catch(e){}
-  }
+  const currentUrl   = btn.getAttribute('href');
+  const currentLabel = btn.textContent.trim();
+  const newUrl = prompt('「ボタン' + num + '」 URLを入力:', currentUrl);
+  if(newUrl === null) return; // キャンセル
+  const newLabel = prompt('「ボタン' + num + '」 ラベルを入力:', currentLabel);
+  if(newLabel === null) return; // キャンセル
+  if(newUrl.trim())   btn.setAttribute('href', newUrl.trim());
+  if(newLabel.trim()) btn.textContent = newLabel.trim();
+  try {
+    if(newUrl.trim())   localStorage.setItem('spareBtn' + num + '_url',   newUrl.trim());
+    if(newLabel.trim()) localStorage.setItem('spareBtn' + num + '_label', newLabel.trim());
+  } catch(e){}
 }
 window.editSpareUrl = editSpareUrl;
-
-// ページロード時に保存済みURLを復元
-document.addEventListener('DOMContentLoaded', function(){
-  [1,2,3].forEach(function(num){
-    try {
-      const saved = localStorage.getItem('spareBtn' + num + '_url');
-      if(saved){
-        const btn = document.getElementById('spareBtn' + num);
-        if(btn) btn.setAttribute('href', saved);
-      }
-    } catch(e){}
-  });
-});
 </script>
 </body>
 </html>

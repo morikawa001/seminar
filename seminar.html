@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -54,8 +55,8 @@
 
 /* ── DARK (Default) ── */
 [data-theme="dark"] {
-  --color-void:         #050608;
-  --color-bg:           #080a0c;
+  --color-void:         #000000;
+  --color-bg:           #000000;
   --color-surface:      #0c0f12;
   --color-surface-2:    #111418;
   --color-surface-offset: #161b20;
@@ -63,23 +64,23 @@
   --color-divider:      #1e252d;
   --color-border:       #243040;
 
-  --color-text:         #c8d8e0;
-  --color-text-muted:   #6a8a9a;
-  --color-text-faint:   #344855;
+  --color-text:         #b2dfb8;
+  --color-text-muted:   #5a9a62;
+  --color-text-faint:   #1e4024;
   --color-text-inverse: #050608;
 
   /* Phosphor Green — Matrix terminal */
-  --color-green:        #00ff41;
-  --color-green-dim:    #00c832;
-  --color-green-faint:  #003d0f;
-  --color-green-glow:   rgba(0, 255, 65, 0.15);
+  --color-green:        #00c853;
+  --color-green-dim:    #00e676;
+  --color-green-faint:  #0a2010;
+  --color-green-glow:   rgba(0, 200, 83, 0.18);
 
-  /* Tactical Cyan — Ghost in the Shell HUD */
-  --color-primary:      #00e5ff;
-  --color-primary-dim:  #00b8cc;
-  --color-primary-faint: #002d33;
-  --color-primary-glow: rgba(0, 229, 255, 0.12);
-  --color-primary-hover: #33ecff;
+  /* Green primary — グリーン系に統一 */
+  --color-primary:      #00c853;
+  --color-primary-dim:  #00e676;
+  --color-primary-faint: #0a2010;
+  --color-primary-glow: rgba(0, 200, 83, 0.14);
+  --color-primary-hover: #69f0ae;
 
   /* Warning — Toha Heavy Industry alert */
   --color-warning:      #ff8c00;
@@ -95,7 +96,7 @@
   --shadow-sm:  0 1px 3px rgba(0,0,0,0.5);
   --shadow-md:  0 4px 16px rgba(0,0,0,0.6);
   --shadow-lg:  0 12px 40px rgba(0,0,0,0.7);
-  --shadow-cyan: 0 0 12px rgba(0,229,255,0.2), 0 0 40px rgba(0,229,255,0.08);
+  --shadow-cyan: 0 0 12px rgba(0,200,83,0.2), 0 0 40px rgba(0,200,83,0.08);
   --shadow-green: 0 0 12px rgba(0,255,65,0.2), 0 0 40px rgba(0,255,65,0.08);
 }
 
@@ -154,7 +155,7 @@ html {
 
 body {
   min-height: 100dvh;
-  background: var(--color-bg);
+  background: #000000;
   color: var(--color-text);
   font-family: var(--font-body);
   font-size: var(--text-base);
@@ -162,8 +163,9 @@ body {
   overflow-x: hidden;
 }
 
-/* Scanline overlay */
+/* Scanline overlay — 流れる文字無し・純黒背景のため非表示 */
 body::before {
+  display: none;
   content: '';
   position: fixed;
   inset: 0;
@@ -178,7 +180,7 @@ body::before {
   z-index: 9999;
 }
 
-[data-theme="light"] body::before { opacity: 0.3; }
+[data-theme="light"] body::before { display: none; opacity: 0; }
 
 img, picture, video, canvas, svg { display: block; max-width: 100%; }
 ul[role="list"], ol[role="list"] { list-style: none; }
@@ -473,7 +475,7 @@ table { border-collapse: collapse; width: 100%; }
 }
 
 [data-theme="dark"] .wiki-page-title {
-  text-shadow: 0 0 30px rgba(0,229,255,0.15);
+  text-shadow: 0 0 30px rgba(0,200,83,0.2);
 }
 
 .wiki-lead {
@@ -534,7 +536,7 @@ table { border-collapse: collapse; width: 100%; }
 }
 
 [data-theme="dark"] .section-number {
-  box-shadow: 0 0 8px rgba(0,229,255,0.1);
+  box-shadow: 0 0 8px rgba(0,200,83,0.12);
 }
 
 .section-title {
@@ -567,7 +569,7 @@ table { border-collapse: collapse; width: 100%; }
 }
 
 [data-theme="dark"] .callout {
-  box-shadow: inset 0 0 20px rgba(0,229,255,0.02);
+  box-shadow: inset 0 0 20px rgba(0,200,83,0.03);
 }
 
 .callout p {
@@ -659,7 +661,7 @@ table { border-collapse: collapse; width: 100%; }
   font-size: var(--text-xs);
   color: var(--color-primary);
   background: var(--color-primary-faint);
-  border: 1px solid rgba(0,229,255,0.2);
+  border: 1px solid rgba(0,200,83,0.2);
   padding: 2px var(--space-2);
   border-radius: var(--radius-sm);
   letter-spacing: 0.05em;
@@ -697,7 +699,7 @@ table { border-collapse: collapse; width: 100%; }
   font-size: var(--text-xs);
   color: var(--color-primary);
   background: var(--color-primary-faint);
-  border: 1px solid rgba(0,229,255,0.2);
+  border: 1px solid rgba(0,200,83,0.2);
   width: 28px;
   height: 28px;
   border-radius: var(--radius-sm);
@@ -951,7 +953,7 @@ code {
   background: var(--color-primary-faint);
   padding: 1px 5px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(0,229,255,0.15);
+  border: 1px solid rgba(0,200,83,0.15);
 }
 
 [data-theme="light"] code {

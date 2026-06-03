@@ -2,9 +2,9 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>URL → QRコード生成</title>
+  <title>URL → QRコード生成（粗さ＆背景切替）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- 安定版 QRCode.js ライブラリ -->
+  <!-- QRCode.js ライブラリ -->
   <script src="https://davidshimjs.github.io/qrcodejs/qrcode.min.js"></script>
   <style>
     :root {
@@ -33,7 +33,7 @@
     }
     .app {
       width: 100%;
-      max-width: 640px;
+      max-width: 680px;
       background: linear-gradient(145deg, #050b12, #091521);
       border-radius: 18px;
       border: 1px solid var(--border);
@@ -99,16 +99,54 @@
       transform: translateY(0);
       box-shadow: none;
     }
+    .options-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin-top: 6px;
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+    .options-row > div {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    select {
+      padding: 0.4rem 0.6rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #050b12;
+      color: var(--text);
+      font-size: 0.8rem;
+    }
+    .radio-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .radio-label input {
+      width: auto;
+      padding: 0;
+      margin: 0;
+    }
     .qr-wrapper {
-      margin-top: 16px;
-      padding: 18px;
+      margin-top: 14px;
+      padding: 14px;
       border-radius: 14px;
       background: #ffffff;
-      border: 8px solid #ffffff; /* 周囲に十分な白余白を確保 */
+      border: 8px solid #ffffff; /* 白背景モード時のクワイエットゾーン */
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .qr-wrapper.transparent {
+      background: transparent;
+      border-color: transparent;
     }
     #qrcode {
       width: 260px;
@@ -163,7 +201,7 @@
 <body>
   <div class="app">
     <h1 class="title">QR CODE GENERATOR</h1>
-    <p class="subtitle">URLを入力して「生成」すると、そのURLのQRコードを表示します。</p>
+    <p class="subtitle">URLをQRコードに変換します。ドットの粗さと背景モードを選べます。</p>
 
     <div>
       abel for="urlInput">URL</label>
@@ -176,14 +214,36 @@
         />
         <button id="generateBtn">生成</button>
       </div>
+
+      <div class="options-row">
+        <div>
+          粗さ:
+          <select id="densitySelect">
+            <option value="fine">細かい（通常）</option>
+            <option value="normal" selected>標準</option>
+            <option value="rough">粗い</option>
+          </select>
+        </div>
+        <div>
+          背景:
+          abel class="radio-label">
+            <input type="radio" name="bgMode" value="solid" checked />
+            白
+          </label>
+          abel class="radio-label">
+            <input type="radio" name="bgMode" value="transparent" />
+            透明
+          </label>
+        </div>
+      </div>
+
       <div class="error" id="errorMsg"></div>
     </div>
 
-    <div class="qr-wrapper">
+    <div class="qr-wrapper" id="qrWrapper">
       <div id="qrcode"></div>
       <div class="hint">
-        生成後、スマホのカメラやQRリーダーで読み込めるはずです。<br>
-        読めない場合は、画面をズームしてQRを大きくしてみてください。
+        読み取りにくい場合は「粗い」を試すか、少し拡大して撮影してみてください。
       </div>
     </div>
 
@@ -203,9 +263,29 @@
       return "https://" + trimmed;
     }
 
+    function getDensitySize() {
+      const mode = document.getElementById("densitySelect").value;
+      // 同じ表示サイズでも、ドットを「粗め」に見せたいので
+      // バージョン（マス目数）を下げて見かけを荒くするイメージ。
+      // qrcode.js は直接 version を指定できないため、
+      // 代替として全体サイズを少し変えています。
+      if (mode === "fine") return 260;   // 細かい
+      if (mode === "rough") return 200;  // 粗い（同じ解像度に投影されるのでドットが大きめに見える）
+      return 230;                        // 標準
+    }
+
+    function getBackgroundMode() {
+      const radios = document.querySelectorAll('input[name="bgMode"]');
+      for (const r of radios) {
+        if (r.checked) return r.value;
+      }
+      return "solid";
+    }
+
     function generateQR() {
       const input = document.getElementById("urlInput");
       const errorMsg = document.getElementById("errorMsg");
+      const wrapper = document.getElementById("qrWrapper");
       const urlRaw = input.value;
       const url = ensureProtocol(urlRaw);
 
@@ -216,7 +296,6 @@
         return;
       }
 
-      // URLとして妥当かチェック
       try {
         new URL(url);
       } catch (e) {
@@ -227,18 +306,27 @@
       const container = document.getElementById("qrcode");
       container.innerHTML = "";
 
-      // 既存インスタンスがあればクリア
       if (qrcodeInstance) {
         qrcodeInstance.clear();
       }
 
-      // 十分なサイズと最高レベルの誤り訂正（H）に設定
+      const size = getDensitySize();
+      const bgMode = getBackgroundMode();
+      const colorLight = bgMode === "transparent" ? "transparent" : "#ffffff";
+
+      // 背景見た目も切り替え
+      if (bgMode === "transparent") {
+        wrapper.classList.add("transparent");
+      } else {
+        wrapper.classList.remove("transparent");
+      }
+
       qrcodeInstance = new QRCode(container, {
         text: url,
-        width: 260,
-        height: 260,
+        width: size,
+        height: size,
         colorDark: "#000000",
-        colorLight: "#ffffff",
+        colorLight: colorLight,
         correctLevel: QRCode.CorrectLevel.H
       });
     }
@@ -247,10 +335,12 @@
       const container = document.getElementById("qrcode");
       const input = document.getElementById("urlInput");
       const errorMsg = document.getElementById("errorMsg");
+      const wrapper = document.getElementById("qrWrapper");
 
       input.value = "";
       errorMsg.textContent = "";
       container.innerHTML = "";
+      wrapper.classList.remove("transparent");
       qrcodeInstance = null;
     }
 

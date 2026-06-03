@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>URL → QRコード生成</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- QRCode.js ライブラリ -->
+  <script src="https://davidshimjs.github.io/qrcodejs/qrcode.min.js"></script>
+  <style>
+    :root {
+      --bg: #050810;
+      --panel: #081118;
+      --border: #1f3b4d;
+      --accent: #36c96b;
+      --accent-soft: #8dffb5;
+      --text: #dfeff5;
+      --text-dim: #7da0b3;
+      --error: #ff7070;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #071523 0, #050810 55%, #02040a 100%);
+      color: var(--text);
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .app {
+      width: 100%;
+      max-width: 640px;
+      background: linear-gradient(145deg, #050b12, #091521);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+      padding: 20px 22px 22px;
+    }
+    .title {
+      margin: 0 0 4px;
+      font-size: 1.1rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent-soft);
+    }
+    .subtitle {
+      margin: 0 0 18px;
+      font-size: 0.86rem;
+      color: var(--text-dim);
+    }
+    label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 0.7rem 0.8rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #050b12;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    input[type="text"]::placeholder {
+      color: #566777;
+    }
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 0.7rem 0.95rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      background: var(--accent);
+      color: #021307;
+      transition: transform 0.07s ease, box-shadow 0.07s ease, filter 0.07s ease;
+      white-space: nowrap;
+    }
+    button:hover {
+      filter: brightness(1.05);
+      box-shadow: 0 0 12px rgba(54, 201, 107, 0.45);
+      transform: translateY(-1px);
+    }
+    button:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+    .qr-wrapper {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 14px;
+      background: radial-gradient(circle at top, #0c1c29 0, #050b12 55%);
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 220px;
+    }
+    #qrcode {
+      width: 220px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .hint {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      text-align: center;
+    }
+    .error {
+      margin-top: 6px;
+      font-size: 0.8rem;
+      color: var(--error);
+      min-height: 1.1em;
+    }
+    .footer-row {
+      margin-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .footer-row button {
+      flex: 1;
+      min-width: 120px;
+      background: #0f91ff;
+      color: #e7f3ff;
+    }
+    .footer-row button.secondary {
+      background: #273545;
+      color: var(--text);
+    }
+    @media (max-width: 480px) {
+      .app {
+        padding: 16px 14px 18px;
+      }
+      .row {
+        grid-template-columns: 1fr;
+      }
+      #qrcode {
+        width: 190px;
+        height: 190px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1 class="title">QR CODE GENERATOR</h1>
+    <p class="subtitle">URLを入力して「生成」すると、そのURLのQRコードを表示できます。</p>
+
+    <div>
+      <label for="urlInput">URL</label>
+      <div class="row">
+        <input
+          type="text"
+          id="urlInput"
+          placeholder="例: https://example.com"
+          autocomplete="off"
+        />
+        <button id="generateBtn">生成</button>
+      </div>
+      <div class="error" id="errorMsg"></div>
+    </div>
+
+    <div class="qr-wrapper">
+      <div id="qrcode"></div>
+      <div class="hint">
+        生成後、「画像をダウンロード」を押すとPNGとして保存できます。
+      </div>
+    </div>
+
+    <div class="footer-row">
+      <button class="secondary" id="clearBtn">クリア</button>
+      <button id="downloadBtn">画像をダウンロード</button>
+    </div>
+  </div>
+
+  <script>
+    let qrcodeInstance = null;
+
+    function ensureProtocol(url) {
+      if (!url) return "";
+      const trimmed = url.trim();
+      if (/^https?:\/\//i.test(trimmed)) return trimmed;
+      return "https://" + trimmed;
+    }
+
+    function generateQR() {
+      const input = document.getElementById("urlInput");
+      const errorMsg = document.getElementById("errorMsg");
+      const url = ensureProtocol(input.value);
+
+      errorMsg.textContent = "";
+
+      if (!url || url === "https://") {
+        errorMsg.textContent = "URLを入力してください。";
+        return;
+      }
+
+      try {
+        new URL(url);
+      } catch (e) {
+        errorMsg.textContent = "URLの形式が正しくありません。";
+        return;
+      }
+
+      const container = document.getElementById("qrcode");
+      container.innerHTML = "";
+
+      qrcodeInstance = new QRCode(container, {
+        text: url,
+        width: 220,
+        height: 220,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    function clearAll() {
+      const container = document.getElementById("qrcode");
+      const input = document.getElementById("urlInput");
+      const errorMsg = document.getElementById("errorMsg");
+
+      input.value = "";
+      errorMsg.textContent = "";
+      container.innerHTML = "";
+      qrcodeInstance = null;
+    }
+
+    function downloadQR() {
+      const container = document.getElementById("qrcode");
+      let img = container.querySelector("img");
+      let canvas = container.querySelector("canvas");
+
+      if (!img && !canvas) {
+        document.getElementById("errorMsg").textContent =
+          "先にQRコードを生成してください。";
+        return;
+      }
+
+      let dataUrl = "";
+      if (canvas) {
+        dataUrl = canvas.toDataURL("image/png");
+      } else if (img) {
+        dataUrl = img.src;
+      }
+
+      const a = document.createElement("a");
+      a.href = dataUrl;
+      a.download = "qrcode.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    document.getElementById("generateBtn").addEventListener("click", generateQR);
+    document.getElementById("clearBtn").addEventListener("click", clearAll);
+    document.getElementById("downloadBtn").addEventListener("click", downloadQR);
+
+    document.getElementById("urlInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        generateQR();
+      }
+    });
+  </script>
+</body>
+</html>

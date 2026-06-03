@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <title>URL → QRコード生成</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- QRCode.js ライブラリ -->
+  <!-- 安定版 QRCode.js ライブラリ -->
   <script src="https://davidshimjs.github.io/qrcodejs/qrcode.min.js"></script>
   <style>
     :root {
@@ -62,7 +62,7 @@
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 10px;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
     input[type="text"] {
       width: 100%;
@@ -101,25 +101,21 @@
     }
     .qr-wrapper {
       margin-top: 16px;
-      padding: 14px;
+      padding: 18px;
       border-radius: 14px;
-      background: radial-gradient(circle at top, #0c1c29 0, #050b12 55%);
-      border: 1px solid var(--border);
+      background: #ffffff;
+      border: 8px solid #ffffff; /* 周囲に十分な白余白を確保 */
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 220px;
     }
     #qrcode {
-      width: 220px;
-      height: 220px;
+      width: 260px;
+      height: 260px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #ffffff;
-      border-radius: 12px;
-      overflow: hidden;
     }
     .hint {
       margin-top: 10px;
@@ -128,7 +124,7 @@
       text-align: center;
     }
     .error {
-      margin-top: 6px;
+      margin-top: 4px;
       font-size: 0.8rem;
       color: var(--error);
       min-height: 1.1em;
@@ -158,8 +154,8 @@
         grid-template-columns: 1fr;
       }
       #qrcode {
-        width: 190px;
-        height: 190px;
+        width: 220px;
+        height: 220px;
       }
     }
   </style>
@@ -167,10 +163,10 @@
 <body>
   <div class="app">
     <h1 class="title">QR CODE GENERATOR</h1>
-    <p class="subtitle">URLを入力して「生成」すると、そのURLのQRコードを表示できます。</p>
+    <p class="subtitle">URLを入力して「生成」すると、そのURLのQRコードを表示します。</p>
 
     <div>
-      <label for="urlInput">URL</label>
+      abel for="urlInput">URL</label>
       <div class="row">
         <input
           type="text"
@@ -186,7 +182,8 @@
     <div class="qr-wrapper">
       <div id="qrcode"></div>
       <div class="hint">
-        生成後、「画像をダウンロード」を押すとPNGとして保存できます。
+        生成後、スマホのカメラやQRリーダーで読み込めるはずです。<br>
+        読めない場合は、画面をズームしてQRを大きくしてみてください。
       </div>
     </div>
 
@@ -209,15 +206,17 @@
     function generateQR() {
       const input = document.getElementById("urlInput");
       const errorMsg = document.getElementById("errorMsg");
-      const url = ensureProtocol(input.value);
+      const urlRaw = input.value;
+      const url = ensureProtocol(urlRaw);
 
       errorMsg.textContent = "";
 
-      if (!url || url === "https://") {
+      if (!urlRaw.trim()) {
         errorMsg.textContent = "URLを入力してください。";
         return;
       }
 
+      // URLとして妥当かチェック
       try {
         new URL(url);
       } catch (e) {
@@ -228,10 +227,16 @@
       const container = document.getElementById("qrcode");
       container.innerHTML = "";
 
+      // 既存インスタンスがあればクリア
+      if (qrcodeInstance) {
+        qrcodeInstance.clear();
+      }
+
+      // 十分なサイズと最高レベルの誤り訂正（H）に設定
       qrcodeInstance = new QRCode(container, {
         text: url,
-        width: 220,
-        height: 220,
+        width: 260,
+        height: 260,
         colorDark: "#000000",
         colorLight: "#ffffff",
         correctLevel: QRCode.CorrectLevel.H

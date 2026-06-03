@@ -219,9 +219,10 @@
         <div>
           粗さ:
           <select id="densitySelect">
-            <option value="fine">細かい（通常）</option>
+            <option value="fine">細かい</option>
             <option value="normal" selected>標準</option>
             <option value="rough">粗い</option>
+            <option value="very-rough">超粗い</option>
           </select>
         </div>
         <div>
@@ -243,7 +244,7 @@
     <div class="qr-wrapper" id="qrWrapper">
       <div id="qrcode"></div>
       <div class="hint">
-        読み取りにくい場合は「粗い」を試すか、少し拡大して撮影してみてください。
+        読み取りにくい場合は「粗い」「超粗い」を試すか、少し拡大して撮影してみてください。
       </div>
     </div>
 
@@ -265,13 +266,12 @@
 
     function getDensitySize() {
       const mode = document.getElementById("densitySelect").value;
-      // 同じ表示サイズでも、ドットを「粗め」に見せたいので
-      // バージョン（マス目数）を下げて見かけを荒くするイメージ。
-      // qrcode.js は直接 version を指定できないため、
-      // 代替として全体サイズを少し変えています。
-      if (mode === "fine") return 260;   // 細かい
-      if (mode === "rough") return 200;  // 粗い（同じ解像度に投影されるのでドットが大きめに見える）
-      return 230;                        // 標準
+      // 数値を小さくするほど、同じ表示領域内でドットが大きく見える
+      if (mode === "fine") return 260;       // 細かい
+      if (mode === "normal") return 230;     // 標準
+      if (mode === "rough") return 190;      // 粗い
+      if (mode === "very-rough") return 150; // 超粗い（かなり荒く見える）
+      return 230;
     }
 
     function getBackgroundMode() {
@@ -314,7 +314,6 @@
       const bgMode = getBackgroundMode();
       const colorLight = bgMode === "transparent" ? "transparent" : "#ffffff";
 
-      // 背景見た目も切り替え
       if (bgMode === "transparent") {
         wrapper.classList.add("transparent");
       } else {

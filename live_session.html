@@ -491,6 +491,27 @@
       font-weight:700;
     }
     html.white .qa-indent{color:#5a5a5a}
+    /* qa-script contenteditable スタイル */
+    .qa-script[contenteditable]{
+      outline:none;
+      border-bottom:1px dashed rgba(0,200,83,.15);
+      padding-bottom:6px;
+      cursor:text;
+      transition:border-color .2s;
+    }
+    .qa-script[contenteditable]:focus{
+      border-bottom-color:var(--green2);
+    }
+    html.white .qa-script[contenteditable]{
+      border-bottom-color:#e0e0e0;
+    }
+    html.white .qa-script[contenteditable]:focus{
+      border-bottom-color:#2e7d52;
+    }
+    .qa-script[contenteditable]:empty::before{
+      content:attr(data-placeholder);
+      color:var(--textdim);opacity:.5;pointer-events:none;
+    }
 
     /* ============================================================
        STATUS BAR
@@ -647,7 +668,7 @@
           <span class="qa-arrow">▶</span>
         </div>
         <div class="qa-body">
-          <div class="qa-script">
+          <div class="qa-script" contenteditable="true" data-placeholder="定型文を直接編集できます">
             <p>先生、どうもありがとうございました。</p>
             <p>それでは、ただいまより、質疑応答に入ります。</p>
             <p class="qa-cond">（事前質問ありの場合）</p>
@@ -657,13 +678,8 @@
             <p class="qa-cond">（Q&amp;Aに質問があった場合）</p>
             <p class="qa-indent">Web上でご質問をいただいております。</p>
             <p class="qa-indent">Q&amp;A画面から、質問をお読み上げいただき、ご解説をお願いいたします。</p>
-            <p>先生ありがとうございました。これで質疑応答を終わります。</p>
-            <p>みなさま、最後に先生に感謝をこめまして、拍手をお願いいたします。</p>
-            <p>Zoomよりご参加の方は、リアクションボタンより、拍手をお願いいたします。</p>
-            <p>先生、本日の研修はこれで終了いたしますので、御退室くださいますようお願いいたします。</p>
-            <p>本日はどうもありがとうございました。</p>
-            <p>受講者の皆様には、ひきつづき本研修会の受講証と修了証書ならびにアンケートについてご案内させていただきます。</p>
           </div>
+          <div class="iedit-hint">クリックして直接編集できます</div>
         </div>
       </div>
 
@@ -674,7 +690,7 @@
           <span class="qa-arrow">▶</span>
         </div>
         <div class="qa-body">
-          <div class="qa-script">
+          <div class="qa-script" contenteditable="true" data-placeholder="定型文を直接編集できます">
             <p>それでは、会場の方からの質疑応答に移りたいと思います。</p>
             <p>質問がある方は挙手をしてからマイクの方にお進みください。</p>
             <p class="qa-cond">会場（質問者）:</p>
@@ -684,6 +700,26 @@
             <p class="qa-cond">会場（担当者）:</p>
             <p>会場からの質問は以上です。</p>
           </div>
+          <div class="iedit-hint">クリックして直接編集できます</div>
+        </div>
+      </div>
+
+      <!-- 締めの定型文（トグル・デフォルト閉） -->
+      <div class="ibox qa-box" id="qabox3">
+        <div class="ilbl qa-lbl" onclick="toggleQA('qabox3')">
+          ▸ 締めの定型文
+          <span class="qa-arrow">▶</span>
+        </div>
+        <div class="qa-body">
+          <div class="qa-script" contenteditable="true" data-placeholder="定型文を直接編集できます">
+            <p>先生ありがとうございました。これで質疑応答を終わります。</p>
+            <p>みなさま、最後に先生に感謝をこめまして、拍手をお願いいたします。</p>
+            <p>Zoomよりご参加の方は、リアクションボタンより、拍手をお願いいたします。</p>
+            <p>先生、本日の研修はこれで終了いたしますので、御退室くださいますようお願いいたします。</p>
+            <p>本日はどうもありがとうございました。</p>
+            <p>受講者の皆様には、ひきつづき本研修会の受講証と修了証書ならびにアンケートについてご案内させていただきます。</p>
+          </div>
+          <div class="iedit-hint">クリックして直接編集できます</div>
         </div>
       </div>
 
@@ -696,7 +732,7 @@
 
     </div>
     <div class="pnl sbar">
-      <span>▌ MATRIX SHELL CLOCK v2.6</span>
+      <span>▌ MATRIX SHELL CLOCK v2.7</span>
       <span id="sbfile">FILE: —</span>
       <span id="sbrow">ROW: —</span>
     </div>

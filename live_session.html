@@ -11,26 +11,31 @@
   <style>
     :root {
       --bg: #030705;
-      --surface: #07110c;
-      --surface-2: #0b1711;
+      --panel: rgba(8, 18, 13, 0.94);
+      --panel-2: rgba(11, 23, 17, 0.96);
       --border: rgba(86, 255, 146, 0.18);
       --border-strong: rgba(86, 255, 146, 0.35);
       --text: #8dffb5;
       --text-bright: #c7ffd8;
       --text-dim: #56d27f;
-      --danger: #c5ff70;
+      --accent: #d7ff71;
       --shadow: 0 0 10px rgba(66, 255, 133, 0.18), inset 0 0 20px rgba(40, 102, 62, 0.18);
-      --space-1: 0.25rem;
       --space-2: 0.5rem;
       --space-3: 0.75rem;
       --space-4: 1rem;
       --space-5: 1.25rem;
       --space-6: 1.5rem;
-      --space-8: 2rem;
       --radius: 18px;
     }
+
     * { box-sizing: border-box; }
-    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #030705;
+      color: var(--text);
+    }
+
     body {
       font-family: 'Share Tech Mono', monospace;
       background:
@@ -39,33 +44,38 @@
         linear-gradient(180deg, #010302 0%, #040906 45%, #020503 100%);
       overflow: hidden;
     }
+
     body::before {
       content: '';
       position: fixed;
       inset: 0;
       pointer-events: none;
       background:
-        repeating-linear-gradient(180deg, rgba(122,255,168,0.06) 0 1px, transparent 1px 4px),
-        linear-gradient(90deg, rgba(0,0,0,0.24), transparent 15%, transparent 85%, rgba(0,0,0,0.24));
+        repeating-linear-gradient(180deg, rgba(122,255,168,0.05) 0 1px, transparent 1px 4px),
+        linear-gradient(90deg, rgba(0,0,0,0.22), transparent 15%, transparent 85%, rgba(0,0,0,0.22));
+      opacity: 0.3;
       mix-blend-mode: screen;
-      opacity: 0.28;
     }
+
     .app {
-      position: relative;
       display: grid;
-      grid-template-columns: minmax(320px, 420px) 1fr;
+      grid-template-columns: minmax(330px, 430px) 1fr;
       gap: var(--space-6);
       min-height: 100vh;
       padding: var(--space-6);
+      position: relative;
+      z-index: 1;
     }
+
     .panel {
-      background: linear-gradient(180deg, rgba(11,23,17,0.92), rgba(6,15,10,0.95));
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
       position: relative;
       overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(11,23,17,0.95), rgba(6,15,10,0.96));
+      box-shadow: var(--shadow);
     }
+
     .panel::after {
       content: '';
       position: absolute;
@@ -73,149 +83,283 @@
       pointer-events: none;
       background: linear-gradient(180deg, rgba(130,255,180,0.05), transparent 18%, transparent 82%, rgba(130,255,180,0.03));
     }
+
     .sidebar {
       display: grid;
       grid-template-rows: auto auto 1fr;
       gap: var(--space-5);
       min-height: 0;
     }
-    .clock-card, .countdown-card, .notes-card, .upload-card {
-      padding: var(--space-5);
-    }
-    .section-label {
-      font-family: 'Orbitron', sans-serif;
-      letter-spacing: 0.18em;
-      font-size: 0.78rem;
-      color: var(--text-dim);
-      margin-bottom: var(--space-4);
-      text-transform: uppercase;
-    }
-    .clock-layout {
-      display: grid;
-      grid-template-columns: 190px 1fr;
-      gap: var(--space-4);
-      align-items: center;
-    }
-    .analog-wrap {
-      width: 180px;
-      aspect-ratio: 1 / 1;
-      border-radius: 50%;
-      border: 1px solid var(--border-strong);
-      position: relative;
-      box-shadow: inset 0 0 18px rgba(71,255,126,0.18), 0 0 16px rgba(71,255,126,0.08);
-      background: radial-gradient(circle, rgba(86,255,146,0.08) 0%, rgba(8,20,14,0.92) 65%, rgba(4,11,7,1) 100%);
-      margin: 0 auto;
-      display: block;
-      overflow: hidden;
-    }
-    .tick {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      width: 2px;
-      height: 10px;
-      background: rgba(141,255,181,0.75);
-      transform-origin: center -78px;
-    }
-    .tick.major { height: 16px; width: 3px; background: var(--text-bright); }
-    .center-dot {
-      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-      width: 12px; height: 12px; border-radius: 50%;
-      background: var(--text-bright);
-      box-shadow: 0 0 12px rgba(199,255,216,0.9);
-      z-index: 5;
-    }
-    .hand {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform-origin: 50% calc(100% - 10px);
-      transform: translate(-50%, -100%) rotate(0deg);
-      border-radius: 999px;
-      z-index: 4;
-    }
-    .hour { width: 5px; height: 50px; background: #a3ffbe; }
-    .minute { width: 3px; height: 68px; background: #77ff9c; }
-    .second { width: 2px; height: 78px; background: #d7ff71; box-shadow: 0 0 8px rgba(215,255,113,0.7); }
-    .digital-time { font-family: 'Orbitron', sans-serif; font-size: clamp(1.8rem, 3vw, 2.8rem); color: var(--text-bright); }
-    .digital-date { margin-top: var(--space-2); color: var(--text-dim); font-size: 0.98rem; }
-    .timezone { margin-top: var(--space-3); font-size: 0.84rem; color: rgba(141,255,181,0.75); }
-    .countdown-display {
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(1.7rem, 3vw, 2.5rem);
-      color: var(--danger);
-      margin-bottom: var(--space-4);
-    }
-    .input-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: var(--space-3);
-      margin-bottom: var(--space-4);
-    }
-    input, button {
-      font: inherit;
-      border-radius: 12px;
-      border: 1px solid var(--border-strong);
-      background: rgba(8, 18, 13, 0.96);
-      color: var(--text-bright);
-      padding: 0.8rem 0.95rem;
-    }
-    button { cursor: pointer; font-family: 'Orbitron', sans-serif; letter-spacing: 0.08em; }
-    button:hover { background: rgba(17, 36, 25, 0.98); }
-    .button-row { display: flex; gap: var(--space-3); flex-wrap: wrap; }
-    .button-row button { flex: 1; min-width: 84px; }
+
     .main {
       display: grid;
       grid-template-rows: auto auto 1fr;
       gap: var(--space-5);
       min-height: 0;
     }
+
+    .clock-card,
+    .countdown-card,
+    .upload-card,
+    .timeline-card,
+    .notes-card {
+      padding: var(--space-5);
+    }
+
+    .section-label {
+      margin-bottom: var(--space-4);
+      color: var(--text-dim);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .clock-layout {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: var(--space-4);
+      align-items: center;
+      min-width: 0;
+    }
+
+    .analog-wrap {
+      width: 180px;
+      height: 180px;
+      margin: 0 auto;
+      position: relative;
+      border-radius: 50%;
+      border: 1px solid var(--border-strong);
+      background: radial-gradient(circle, rgba(86,255,146,0.08) 0%, rgba(8,20,14,0.92) 65%, rgba(4,11,7,1) 100%);
+      box-shadow: inset 0 0 18px rgba(71,255,126,0.18), 0 0 16px rgba(71,255,126,0.08);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .clock-face {
+      position: absolute;
+      inset: 0;
+    }
+
+    .tick {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 2px;
+      height: 10px;
+      margin-left: -1px;
+      margin-top: -80px;
+      background: rgba(141,255,181,0.72);
+      transform-origin: center 80px;
+    }
+
+    .tick.major {
+      width: 3px;
+      height: 16px;
+      margin-left: -1.5px;
+      margin-top: -86px;
+      background: var(--text-bright);
+      transform-origin: center 86px;
+    }
+
+    .hand-layer {
+      position: absolute;
+      inset: 0;
+    }
+
+    .hand {
+      position: absolute;
+      left: 50%;
+      bottom: 50%;
+      transform-origin: 50% 100%;
+      border-radius: 999px;
+    }
+
+    .hour {
+      width: 5px;
+      height: 42px;
+      margin-left: -2.5px;
+      background: #b8ffca;
+    }
+
+    .minute {
+      width: 3px;
+      height: 58px;
+      margin-left: -1.5px;
+      background: #79ff9e;
+    }
+
+    .second {
+      width: 2px;
+      height: 68px;
+      margin-left: -1px;
+      background: var(--accent);
+      box-shadow: 0 0 10px rgba(215,255,113,0.7);
+    }
+
+    .center-dot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      margin-left: -6px;
+      margin-top: -6px;
+      border-radius: 50%;
+      background: var(--text-bright);
+      box-shadow: 0 0 12px rgba(199,255,216,0.9);
+      z-index: 10;
+    }
+
+    .digital-box {
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .digital-time {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.45rem, 2.3vw, 2.4rem);
+      line-height: 1.15;
+      color: var(--text-bright);
+      word-break: break-all;
+      overflow-wrap: anywhere;
+    }
+
+    .digital-date {
+      margin-top: var(--space-2);
+      font-size: 0.95rem;
+      color: var(--text-dim);
+      word-break: break-word;
+    }
+
+    .timezone {
+      margin-top: var(--space-3);
+      font-size: 0.82rem;
+      color: rgba(141,255,181,0.76);
+      word-break: break-word;
+    }
+
+    .countdown-display {
+      margin-bottom: var(--space-4);
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+      color: var(--accent);
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: var(--space-3);
+      margin-bottom: var(--space-4);
+    }
+
+    .button-row {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    .button-row button {
+      flex: 1;
+      min-width: 84px;
+    }
+
+    input, select, button {
+      width: 100%;
+      font: inherit;
+      color: var(--text-bright);
+      background: rgba(8, 18, 13, 0.96);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      padding: 0.82rem 0.95rem;
+    }
+
+    button {
+      cursor: pointer;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 0.08em;
+    }
+
+    button:hover,
+    select:hover,
+    input:hover {
+      background: rgba(17, 36, 25, 0.98);
+    }
+
+    #dataFile {
+      display: none;
+    }
+
     .upload-card {
       display: grid;
       grid-template-columns: 1fr auto;
-      align-items: center;
       gap: var(--space-4);
+      align-items: start;
     }
-    .upload-help { color: var(--text-dim); font-size: 0.95rem; }
+
+    .upload-help {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
     .file-label {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       min-height: 48px;
-      padding: 0.9rem 1.1rem;
+      padding: 0.95rem 1.15rem;
+      white-space: nowrap;
     }
-    #dataFile { display: none; }
-    .timeline-card {
-      padding: var(--space-5);
+
+    .row-picker {
       display: grid;
-      gap: var(--space-4);
+      grid-template-columns: minmax(0, 1fr) 130px;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
     }
+
     .timeline-header {
-      display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-4); flex-wrap: wrap;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-4);
     }
+
     .timeline-header h1 {
       margin: 0;
       font-family: 'Orbitron', sans-serif;
-      font-size: clamp(1.25rem, 2vw, 1.9rem);
-      color: var(--text-bright);
+      font-size: clamp(1.2rem, 2vw, 1.9rem);
       letter-spacing: 0.08em;
+      color: var(--text-bright);
     }
-    .status { color: var(--danger); font-size: 0.95rem; }
+
+    .status {
+      color: var(--accent);
+      font-size: 0.95rem;
+    }
+
     .guide-shell {
       position: relative;
+      min-height: 260px;
+      padding: var(--space-6) var(--space-5);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: var(--space-6) var(--space-5);
-      min-height: 260px;
       background: rgba(6, 13, 9, 0.92);
       overflow: hidden;
     }
+
     .guide-line {
       position: absolute;
-      left: 22px; top: 22px; bottom: 22px;
+      left: 22px;
+      top: 22px;
+      bottom: 22px;
       width: 2px;
       background: linear-gradient(180deg, rgba(86,255,146,0.2), rgba(86,255,146,0.75), rgba(86,255,146,0.2));
     }
+
     .guide-bar {
       position: absolute;
       left: 13px;
@@ -224,16 +368,18 @@
       border-radius: 50%;
       background: radial-gradient(circle, #d7ff71 0%, #86ffaf 55%, #39ff78 100%);
       box-shadow: 0 0 14px rgba(134,255,175,0.8), 0 0 30px rgba(134,255,175,0.35);
-      transition: transform 0.6s ease, top 0.6s ease, opacity 0.4s ease;
+      transition: top 0.6s ease;
       z-index: 2;
     }
+
     .event-list {
-      display: grid;
-      gap: var(--space-4);
       position: relative;
       z-index: 1;
+      display: grid;
+      gap: var(--space-4);
       margin-left: 28px;
     }
+
     .event-item {
       display: grid;
       grid-template-columns: 180px 1fr;
@@ -241,43 +387,69 @@
       align-items: center;
       min-height: 48px;
     }
+
     .event-key {
       font-size: 0.92rem;
       color: var(--text-dim);
       letter-spacing: 0.04em;
     }
+
     .event-time {
       font-family: 'Orbitron', sans-serif;
       font-size: 1.05rem;
       color: var(--text-bright);
     }
-    .event-item.active .event-key, .event-item.active .event-time { color: #ecffb1; text-shadow: 0 0 8px rgba(215,255,113,0.35); }
-    .notes-card {
-      display: grid;
-      gap: var(--space-4);
-      min-height: 0;
+
+    .event-item.active .event-key,
+    .event-item.active .event-time {
+      color: #ecffb1;
+      text-shadow: 0 0 8px rgba(215,255,113,0.35);
     }
+
     .notes-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: var(--space-4);
     }
+
     .note {
+      width: 100%;
+      min-height: 90px;
+      padding: var(--space-4) var(--space-5);
       border: 1px solid var(--border);
       border-radius: 14px;
       background: rgba(10, 20, 15, 0.92);
-      padding: var(--space-4) var(--space-5);
-      min-height: 90px;
-      width: 100%;
     }
-    .note-title { font-size: 0.95rem; color: var(--text-dim); margin-bottom: var(--space-3); }
-    .note-value { font-size: clamp(1.15rem, 2vw, 1.7rem); line-height: 1.6; color: var(--text-bright); word-break: break-word; }
-    .terminal-log { font-size: 0.88rem; color: rgba(141,255,181,0.8); }
-    @media (max-width: 1080px) {
+
+    .note-title {
+      margin-bottom: var(--space-3);
+      font-size: 0.95rem;
+      color: var(--text-dim);
+    }
+
+    .note-value {
+      font-size: clamp(1.15rem, 2vw, 1.7rem);
+      line-height: 1.6;
+      color: var(--text-bright);
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    .terminal-log {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: rgba(141,255,181,0.82);
+      white-space: pre-line;
+    }
+
+    @media (max-width: 1100px) {
       body { overflow: auto; }
       .app { grid-template-columns: 1fr; min-height: auto; }
       .clock-layout { grid-template-columns: 1fr; justify-items: center; }
-      .upload-card, .event-item { grid-template-columns: 1fr; }
+      .upload-card,
+      .row-picker,
+      .event-item { grid-template-columns: 1fr; }
+      .digital-box { text-align: center; }
     }
   </style>
 </head>
@@ -288,18 +460,22 @@
         <div class="section-label">Clock Interface</div>
         <div class="clock-layout">
           <div class="analog-wrap" aria-label="アナログ時計">
-            <div class="center-dot"></div>
-            <div class="hand hour" id="hourHand"></div>
-            <div class="hand minute" id="minuteHand"></div>
-            <div class="hand second" id="secondHand"></div>
+            <div class="clock-face" id="clockFace"></div>
+            <div class="hand-layer">
+              <div class="hand hour" id="hourHand"></div>
+              <div class="hand minute" id="minuteHand"></div>
+              <div class="hand second" id="secondHand"></div>
+              <div class="center-dot"></div>
+            </div>
           </div>
-          <div>
+          <div class="digital-box">
             <div class="digital-time" id="digitalTime">00:00:00</div>
             <div class="digital-date" id="digitalDate">----/--/-- ---</div>
             <div class="timezone">JST / shell-monitor / live sync</div>
           </div>
         </div>
       </div>
+
       <div class="panel countdown-card">
         <div class="section-label">Countdown Stopwatch</div>
         <div class="countdown-display" id="countdownDisplay">00:05:00</div>
@@ -313,22 +489,34 @@
           <button id="resetCountdown">RESET</button>
         </div>
       </div>
+
       <div class="panel notes-card">
         <div class="section-label">Operation Log</div>
         <div class="terminal-log" id="terminalLog">CSV / Excel を読み込むと進行ガイドが自動追従します。</div>
       </div>
     </section>
+
     <section class="main" aria-label="進行ガイド">
       <div class="panel upload-card">
         <div>
           <div class="section-label">Data Input</div>
-          <div class="upload-help">CSVまたはExcelファイルの1シート目を読み込み、1行目をヘッダー、2行目をデータとして処理します。</div>
+          <div class="upload-help">
+            CSVまたはExcelファイルの1シート目を読み込みます。<br>
+            ヘッダー行は1行目、表示データは任意の行を選択できます。
+          </div>
+          <div class="row-picker">
+            <select id="rowSelector" aria-label="データ行選択">
+              <option value="">行を選択してください</option>
+            </select>
+            <input id="rowNumberInput" type="number" min="2" value="2" aria-label="行番号入力" />
+          </div>
         </div>
         <div>
           <label for="dataFile" class="file-label panel">CSV / XLSX SELECT</label>
           <input id="dataFile" type="file" accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" />
         </div>
       </div>
+
       <div class="panel timeline-card">
         <div class="timeline-header">
           <h1>進行ガイドバー</h1>
@@ -340,6 +528,7 @@
           <div class="event-list" id="eventList"></div>
         </div>
       </div>
+
       <div class="panel notes-card">
         <div class="section-label">Agenda Extract</div>
         <div class="notes-grid">
@@ -359,6 +548,7 @@
       </div>
     </section>
   </main>
+
   <script>
     const eventDefs = [
       { key: 'PRE_MEETING', label: '事前打合せ開始時間' },
@@ -368,31 +558,39 @@
       { key: 'QA_TIME', label: '質疑応答' },
       { key: 'END_1', label: '終了' }
     ];
+
     const introDefs = [
       { key: 'INTRO_1', el: document.getElementById('intro1') },
       { key: 'INTRO_2', el: document.getElementById('intro2') },
       { key: 'INTRO_3', el: document.getElementById('intro3') }
     ];
+
     const state = {
+      allRows: [],
+      headers: [],
+      selectedIndex: null,
       events: [],
-      rawRow: null,
       countdownInitial: 300,
       countdownRemaining: 300,
       countdownTimer: null,
       countdownRunning: false
     };
+
     const eventList = document.getElementById('eventList');
     const guideBar = document.getElementById('guideBar');
     const timelineStatus = document.getElementById('timelineStatus');
     const terminalLog = document.getElementById('terminalLog');
+    const rowSelector = document.getElementById('rowSelector');
+    const rowNumberInput = document.getElementById('rowNumberInput');
 
     function createTicks() {
-      const wrap = document.querySelector('.analog-wrap');
+      const face = document.getElementById('clockFace');
+      face.innerHTML = '';
       for (let i = 0; i < 60; i++) {
         const tick = document.createElement('div');
         tick.className = 'tick' + (i % 5 === 0 ? ' major' : '');
-        tick.style.transform = `translate(-50%, -50%) rotate(${i * 6}deg)`;
-        wrap.appendChild(tick);
+        tick.style.transform = `rotate(${i * 6}deg)`;
+        face.appendChild(tick);
       }
     }
 
@@ -401,11 +599,22 @@
       const h = now.getHours();
       const m = now.getMinutes();
       const s = now.getSeconds();
+
       document.getElementById('digitalTime').textContent = now.toLocaleTimeString('ja-JP', { hour12: false });
-      document.getElementById('digitalDate').textContent = now.toLocaleDateString('ja-JP', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
-      document.getElementById('hourHand').style.transform = `translate(-50%, -100%) rotate(${(h % 12) * 30 + m * 0.5}deg)`;
-      document.getElementById('minuteHand').style.transform = `translate(-50%, -100%) rotate(${m * 6 + s * 0.1}deg)`;
-      document.getElementById('secondHand').style.transform = `translate(-50%, -100%) rotate(${s * 6}deg)`;
+      document.getElementById('digitalDate').textContent = now.toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        weekday: 'short'
+      });
+
+      document.getElementById('hourHand').style.transform =
+        `rotate(${(h % 12) * 30 + m * 0.5}deg)`;
+      document.getElementById('minuteHand').style.transform =
+        `rotate(${m * 6 + s * 0.1}deg)`;
+      document.getElementById('secondHand').style.transform =
+        `rotate(${s * 6}deg)`;
+
       updateGuidePosition(now);
     }
 
@@ -430,21 +639,32 @@
       let cur = '';
       let row = [];
       let inQuotes = false;
+
       for (let i = 0; i < text.length; i++) {
         const ch = text[i];
         const next = text[i + 1];
+
         if (ch === '"') {
-          if (inQuotes && next === '"') { cur += '"'; i++; }
-          else { inQuotes = !inQuotes; }
+          if (inQuotes && next === '"') {
+            cur += '"';
+            i++;
+          } else {
+            inQuotes = !inQuotes;
+          }
         } else if (ch === ',' && !inQuotes) {
-          row.push(cur); cur = '';
+          row.push(cur);
+          cur = '';
         } else if ((ch === '\n' || ch === '\r') && !inQuotes) {
           if (ch === '\r' && next === '\n') i++;
           row.push(cur);
           if (row.some(cell => cell !== '')) rows.push(row);
-          row = []; cur = '';
-        } else { cur += ch; }
+          row = [];
+          cur = '';
+        } else {
+          cur += ch;
+        }
       }
+
       if (cur.length || row.length) {
         row.push(cur);
         if (row.some(cell => cell !== '')) rows.push(row);
@@ -466,25 +686,66 @@
       const txt = String(excelTimeToString(value)).trim();
       const match = txt.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
       if (!match) return null;
+
       const base = new Date();
-      return new Date(base.getFullYear(), base.getMonth(), base.getDate(),
-        Number(match[1]), Number(match[2]), Number(match[3] || 0), 0);
+      return new Date(
+        base.getFullYear(),
+        base.getMonth(),
+        base.getDate(),
+        Number(match[1]),
+        Number(match[2]),
+        Number(match[3] || 0),
+        0
+      );
     }
 
-    function buildSchedule(row) {
-      state.rawRow = row;
+    function rowArrayToObject(headers, values) {
+      return Object.fromEntries(headers.map((header, i) => [header, values[i] ?? '']));
+    }
+
+    function buildScheduleFromIndex(index) {
+      if (index === null || index < 1 || index >= state.allRows.length) return;
+
+      state.selectedIndex = index;
+      const row = rowArrayToObject(state.headers, state.allRows[index]);
+
       state.events = eventDefs.map(def => {
         const rawValue = row[def.key] ?? '';
-        const displayValue = typeof rawValue === 'number' ? excelTimeToString(rawValue) : String(rawValue || '');
-        return { ...def, value: displayValue, date: timeStringToDate(rawValue) };
+        const displayValue = typeof rawValue === 'number'
+          ? excelTimeToString(rawValue)
+          : String(rawValue || '');
+        return {
+          ...def,
+          value: displayValue,
+          date: timeStringToDate(rawValue)
+        };
       }).filter(item => item.date);
+
       introDefs.forEach(def => {
         const value = row[def.key];
         def.el.textContent = value !== undefined && String(value).trim() ? String(value) : '---';
       });
+
       renderEvents();
-      terminalLog.textContent = `CSV / Excel 同期完了: ${state.events.length}件の進行時刻を読込済み`;
       updateGuidePosition(new Date());
+
+      rowSelector.value = String(index);
+      rowNumberInput.value = index + 1;
+
+      terminalLog.textContent =
+        `ファイル読込完了\n選択中の行: ${index + 1}行目\n進行時刻: ${state.events.length}件`;
+    }
+
+    function populateRowSelector() {
+      rowSelector.innerHTML = '<option value="">行を選択してください</option>';
+      for (let i = 1; i < state.allRows.length; i++) {
+        const row = state.allRows[i];
+        const title = row?.[0] ? String(row[0]).slice(0, 20) : `data-${i + 1}`;
+        const option = document.createElement('option');
+        option.value = String(i);
+        option.textContent = `${i + 1}行目 : ${title}`;
+        rowSelector.appendChild(option);
+      }
     }
 
     function renderEvents() {
@@ -494,6 +755,7 @@
         guideBar.style.top = '22px';
         return;
       }
+
       state.events.forEach((event, index) => {
         const item = document.createElement('div');
         item.className = 'event-item';
@@ -506,8 +768,14 @@
     function updateGuidePosition(now) {
       const items = [...document.querySelectorAll('.event-item')];
       items.forEach(el => el.classList.remove('active'));
-      if (!state.events.length || !items.length) { timelineStatus.textContent = '待機中'; return; }
+
+      if (!state.events.length || !items.length) {
+        timelineStatus.textContent = '待機中';
+        return;
+      }
+
       let activeIndex = 0;
+
       if (now < state.events[0].date) {
         activeIndex = 0;
         timelineStatus.textContent = `開始待機 / ${state.events[0].label}`;
@@ -523,6 +791,7 @@
           }
         }
       }
+
       const target = items[activeIndex];
       if (!target) return;
       target.classList.add('active');
@@ -531,10 +800,12 @@
 
     async function readDataFile(file) {
       const ext = file.name.split('.').pop().toLowerCase();
+
       if (ext === 'csv') {
         const text = await file.text();
         return parseCsv(text);
       }
+
       if (ext === 'xlsx' || ext === 'xls') {
         const buffer = await file.arrayBuffer();
         const workbook = XLSX.read(buffer, { type: 'array', cellDates: false });
@@ -542,12 +813,14 @@
         const sheet = workbook.Sheets[sheetName];
         return XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: '' });
       }
+
       throw new Error('未対応ファイル形式');
     }
 
     document.getElementById('dataFile').addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if (!file) return;
+
       try {
         const rows = await readDataFile(file);
         if (rows.length < 2) {
@@ -555,13 +828,29 @@
           timelineStatus.textContent = 'ファイル形式エラー';
           return;
         }
-        const headers = rows[0].map(normalizeHeader);
-        const values = rows[1];
-        const row = Object.fromEntries(headers.map((header, i) => [header, values[i] ?? '']));
-        buildSchedule(row);
+
+        state.allRows = rows;
+        state.headers = rows[0].map(normalizeHeader);
+
+        populateRowSelector();
+        buildScheduleFromIndex(1);
       } catch (error) {
         terminalLog.textContent = `読込エラー: ${error.message}`;
         timelineStatus.textContent = '読込失敗';
+      }
+    });
+
+    rowSelector.addEventListener('change', (e) => {
+      const value = e.target.value;
+      if (value === '') return;
+      buildScheduleFromIndex(Number(value));
+    });
+
+    rowNumberInput.addEventListener('change', (e) => {
+      const rowNumber = Number(e.target.value);
+      const index = rowNumber - 1;
+      if (index >= 1 && index < state.allRows.length) {
+        buildScheduleFromIndex(index);
       }
     });
 
@@ -571,6 +860,7 @@
       state.countdownRemaining = state.countdownInitial;
       renderCountdown();
     });
+
     document.getElementById('startCountdown').addEventListener('click', () => {
       if (state.countdownRunning) return;
       state.countdownRunning = true;
@@ -585,10 +875,12 @@
         renderCountdown();
       }, 1000);
     });
+
     document.getElementById('pauseCountdown').addEventListener('click', () => {
       clearInterval(state.countdownTimer);
       state.countdownRunning = false;
     });
+
     document.getElementById('resetCountdown').addEventListener('click', () => {
       clearInterval(state.countdownTimer);
       state.countdownRunning = false;

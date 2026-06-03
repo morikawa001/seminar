@@ -438,6 +438,40 @@
     html.white .iedit-hint{color:#b0b0b0;font-family:var(--jp);letter-spacing:.02em}
 
     /* ============================================================
+       質疑応答 定型文パネル
+    ============================================================ */
+    .qa-box{
+      border-color:rgba(0,200,83,.18);
+    }
+    html.white .qa-box{border-color:#e8e4f8}
+    /* qa-boxは編集不可 → ::after バッジを非表示 */
+    .qa-lbl::after{display:none}
+    .qa-script{
+      font-family:var(--jp);
+      font-size:clamp(.88rem,1.5vw,1.05rem);
+      line-height:1.9;
+      color:var(--text);
+      display:flex;flex-direction:column;gap:2px;
+      padding:6px 0 2px;
+    }
+    html.white .qa-script{color:#333;}
+    .qa-script p{margin:0;padding:0}
+    .qa-cond{
+      color:var(--green3);
+      font-weight:700;
+      font-size:.90em;
+      margin-top:.55em !important;
+      letter-spacing:.04em;
+    }
+    html.white .qa-cond{color:#5c5ce0}
+    .qa-indent{
+      padding-left:1.4em;
+      color:var(--textdim);
+      font-size:.96em;
+    }
+    html.white .qa-indent{color:#666}
+
+    /* ============================================================
        STATUS BAR
     ============================================================ */
     .sbar{
@@ -584,9 +618,39 @@
         <div class="ival" id="i3" contenteditable="true" data-placeholder="CSVを読み込むか直接入力してください"></div>
         <div class="iedit-hint">クリックして直接編集できます</div>
       </div>
+
+      <!-- 質疑応答 定型文 -->
+      <div class="ibox qa-box">
+        <div class="ilbl qa-lbl">▸ 質疑応答 定型文</div>
+        <div class="qa-script">
+          <p>先生、どうもありがとうございました。</p>
+          <p>それでは、ただいまより、質疑応答に入ります。</p>
+          <p class="qa-cond">（事前質問ありの場合）</p>
+          <p class="qa-indent">司会者から、Web参加の皆様から事前にいただいたご質問をご紹介いたします。</p>
+          <p class="qa-indent">一つ目の質問です。「○○についてご解説いただけますと幸いです。」</p>
+          <p class="qa-indent">先生、お願いいたします。</p>
+          <p class="qa-cond">（Q&amp;Aに質問があった場合）</p>
+          <p class="qa-indent">Web上でご質問をいただいております。</p>
+          <p class="qa-indent">Q&amp;A画面から、質問をお読み上げいただき、ご解説をお願いいたします。</p>
+          <p>先生ありがとうございました。これで質疑応答を終わります。</p>
+          <p>みなさま、最後に先生に感謝をこめまして、拍手をお願いいたします。</p>
+          <p>Zoomよりご参加の方は、リアクションボタンより、拍手をお願いいたします。</p>
+          <p>先生、本日の研修はこれで終了いたしますので、御退室くださいますようお願いいたします。</p>
+          <p>本日はどうもありがとうございました。</p>
+          <p>受講者の皆様には、ひきつづき本研修会の受講証と修了証書ならびにアンケートについてご案内させていただきます。</p>
+        </div>
+      </div>
+
+      <!-- CLOSING_1 DB読み込み -->
+      <div class="ibox">
+        <div class="ilbl">▸ 進行表クロージング（選択）_CLOSING_1</div>
+        <div class="ival" id="iclosing" contenteditable="true" data-placeholder="CSVを読み込むか直接入力してください"></div>
+        <div class="iedit-hint">クリックして直接編集できます</div>
+      </div>
+
     </div>
     <div class="pnl sbar">
-      <span>▌ MATRIX SHELL CLOCK v2.4</span>
+      <span>▌ MATRIX SHELL CLOCK v2.5</span>
       <span id="sbfile">FILE: —</span>
       <span id="sbrow">ROW: —</span>
     </div>
@@ -643,9 +707,10 @@
     { key:'研修会終了_END_1',               label:'終了'       },
   ];
   const INTRO_DEFS = [
-    { key:'進行表導入_INTRO_1',           elId:'i1' },
-    { key:'進行表研修会趣旨説明_INTRO_2', elId:'i2' },
-    { key:'進行表講師紹介_INTRO_3',       elId:'i3' },
+    { key:'進行表導入_INTRO_1',               elId:'i1'      },
+    { key:'進行表研修会趣旨説明_INTRO_2',     elId:'i2'      },
+    { key:'進行表講師紹介_INTRO_3',           elId:'i3'      },
+    { key:'進行表クロージング（選択）_CLOSING_1', elId:'iclosing'},
   ];
   const LBL = { no:'起案行No', date:'開催日_DATE_1', title:'テーマ(標題)_TITLE' };
   const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];

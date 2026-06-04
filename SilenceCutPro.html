@@ -1171,7 +1171,7 @@ processBtn.addEventListener('click',async()=>{
   let drops=new Array(columns()).fill(0).map(()=>Math.floor(Math.random()*canvas.height/fontSize));
 
   function draw(){
-    ctx.fillStyle='rgba(0,0,0,0.075)';
+    ctx.fillStyle='rgba(0,0,0,0.11)';
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
     ctx.font=fontSize+'px Share Tech Mono, monospace';
@@ -1181,10 +1181,10 @@ processBtn.addEventListener('click',async()=>{
       const x=i*fontSize;
       const y=drops[i]*fontSize;
 
-      ctx.fillStyle='rgba(90,255,140,0.50)';
+      ctx.fillStyle='rgba(90,255,140,0.18)';
       ctx.fillText(text,x,y);
 
-      ctx.fillStyle='rgba(180,255,210,0.75)';
+      ctx.fillStyle='rgba(180,255,210,0.30)';
       ctx.fillText(text,x,y-1);
 
       if(y>canvas.height && Math.random()>0.975){

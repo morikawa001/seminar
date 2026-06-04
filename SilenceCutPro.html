@@ -412,6 +412,42 @@ h1{
 }
 .logo-text{animation:flicker 6s infinite;}
 
+/* Console cursor blink */
+@keyframes cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.console-line {
+  margin-top: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  display:flex;
+  align-items:center;
+  gap:0.5rem;
+}
+.console-prompt {
+  color: var(--color-primary);
+}
+.console-input {
+  flex:1;
+  min-height:1em;
+  outline:none;
+  border:none;
+  background:transparent;
+  color:var(--color-text);
+  font-family:var(--font-mono);
+}
+.console-input:focus {
+  outline:none;
+}
+.console-caret {
+  width:0.6em;
+  text-align:left;
+  color:var(--color-primary);
+  animation: cursor-blink 1s steps(1,end) infinite;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar{width:4px;}
 ::-webkit-scrollbar-track{background:var(--color-bg);}
@@ -592,6 +628,13 @@ h1{
       <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar"></div></div>
     </div>
     <div class="log" id="log"><div class="log-entry info">ファイルを選択して「無音を検出」を押してください。</div></div>
+
+    <!-- コンソール行 -->
+    <div class="console-line">
+      <span class="console-prompt">&gt;</span>
+      <div class="console-input" contenteditable="true" spellcheck="false"></div>
+      <span class="console-caret">█</span>
+    </div>
   </div>
 
   <!-- Download -->
@@ -631,6 +674,17 @@ function toggleFeature(id){
   card.classList.toggle('active',isOn);
   sub.classList.toggle('visible',isOn);
 }
+
+// Console input focus on click anywhere in line
+document.addEventListener('DOMContentLoaded', () => {
+  const line = document.querySelector('.console-line');
+  const input = document.querySelector('.console-input');
+  if(line && input){
+    line.addEventListener('click', () => {
+      input.focus();
+    });
+  }
+});
 
 // App state
 let videoFile=null, audioBuffer=null, keepSegments=[], noiseProfile=null;
@@ -709,7 +763,6 @@ analyzeBtn.addEventListener('click',async()=>{
       isSilent[i]=(Math.sqrt(sum/(chunkSize*nch))<thrLin)?1:0;
     }
 
-    // Collect silent regions
     const silents=[];
     let ss=null;
     for(let i=0;i<nChunks;i++){
@@ -721,7 +774,6 @@ analyzeBtn.addEventListener('click',async()=>{
 
     addLog(silents.length+'個の無音区間を検出しました。',silents.length>0?'warn':'success');
 
-    // Build noise profile from first silent region (for noise reduction)
     if(silents.length>0 && document.getElementById('noiseToggle').checked){
       noiseProfile=buildNoiseProfile(audioBuffer, silents[0].start, silents[0].end);
       addLog('ノイズプロファイルを取得しました（'+silents[0].start.toFixed(2)+'s〜'+silents[0].end.toFixed(2)+'s）','proc');
@@ -772,7 +824,6 @@ analyzeBtn.addEventListener('click',async()=>{
       return silEnd;
     }
 
-    // Build keep segments with natural fade detection
     keepSegments=[];
     let pos=0;
     for(const sr2 of silents){
@@ -785,7 +836,6 @@ analyzeBtn.addEventListener('click',async()=>{
     if(pos < dur) keepSegments.push({ start: pos, end: dur, fadeOut: 0 });
     keepSegments = keepSegments.filter(s => s.end - s.start > 0.05);
 
-    // Display segments
     const allSegs=[];
     let cur=0;
     for(const sr2 of silents){if(sr2.start>cur)allSegs.push({start:cur,end:sr2.start,type:'keep'});allSegs.push({start:sr2.start,end:sr2.end,type:'cut'});cur=sr2.end;}
@@ -813,7 +863,7 @@ analyzeBtn.addEventListener('click',async()=>{
   }catch(e){addLog('エラー: '+e.message,'error');analyzeBtn.disabled=false;}
 });
 
-// ---- NOISE PROFILE (simplified) ----
+// ---- NOISE PROFILE ----
 function buildNoiseProfile(buf, t0, t1){
   const sr=buf.sampleRate;
   const s0=Math.floor(t0*sr), s1=Math.floor(t1*sr);
@@ -861,7 +911,8 @@ function applyNoiseReduction(buf, profile, strength){
   const len=buf.length;
   const fftSize=2048;
   const hop=512;
-  const outBuf=new (window.OfflineAudioContext||window.webkitOfflineAudioContext)(nch,len,sr).createBuffer(nch,len,sr);
+  const outCtx=new (window.OfflineAudioContext||window.webkitOfflineAudioContext)(nch,len,sr);
+  const outBuf=outCtx.createBuffer(nch,len,sr);
 
   for(let c=0;c<nch;c++){
     const inp=buf.getChannelData(c);
@@ -905,7 +956,7 @@ function measureLoudness(buf){
 function applyGain(buf,gainLinear){
   for(let c=0;c<buf.numberOfChannels;c++){
     const d=buf.getChannelData(c);
-    for(let i=0;i<d.length;i++){d[i]=Math.max(-1,Math.min(1,d[i]*gainLinear));}
+    for(let i=0;i<d.length;i++)d[i]=Math.max(-1,Math.min(1,d[i]*gainLinear));
   }
   return buf;
 }
@@ -940,7 +991,6 @@ processBtn.addEventListener('click',async()=>{
 
     const audioCtx=new AudioContext();
 
-    // Audio processing pipeline
     let procBuffer=audioBuffer;
     setProgress(10,'音声を処理中...');
 
@@ -1056,9 +1106,9 @@ processBtn.addEventListener('click',async()=>{
     audioCtx.close(); URL.revokeObjectURL(url);
   }catch(e){addLog('エラー: '+e.message,'error');console.error(e);}
   finally{processBtn.disabled=false;analyzeBtn.disabled=false;}
-})();
+});
 
-// Matrix rain background
+// Matrix rain background（コード雨）
 (function(){
   const canvas = document.getElementById('matrixRain');
   if (!canvas) return;
@@ -1071,7 +1121,7 @@ processBtn.addEventListener('click',async()=>{
   window.addEventListener('resize', resize);
   resize();
 
-  const katakana = 'アイウエオカキクケコサシスセソタチツテトナニヌネノマミムメモヤユヨラリルレロワヲン';
+  const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
   const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const nums = '0123456789';
   const chars = (katakana + latin + nums).split('');

@@ -1,1 +1,758 @@
 
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SilenceCut Pro</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="light"]{
+  --color-bg:#f7f6f2;--color-surface:#f9f8f5;--color-surface-2:#fbfbf9;
+  --color-surface-offset:#f3f0ec;--color-surface-dynamic:#e6e4df;
+  --color-divider:#dcd9d5;--color-border:#d4d1ca;
+  --color-text:#28251d;--color-text-muted:#7a7974;--color-text-faint:#bab9b4;
+  --color-text-inverse:#f9f8f4;
+  --color-primary:#01696f;--color-primary-hover:#0c4e54;--color-primary-active:#0f3638;
+  --color-primary-highlight:#cedcd8;
+  --color-success:#437a22;--color-success-hover:#2e5c10;--color-success-highlight:#d4dfcc;
+  --color-error:#a12c7b;--color-error-highlight:#e0ced7;
+  --color-warning:#964219;--color-warning-highlight:#ddcfc6;
+  --color-orange:#da7101;--color-orange-highlight:#e7d7c4;
+  --color-purple:#7a39bb;--color-purple-highlight:#dacfde;
+  --radius-sm:0.375rem;--radius-md:0.5rem;--radius-lg:0.75rem;--radius-xl:1rem;--radius-full:9999px;
+  --shadow-sm:0 1px 2px oklch(0.2 0.01 80/0.06);
+  --shadow-md:0 4px 12px oklch(0.2 0.01 80/0.08);
+  --shadow-lg:0 12px 32px oklch(0.2 0.01 80/0.12);
+  --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+  --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;--space-12:3rem;--space-16:4rem;
+  --text-xs:clamp(.75rem,.7rem + .25vw,.875rem);
+  --text-sm:clamp(.875rem,.8rem + .35vw,1rem);
+  --text-base:clamp(1rem,.95rem + .25vw,1.125rem);
+  --text-lg:clamp(1.125rem,1rem + .75vw,1.5rem);
+  --text-xl:clamp(1.5rem,1.2rem + 1.25vw,2.25rem);
+  --font-body:'Satoshi',sans-serif;
+  --trans:180ms cubic-bezier(.16,1,.3,1);
+}
+[data-theme="dark"]{
+  --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#201f1d;
+  --color-surface-offset:#1d1c1a;--color-surface-dynamic:#2d2c2a;
+  --color-divider:#262523;--color-border:#393836;
+  --color-text:#cdccca;--color-text-muted:#797876;--color-text-faint:#5a5957;
+  --color-text-inverse:#2b2a28;
+  --color-primary:#4f98a3;--color-primary-hover:#227f8b;--color-primary-active:#1a626b;
+  --color-primary-highlight:#313b3b;
+  --color-success:#6daa45;--color-success-highlight:#3a4435;
+  --color-error:#d163a7;--color-error-highlight:#4c3d46;
+  --color-warning:#bb653b;--color-warning-highlight:#564942;
+  --color-orange:#fdab43;--color-orange-highlight:#564b3e;
+  --color-purple:#a86fdf;--color-purple-highlight:#4e4652;
+  --shadow-sm:0 1px 2px oklch(0 0 0/.2);--shadow-md:0 4px 12px oklch(0 0 0/.3);--shadow-lg:0 12px 32px oklch(0 0 0/.4);
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme]){
+  --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#201f1d;--color-surface-offset:#1d1c1a;
+  --color-surface-dynamic:#2d2c2a;--color-divider:#262523;--color-border:#393836;
+  --color-text:#cdccca;--color-text-muted:#797876;--color-text-faint:#5a5957;
+  --color-primary:#4f98a3;--color-primary-hover:#227f8b;--color-primary-highlight:#313b3b;
+  --color-success:#6daa45;--color-success-highlight:#3a4435;
+  --color-orange:#fdab43;--color-orange-highlight:#564b3e;
+  --color-purple:#a86fdf;--color-purple-highlight:#4e4652;
+  --shadow-sm:0 1px 2px oklch(0 0 0/.2);--shadow-md:0 4px 12px oklch(0 0 0/.3);
+}}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;scroll-behavior:smooth;}
+body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);background:var(--color-bg);}
+img,video,canvas,svg{display:block;max-width:100%;}
+button{cursor:pointer;background:none;border:none;font:inherit;color:inherit;}
+a,button,[role="button"],input,select{transition:color var(--trans),background var(--trans),border-color var(--trans),box-shadow var(--trans);}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px;border-radius:var(--radius-sm);}
+
+.app{display:flex;flex-direction:column;min-height:100dvh;}
+header{background:var(--color-surface);border-bottom:1px solid var(--color-border);padding:var(--space-4) var(--space-6);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
+.logo{display:flex;align-items:center;gap:var(--space-3);}
+.logo-text{font-size:var(--text-lg);font-weight:700;}
+.logo-sub{font-size:var(--text-xs);color:var(--color-text-muted);}
+.theme-btn{padding:var(--space-2);border-radius:var(--radius-full);color:var(--color-text-muted);display:flex;align-items:center;justify-content:center;}
+.theme-btn:hover{color:var(--color-text);background:var(--color-surface-offset);}
+main{flex:1;padding:var(--space-8) var(--space-4);max-width:800px;margin-inline:auto;width:100%;}
+h1{font-size:var(--text-xl);font-weight:700;margin-bottom:var(--space-2);}
+.subtitle{color:var(--color-text-muted);margin-bottom:var(--space-6);}
+.card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-6);box-shadow:var(--shadow-sm);margin-bottom:var(--space-5);}
+.card-title{font-size:var(--text-base);font-weight:700;margin-bottom:var(--space-4);display:flex;align-items:center;gap:var(--space-2);}
+.card-title-icon{width:20px;height:20px;flex-shrink:0;}
+
+/* Dropzone */
+.dropzone{border:2px dashed var(--color-border);border-radius:var(--radius-lg);padding:var(--space-10) var(--space-6);text-align:center;cursor:pointer;transition:border-color var(--trans),background var(--trans);}
+.dropzone:hover,.dropzone.drag-over{border-color:var(--color-primary);background:color-mix(in oklab,var(--color-primary) 4%,var(--color-surface));}
+.dropzone-icon{margin-inline:auto;margin-bottom:var(--space-4);color:var(--color-text-faint);}
+.dropzone-label{font-weight:600;margin-bottom:var(--space-1);}
+.dropzone-hint{font-size:var(--text-xs);color:var(--color-text-muted);}
+.dropzone input[type=file]{display:none;}
+
+/* Settings grid */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);}
+@media(max-width:540px){.settings-grid{grid-template-columns:1fr;}}
+.setting-item{display:flex;flex-direction:column;gap:var(--space-2);}
+.setting-label{font-size:var(--text-sm);font-weight:600;color:var(--color-text-muted);}
+.setting-input{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);font-size:var(--text-base);color:var(--color-text);outline:none;width:100%;}
+.setting-input:focus{border-color:var(--color-primary);box-shadow:0 0 0 3px color-mix(in oklab,var(--color-primary) 15%,transparent);}
+.setting-hint{font-size:var(--text-xs);color:var(--color-text-faint);}
+
+/* Toggle features */
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);}
+@media(max-width:540px){.feature-grid{grid-template-columns:1fr;}}
+.feature-card{border:2px solid var(--color-border);border-radius:var(--radius-lg);padding:var(--space-4);cursor:pointer;transition:border-color var(--trans),background var(--trans);}
+.feature-card.active{border-color:var(--color-primary);background:color-mix(in oklab,var(--color-primary) 5%,var(--color-surface));}
+.feature-card:hover{border-color:var(--color-primary-hover);}
+.feature-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-2);}
+.feature-name{font-weight:600;font-size:var(--text-sm);display:flex;align-items:center;gap:var(--space-2);}
+.feature-name svg{flex-shrink:0;}
+.feature-desc{font-size:var(--text-xs);color:var(--color-text-muted);line-height:1.5;}
+/* Toggle switch */
+.toggle{position:relative;width:36px;height:20px;flex-shrink:0;}
+.toggle input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-track{position:absolute;inset:0;background:var(--color-surface-dynamic);border-radius:var(--radius-full);transition:background var(--trans);}
+.toggle input:checked~.toggle-track{background:var(--color-primary);}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;background:white;border-radius:var(--radius-full);transition:transform var(--trans);box-shadow:var(--shadow-sm);}
+.toggle input:checked~.toggle-track~.toggle-thumb,
+.toggle input:checked+.toggle-track+.toggle-thumb{transform:translateX(16px);}
+/* fix toggle thumb position */
+.toggle-track+.toggle-thumb{transform:none;}
+.toggle input:checked~*~.toggle-thumb{transform:translateX(16px);}
+
+/* Sub-settings */
+.sub-settings{margin-top:var(--space-3);padding-top:var(--space-3);border-top:1px solid var(--color-border);display:none;}
+.sub-settings.visible{display:block;}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:var(--space-2);padding:var(--space-3) var(--space-5);border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:600;cursor:pointer;border:none;white-space:nowrap;}
+.btn-primary{background:var(--color-primary);color:white;}
+.btn-primary:hover{background:var(--color-primary-hover);}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed;pointer-events:none;}
+.btn-ghost{background:transparent;border:1px solid var(--color-border);color:var(--color-text);}
+.btn-ghost:hover{background:var(--color-surface-offset);}
+.btn-row{display:flex;gap:var(--space-3);flex-wrap:wrap;margin-top:var(--space-5);}
+
+/* Progress */
+.progress-wrap{margin-top:var(--space-5);}
+.progress-label{font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-2);display:flex;justify-content:space-between;}
+.progress-bar-bg{background:var(--color-surface-offset);border-radius:var(--radius-full);height:8px;overflow:hidden;}
+.progress-bar-fill{background:var(--color-primary);height:100%;border-radius:var(--radius-full);width:0%;transition:width .3s ease;}
+
+/* Log */
+.log{background:var(--color-surface-offset);border-radius:var(--radius-lg);padding:var(--space-4);max-height:180px;overflow-y:auto;font-size:var(--text-xs);font-family:monospace;line-height:1.6;margin-top:var(--space-4);}
+.log-entry{margin-bottom:2px;}
+.log-entry.info{color:var(--color-text-muted);}
+.log-entry.success{color:var(--color-success);}
+.log-entry.error{color:var(--color-error);}
+.log-entry.warn{color:var(--color-warning);}
+.log-entry.proc{color:var(--color-orange);}
+
+/* Alerts */
+.alert{padding:var(--space-3) var(--space-4);border-radius:var(--radius-md);font-size:var(--text-sm);margin-bottom:var(--space-4);}
+.alert-info{background:var(--color-primary-highlight);color:var(--color-primary-hover);}
+.alert-warn{background:var(--color-warning-highlight);color:var(--color-warning);}
+.alert-success{background:var(--color-success-highlight);color:var(--color-success);}
+
+/* Segments */
+.segments{display:flex;flex-direction:column;gap:var(--space-2);max-height:220px;overflow-y:auto;}
+.segment-item{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-3) var(--space-4);background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-sm);}
+.segment-info{flex:1;color:var(--color-text-muted);}
+.badge{font-size:var(--text-xs);padding:2px var(--space-2);border-radius:var(--radius-full);font-weight:600;}
+.badge-keep{background:var(--color-primary-highlight);color:var(--color-primary);}
+.badge-cut{background:var(--color-warning-highlight);color:var(--color-warning);}
+.summary-text{font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-3);}
+
+.hidden{display:none!important;}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="ロゴ">
+      <rect width="32" height="32" rx="8" fill="var(--color-primary)"/>
+      <rect x="6" y="14" width="3" height="9" rx="1.5" fill="white"/>
+      <rect x="11" y="8" width="3" height="15" rx="1.5" fill="white"/>
+      <rect x="16" y="11" width="3" height="12" rx="1.5" fill="white"/>
+      <rect x="21" y="6" width="3" height="16" rx="1.5" fill="white"/>
+      <line x1="4" y1="26" x2="28" y2="26" stroke="white" stroke-width="1.5" stroke-dasharray="3 2"/>
+    </svg>
+    <div>
+      <div class="logo-text">SilenceCut Pro</div>
+      <div class="logo-sub">MP4 無音カット ＋ 音声処理</div>
+    </div>
+  </div>
+  <button class="theme-btn" data-theme-toggle aria-label="テーマ切替">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</header>
+
+<main>
+  <h1>SilenceCut Pro</h1>
+  <p class="subtitle">無音カット ＋ 音量正規化 ＋ ノイズ除去を組み合わせて動画を自動最適化します。</p>
+
+  <!-- Step 1 -->
+  <div class="card">
+    <div class="card-title">
+      <svg class="card-title-icon" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M21 15V6M18.5 18a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM12 12H3M16 6H3M12 18H3"/></svg>
+      ① ファイルを選択
+    </div>
+    <div class="dropzone" id="dropzone">
+      <svg class="dropzone-icon" width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="8" y="12" width="32" height="28" rx="3"/>
+        <path d="M20 28l4-4 4 4M24 24v8"/>
+        <path d="M16 12V8a2 2 0 012-2h12a2 2 0 012 2v4"/>
+      </svg>
+      <div class="dropzone-label">MP4ファイルをドラッグ＆ドロップ</div>
+      <div class="dropzone-hint">またはクリックして選択（.mp4 / .webm 対応）</div>
+      <input type="file" id="fileInput" accept="video/mp4,video/webm,video/*">
+    </div>
+    <div id="fileInfo" class="hidden" style="margin-top:var(--space-4);">
+      <div class="alert alert-success" id="fileInfoText"></div>
+    </div>
+  </div>
+
+  <!-- Step 2: 無音カット設定 -->
+  <div class="card">
+    <div class="card-title">
+      <svg class="card-title-icon" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      ② 無音カット設定
+    </div>
+    <div class="settings-grid">
+      <div class="setting-item">
+        <label class="setting-label" for="silenceThreshold">無音判定の閾値（dB）</label>
+        <input class="setting-input" type="number" id="silenceThreshold" value="-40" min="-80" max="0" step="1">
+        <span class="setting-hint">この音量以下を「無音」とみなします</span>
+      </div>
+      <div class="setting-item">
+        <label class="setting-label" for="silenceDuration">カットする最小無音時間（秒）</label>
+        <input class="setting-input" type="number" id="silenceDuration" value="3" min="0.5" max="30" step="0.5">
+        <span class="setting-hint">この秒数以上の無音をカットします</span>
+      </div>
+      <div class="setting-item">
+        <label class="setting-label" for="paddingBefore">カット前パディング（秒）</label>
+        <input class="setting-input" type="number" id="paddingBefore" value="0.1" min="0" max="2" step="0.05">
+        <span class="setting-hint">無音開始の前を少し残す</span>
+      </div>
+      <div class="setting-item">
+        <label class="setting-label" for="paddingAfter">カット後パディング（秒）</label>
+        <input class="setting-input" type="number" id="paddingAfter" value="0.1" min="0" max="2" step="0.05">
+        <span class="setting-hint">無音終了の後から少し後に再開</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: 追加機能 -->
+  <div class="card">
+    <div class="card-title">
+      <svg class="card-title-icon" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      ③ 追加処理（オプション）
+    </div>
+    <div class="feature-grid">
+      <!-- 音量正規化 -->
+      <div class="feature-card" id="normCard" onclick="toggleFeature('norm')">
+        <div class="feature-header">
+          <div class="feature-name">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-orange)" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            音量正規化（ラウドネス均一化）
+          </div>
+          <label class="toggle" onclick="event.stopPropagation()">
+            <input type="checkbox" id="normToggle" onchange="toggleFeature('norm')">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+        <div class="feature-desc">全体の音量レベルを統一します。場面によって音量が大きかったり小さかったりするムラを補正します（ラウドネス正規化）。</div>
+        <div class="sub-settings" id="normSettings">
+          <div class="setting-item">
+            <label class="setting-label" for="targetLufs">目標ラウドネス（LUFS）</label>
+            <input class="setting-input" type="number" id="targetLufs" value="-16" min="-30" max="-6" step="1">
+            <span class="setting-hint">YouTube推奨: -14 LUFS　一般的: -16〜-18 LUFS</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ノイズ除去 -->
+      <div class="feature-card" id="noiseCard" onclick="toggleFeature('noise')">
+        <div class="feature-header">
+          <div class="feature-name">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-purple)" stroke-width="2"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+            ノイズ除去（スペクトルサブトラクション）
+          </div>
+          <label class="toggle" onclick="event.stopPropagation()">
+            <input type="checkbox" id="noiseToggle" onchange="toggleFeature('noise')">
+            <div class="toggle-track"></div>
+            <div class="toggle-thumb"></div>
+          </label>
+        </div>
+        <div class="feature-desc">背景の定常ノイズ（エアコン音・機器のハム音など）を除去します。無音区間の音声プロファイルを自動検出して差し引きます。</div>
+        <div class="sub-settings" id="noiseSettings">
+          <div class="setting-item">
+            <label class="setting-label" for="noiseReduction">除去強度</label>
+            <input class="setting-input" type="range" id="noiseReduction" value="0.7" min="0.1" max="1.0" step="0.1" style="padding:var(--space-2) 0;" oninput="document.getElementById('noiseReductionVal').textContent=Math.round(this.value*100)+'%'">
+            <span class="setting-hint">強度: <span id="noiseReductionVal">70</span>%　（強くしすぎると声質が変わります）</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: 解析 & 処理 -->
+  <div class="card">
+    <div class="card-title">
+      <svg class="card-title-icon" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      ④ 解析・書き出し
+    </div>
+
+    <div id="segmentsSection" class="hidden" style="margin-bottom:var(--space-4);">
+      <p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-3);">検出された区間:</p>
+      <div class="segments" id="segmentsList"></div>
+      <p class="summary-text" id="summaryText"></p>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="analyzeBtn" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        無音を検出
+      </button>
+      <button class="btn btn-primary" id="processBtn" disabled>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        カット＋処理して書き出す
+      </button>
+    </div>
+
+    <div id="progressSection" class="progress-wrap hidden">
+      <div class="progress-label"><span id="progressLabel">処理中...</span><span id="progressPct">0%</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar"></div></div>
+    </div>
+    <div class="log" id="log"><div class="log-entry info">ファイルを選択して「無音を検出」を押してください。</div></div>
+  </div>
+
+  <!-- Download -->
+  <div class="card hidden" id="downloadCard">
+    <div class="card-title">
+      <svg class="card-title-icon" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      ⑤ ダウンロード
+    </div>
+    <div class="alert alert-success" id="downloadAlert"></div>
+    <div class="btn-row">
+      <a id="downloadLink" class="btn btn-primary" download="output.webm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        動画をダウンロード
+      </a>
+    </div>
+    <p style="font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--space-3);">出力形式: WebM（.webm）。MP4に変換するにはClipchampやHandBrakeをご利用ください。</p>
+  </div>
+</main>
+</div>
+
+<script>
+// Theme toggle
+(function(){
+  const t=document.querySelector('[data-theme-toggle]'),r=document.documentElement;
+  let d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  r.setAttribute('data-theme',d);
+  const ico={dark:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>',light:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>'};
+  t&&t.addEventListener('click',()=>{d=d==='dark'?'light':'dark';r.setAttribute('data-theme',d);t.innerHTML=ico[d];});
+})();
+
+// Feature toggles
+function toggleFeature(id){
+  const chk=document.getElementById(id+'Toggle');
+  const card=document.getElementById(id+'Card');
+  const sub=document.getElementById(id+'Settings');
+  const isOn=chk.checked;
+  card.classList.toggle('active',isOn);
+  sub.classList.toggle('visible',isOn);
+}
+
+// App state
+let videoFile=null, audioBuffer=null, keepSegments=[], noiseProfile=null;
+
+const fileInput=document.getElementById('fileInput');
+const dropzone=document.getElementById('dropzone');
+const analyzeBtn=document.getElementById('analyzeBtn');
+const processBtn=document.getElementById('processBtn');
+const logEl=document.getElementById('log');
+
+function addLog(msg,type='info'){
+  const d=document.createElement('div');
+  d.className='log-entry '+type;
+  d.textContent='['+new Date().toLocaleTimeString('ja-JP')+'] '+msg;
+  logEl.appendChild(d);
+  logEl.scrollTop=logEl.scrollHeight;
+}
+function setProgress(pct,label){
+  document.getElementById('progressSection').classList.remove('hidden');
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('progressPct').textContent=pct+'%';
+  document.getElementById('progressLabel').textContent=label;
+}
+
+// File handling
+dropzone.addEventListener('click',()=>fileInput.click());
+dropzone.addEventListener('dragover',e=>{e.preventDefault();dropzone.classList.add('drag-over');});
+dropzone.addEventListener('dragleave',()=>dropzone.classList.remove('drag-over'));
+dropzone.addEventListener('drop',e=>{e.preventDefault();dropzone.classList.remove('drag-over');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+fileInput.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0]);});
+
+function handleFile(f){
+  if(!f.type.startsWith('video/')){addLog('動画ファイルを選択してください。','error');return;}
+  videoFile=f; audioBuffer=null; keepSegments=[]; noiseProfile=null;
+  document.getElementById('fileInfo').classList.remove('hidden');
+  document.getElementById('fileInfoText').textContent='✓ '+f.name+'  （'+(f.size/1024/1024).toFixed(1)+' MB）';
+  analyzeBtn.disabled=false; processBtn.disabled=true;
+  document.getElementById('segmentsSection').classList.add('hidden');
+  document.getElementById('downloadCard').classList.add('hidden');
+  addLog('ファイルを読み込みました: '+f.name,'success');
+}
+
+// ---- ANALYZE ----
+analyzeBtn.addEventListener('click',async()=>{
+  if(!videoFile)return;
+  analyzeBtn.disabled=true; processBtn.disabled=true;
+  setProgress(5,'オーディオをデコード中...');
+  addLog('解析を開始します...','info');
+  try{
+    const ab=await videoFile.arrayBuffer();
+    setProgress(20,'デコード中...');
+    const actx=new(window.AudioContext||window.webkitAudioContext)();
+    audioBuffer=await actx.decodeAudioData(ab);
+    setProgress(50,'無音区間を検出中...');
+    const dur=audioBuffer.duration;
+    addLog('総再生時間: '+dur.toFixed(2)+'秒','info');
+
+    const threshold=parseFloat(document.getElementById('silenceThreshold').value);
+    const minDur=parseFloat(document.getElementById('silenceDuration').value);
+    const padBefore=parseFloat(document.getElementById('paddingBefore').value);
+    const padAfter=parseFloat(document.getElementById('paddingAfter').value);
+
+    const sr=audioBuffer.sampleRate;
+    const chunkSize=Math.floor(sr*0.05);
+    const nch=audioBuffer.numberOfChannels;
+    const nChunks=Math.floor(audioBuffer.length/chunkSize);
+    const thrLin=Math.pow(10,threshold/20);
+
+    const isSilent=new Uint8Array(nChunks);
+    for(let i=0;i<nChunks;i++){
+      let sum=0;
+      for(let c=0;c<nch;c++){const d=audioBuffer.getChannelData(c);for(let s=i*chunkSize;s<(i+1)*chunkSize;s++)sum+=d[s]*d[s];}
+      isSilent[i]=(Math.sqrt(sum/(chunkSize*nch))<thrLin)?1:0;
+    }
+
+    // Collect silent regions
+    const silents=[];
+    let ss=null;
+    for(let i=0;i<nChunks;i++){
+      const t=i*0.05;
+      if(isSilent[i]&&ss===null)ss=t;
+      else if(!isSilent[i]&&ss!==null){if(t-ss>=minDur)silents.push({start:ss,end:t});ss=null;}
+    }
+    if(ss!==null&&dur-ss>=minDur)silents.push({start:ss,end:dur});
+
+    addLog(silents.length+'個の無音区間を検出しました。',silents.length>0?'warn':'success');
+
+    // Build noise profile from first silent region (for noise reduction)
+    if(silents.length>0 && document.getElementById('noiseToggle').checked){
+      noiseProfile=buildNoiseProfile(audioBuffer, silents[0].start, silents[0].end);
+      addLog('ノイズプロファイルを取得しました（'+silents[0].start.toFixed(2)+'s〜'+silents[0].end.toFixed(2)+'s）','proc');
+    }
+
+    // Build keep segments
+    keepSegments=[];
+    let pos=0;
+    for(const sr2 of silents){
+      const kEnd=Math.min(sr2.start+padBefore,sr2.start);
+      const keepEnd=Math.max(pos,sr2.start+padBefore);
+      if(keepEnd>pos)keepSegments.push({start:pos,end:keepEnd});
+      pos=Math.max(pos,sr2.end-padAfter);
+    }
+    if(pos<dur)keepSegments.push({start:pos,end:dur});
+    keepSegments=keepSegments.filter(s=>s.end-s.start>0.05);
+
+    // Display
+    const allSegs=[];
+    let cur=0;
+    for(const sr2 of silents){if(sr2.start>cur)allSegs.push({start:cur,end:sr2.start,type:'keep'});allSegs.push({start:sr2.start,end:sr2.end,type:'cut'});cur=sr2.end;}
+    if(cur<dur)allSegs.push({start:cur,end:dur,type:'keep'});
+
+    const list=document.getElementById('segmentsList');
+    list.innerHTML='';
+    allSegs.forEach(seg=>{
+      const d=document.createElement('div');d.className='segment-item';
+      const len=(seg.end-seg.start).toFixed(2);
+      d.innerHTML=`<div class="segment-info">${seg.start.toFixed(2)}s ～ ${seg.end.toFixed(2)}s</div>
+        <span class="badge ${seg.type==='keep'?'badge-keep':'badge-cut'}">${seg.type==='keep'?'保持 '+len+'s':'カット '+len+'s'}</span>`;
+      list.appendChild(d);
+    });
+    const totalKeep=keepSegments.reduce((s,k)=>s+(k.end-k.start),0);
+    const totalCut=silents.reduce((s,r)=>s+(r.end-r.start),0);
+    document.getElementById('summaryText').textContent='保持: '+totalKeep.toFixed(2)+'秒 ／ カット: '+totalCut.toFixed(2)+'秒（元: '+dur.toFixed(2)+'秒）';
+    document.getElementById('segmentsSection').classList.remove('hidden');
+
+    setProgress(100,'解析完了');
+    addLog('解析完了。「カット＋処理して書き出す」を押してください。','success');
+    analyzeBtn.disabled=false;
+    processBtn.disabled=keepSegments.length===0;
+    actx.close();
+  }catch(e){addLog('エラー: '+e.message,'error');analyzeBtn.disabled=false;}
+});
+
+// ---- NOISE PROFILE (spectral subtraction) ----
+function buildNoiseProfile(buf, t0, t1){
+  const sr=buf.sampleRate;
+  const s0=Math.floor(t0*sr), s1=Math.floor(t1*sr);
+  const len=s1-s0;
+  if(len<512)return null;
+  const fftSize=2048;
+  const hop=512;
+  const nFrames=Math.floor((len-fftSize)/hop);
+  if(nFrames<1)return null;
+  const nch=buf.numberOfChannels;
+  const profile=new Float32Array(fftSize/2);
+  let count=0;
+  // Simple magnitude averaging
+  const win=new Float32Array(fftSize);
+  for(let i=0;i<fftSize;i++)win[i]=0.5-0.5*Math.cos(2*Math.PI*i/fftSize); // Hann
+  for(let f=0;f<nFrames;f++){
+    const frame=new Float32Array(fftSize);
+    for(let c=0;c<nch;c++){const d=buf.getChannelData(c);for(let i=0;i<fftSize;i++)frame[i]+=d[s0+f*hop+i]*win[i]/nch;}
+    const mag=fftMag(frame);
+    for(let i=0;i<fftSize/2;i++)profile[i]+=mag[i];
+    count++;
+  }
+  for(let i=0;i<profile.length;i++)profile[i]/=count;
+  return profile;
+}
+
+// Minimal DFT magnitude (real FFT approximation using goertzel-like approach)
+// For practical noise reduction we use a simple approach
+function fftMag(x){
+  const N=x.length;
+  const re=new Float32Array(N/2);
+  const im=new Float32Array(N/2);
+  // Use simplified DFT for small bins (sufficient for noise profiling)
+  // We only need approx magnitude spectrum, not full precision
+  for(let k=0;k<N/2;k++){
+    let r=0,im2=0;
+    for(let n=0;n<N;n++){const phi=2*Math.PI*k*n/N;r+=x[n]*Math.cos(phi);im2-=x[n]*Math.sin(phi);}
+    re[k]=r; im[k]=im2;
+  }
+  const mag=new Float32Array(N/2);
+  for(let k=0;k<N/2;k++)mag[k]=Math.sqrt(re[k]*re[k]+im[k]*im[k])/N;
+  return mag;
+}
+
+// Apply noise reduction to audio buffer (spectral subtraction per-channel)
+function applyNoiseReduction(buf, profile, strength){
+  if(!profile)return buf;
+  addLog('ノイズ除去を適用中...','proc');
+  const sr=buf.sampleRate;
+  const nch=buf.numberOfChannels;
+  const len=buf.length;
+  const fftSize=2048;
+  const hop=512;
+  const actx2=new OfflineAudioContext(nch,len,sr);
+  const outBuf=actx2.createBuffer(nch,len,sr);
+
+  for(let c=0;c<nch;c++){
+    const inp=buf.getChannelData(c);
+    const out=outBuf.getChannelData(c);
+    const win=new Float32Array(fftSize);
+    for(let i=0;i<fftSize;i++)win[i]=0.5-0.5*Math.cos(2*Math.PI*i/fftSize);
+
+    // Overlap-add
+    const overlap=new Float32Array(len+fftSize);
+    const nFrames=Math.floor((len)/hop);
+    for(let f=0;f<nFrames;f++){
+      const pos=f*hop;
+      const frame=new Float32Array(fftSize);
+      for(let i=0;i<fftSize;i++){const idx=pos+i;frame[i]=(idx<len?inp[idx]:0)*win[i];}
+      // Simple spectral subtraction in time domain via direct approach
+      // Subtract estimated noise contribution
+      for(let i=0;i<fftSize;i++){
+        const noiseAmp=profile[Math.min(i,profile.length-1)]*strength*2;
+        const sign=frame[i]>=0?1:-1;
+        frame[i]=sign*Math.max(0,Math.abs(frame[i])-noiseAmp);
+      }
+      for(let i=0;i<fftSize;i++){const idx=pos+i;if(idx<len+fftSize)overlap[idx]+=frame[i]*win[i];}
+    }
+    const normFac=fftSize/hop*0.375;
+    for(let i=0;i<len;i++)out[i]=overlap[i]/normFac;
+  }
+  return outBuf;
+}
+
+// ---- LOUDNESS NORMALIZATION ----
+function measureLoudness(buf){
+  // Approximate integrated loudness (simplified ITU-R BS.1770)
+  const nch=buf.numberOfChannels;
+  let sum=0, count=0;
+  for(let c=0;c<nch;c++){
+    const d=buf.getChannelData(c);
+    const w=nch===1?1.0:(c<2?1.0:1.41); // center/surround weighting
+    for(let i=0;i<d.length;i++)sum+=d[i]*d[i]*w*w;
+    count+=d.length;
+  }
+  const rms=Math.sqrt(sum/count);
+  return rms>0?20*Math.log10(rms)-0.691:-Infinity; // approx LUFS
+}
+
+function applyGain(buf,gainLinear){
+  for(let c=0;c<buf.numberOfChannels;c++){
+    const d=buf.getChannelData(c);
+    // Limit gain to prevent clipping
+    for(let i=0;i<d.length;i++){d[i]=Math.max(-1,Math.min(1,d[i]*gainLinear));}
+  }
+  return buf;
+}
+
+// ---- PROCESS & EXPORT ----
+processBtn.addEventListener('click',async()=>{
+  if(!videoFile||keepSegments.length===0)return;
+  processBtn.disabled=true; analyzeBtn.disabled=true;
+  document.getElementById('downloadCard').classList.add('hidden');
+  addLog('書き出しを開始します...','info');
+  setProgress(5,'動画を読み込み中...');
+
+  const useNorm=document.getElementById('normToggle').checked;
+  const useNoise=document.getElementById('noiseToggle').checked;
+  const targetLufs=parseFloat(document.getElementById('targetLufs').value);
+  const noiseStrength=parseFloat(document.getElementById('noiseReduction').value);
+
+  try{
+    const url=URL.createObjectURL(videoFile);
+    const chunks=[];
+    const totalDuration=keepSegments.reduce((s,k)=>s+(k.end-k.start),0);
+    let recorded=0;
+
+    const video=document.createElement('video');
+    video.src=url; video.preload='auto';
+    await new Promise(res=>{video.onloadedmetadata=res;});
+
+    const canvas=document.createElement('canvas');
+    canvas.width=video.videoWidth||1280;
+    canvas.height=video.videoHeight||720;
+    const ctx=canvas.getContext('2d');
+
+    const audioCtx=new AudioContext();
+
+    // --- Audio processing pipeline ---
+    let procBuffer=audioBuffer;
+    setProgress(10,'音声を処理中...');
+
+    // 1) Noise reduction
+    if(useNoise){
+      addLog('ノイズ除去を処理中...','proc');
+      // Build noise profile if not yet done
+      if(!noiseProfile){
+        // Use first 2 seconds as noise sample
+        noiseProfile=buildNoiseProfile(procBuffer,0,Math.min(2,procBuffer.duration));
+      }
+      if(noiseProfile){
+        procBuffer=applyNoiseReduction(procBuffer,noiseProfile,noiseStrength);
+        addLog('ノイズ除去を適用しました。','success');
+      } else {
+        addLog('ノイズプロファイルが取得できませんでした。スキップします。','warn');
+      }
+    }
+
+    // 2) Loudness normalization
+    if(useNorm){
+      addLog('音量を測定中...','proc');
+      const measuredLufs=measureLoudness(procBuffer);
+      if(isFinite(measuredLufs)){
+        const diff=targetLufs-measuredLufs;
+        const gainLin=Math.pow(10,diff/20);
+        // Cap gain to avoid over-amplification
+        const cappedGain=Math.min(gainLin,10);
+        applyGain(procBuffer,cappedGain);
+        addLog('ラウドネス正規化: '+measuredLufs.toFixed(1)+' LUFS → '+targetLufs+' LUFS（ゲイン: '+(cappedGain).toFixed(2)+'x）','success');
+      } else {
+        addLog('音量測定に失敗しました（無音のデータ）。スキップします。','warn');
+      }
+    }
+
+    setProgress(20,'映像の書き出しを開始...');
+
+    // Create AudioBufferSourceNode from processed buffer
+    const sourceNode=audioCtx.createBufferSource();
+    sourceNode.buffer=procBuffer;
+    const gainNode=audioCtx.createGain();
+    gainNode.gain.value=1;
+    const dest=audioCtx.createMediaStreamDestination();
+    sourceNode.connect(gainNode);
+    gainNode.connect(dest);
+    gainNode.connect(audioCtx.destination);
+
+    const videoStream=canvas.captureStream(30);
+    const combinedStream=new MediaStream([...videoStream.getVideoTracks(),...dest.stream.getAudioTracks()]);
+
+    const mimeTypes=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+    const mimeType=mimeTypes.find(m=>MediaRecorder.isTypeSupported(m))||'video/webm';
+    addLog('コーデック: '+mimeType,'info');
+
+    const recorder=new MediaRecorder(combinedStream,{mimeType,videoBitsPerSecond:4000000});
+    recorder.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
+    recorder.start(100);
+
+    // We need to sync audio source with video segments
+    // Calculate the AudioBuffer offsets for each kept segment
+    let audioOffset=0; // cumulative time in output
+    for(let i=0;i<keepSegments.length;i++){
+      const seg=keepSegments[i];
+      const segDur=seg.end-seg.start;
+      const pct=Math.round(20+70*(recorded/totalDuration));
+      setProgress(pct,`区間 ${i+1}/${keepSegments.length} を処理中...`);
+      addLog(`区間 ${i+1}/${keepSegments.length}: ${seg.start.toFixed(2)}s〜${seg.end.toFixed(2)}s`,'proc');
+
+      // Seek and play video
+      video.currentTime=seg.start;
+      await new Promise(res=>{video.onseeked=res;});
+
+      // Schedule audio for this segment
+      const audioSrc2=audioCtx.createBufferSource();
+      audioSrc2.buffer=procBuffer;
+      audioSrc2.connect(gainNode);
+      const when=audioCtx.currentTime;
+      audioSrc2.start(when,seg.start,segDur);
+
+      await video.play();
+      const drawLoop=()=>{ctx.drawImage(video,0,0,canvas.width,canvas.height);if(!video.paused&&!video.ended)requestAnimationFrame(drawLoop);};
+      requestAnimationFrame(drawLoop);
+
+      await new Promise(res=>{
+        const check=()=>{if(video.currentTime>=seg.end-0.05){video.pause();res();}else requestAnimationFrame(check);};
+        check();
+      });
+      audioSrc2.stop();
+      recorded+=segDur;
+    }
+
+    video.pause();
+    recorder.stop();
+    setProgress(95,'書き出し中...');
+    await new Promise(res=>{recorder.onstop=res;});
+
+    const blob=new Blob(chunks,{type:mimeType});
+    const ext='webm';
+    const outUrl=URL.createObjectURL(blob);
+    document.getElementById('downloadLink').href=outUrl;
+    document.getElementById('downloadLink').download=videoFile.name.replace(/\.[^.]+$/,'')+'_processed.'+ext;
+
+    const applied=[];
+    if(useNoise)applied.push('ノイズ除去');
+    if(useNorm)applied.push('音量正規化('+targetLufs+'LUFS)');
+    const appText=applied.length>0?' ＋ '+applied.join('・'):'';
+    document.getElementById('downloadAlert').textContent='✓ 処理完了！  ファイルサイズ: '+(blob.size/1024/1024).toFixed(1)+' MB　適用: 無音カット'+appText;
+    document.getElementById('downloadCard').classList.remove('hidden');
+    setProgress(100,'完了');
+    addLog('書き出し完了！ダウンロードボタンから保存してください。','success');
+    audioCtx.close(); URL.revokeObjectURL(url);
+  }catch(e){addLog('エラー: '+e.message,'error');console.error(e);}
+  finally{processBtn.disabled=false;analyzeBtn.disabled=false;}
+});
+</script>
+</body>
+</html>

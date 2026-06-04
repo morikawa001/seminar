@@ -102,8 +102,6 @@ body{
   z-index: 0;
   pointer-events: none;
   background: transparent;
-  opacity: 0.42;
-  filter: blur(0.2px);
 }
 
 .app {
@@ -490,12 +488,12 @@ h1{
       <div class="setting-item">
         <label class="setting-label" for="trimStart">冒頭カット位置（ここまで削除）</label>
         <input class="setting-input" type="time" id="trimStart" step="1" value="00:00">
-        <span class="setting-hint">動画の最初から、この時刻までをカットします（HH:mm:ss / HH:mm）。[web:85][web:91]</span>
+        <span class="setting-hint">動画の最初から、この時刻までをカットします。</span>
       </div>
       <div class="setting-item">
         <label class="setting-label" for="trimEnd">末尾カット開始位置（ここから後ろを削除）</label>
         <input class="setting-input" type="time" id="trimEnd" step="1" value="23:59:59">
-        <span class="setting-hint">この時刻以降をカットします。未指定に近い状態なら末尾まで残します。[web:85][web:91]</span>
+        <span class="setting-hint">この時刻以降をカットします。未指定に近い状態なら末尾まで残します。</span>
       </div>
     </div>
     <div class="alert alert-info" style="margin-top:var(--space-4);margin-bottom:0;">
@@ -1173,7 +1171,7 @@ processBtn.addEventListener('click',async()=>{
   let drops=new Array(columns()).fill(0).map(()=>Math.floor(Math.random()*canvas.height/fontSize));
 
   function draw(){
-    ctx.fillStyle='rgba(0,0,0,0.055)';
+    ctx.fillStyle='rgba(0,0,0,0.075)';
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
     ctx.font=fontSize+'px Share Tech Mono, monospace';
@@ -1183,24 +1181,25 @@ processBtn.addEventListener('click',async()=>{
       const x=i*fontSize;
       const y=drops[i]*fontSize;
 
-      ctx.fillStyle='rgba(110,255,160,0.16)';
+      ctx.fillStyle='rgba(90,255,140,0.30)';
       ctx.fillText(text,x,y);
 
-      if(Math.random()>0.992){
-        ctx.fillStyle='rgba(180,255,210,0.28)';
-        ctx.fillText(text,x,y);
-      }
+      ctx.fillStyle='rgba(180,255,210,0.55)';
+      ctx.fillText(text,x,y-1);
 
-      if(y>canvas.height && Math.random()>0.985){
+      if(y>canvas.height && Math.random()>0.975){
         drops[i]=0;
       }else{
-        drops[i]+=0.78;
+        drops[i]+=1;
       }
     }
     requestAnimationFrame(draw);
   }
 
-  window.addEventListener('resize',()=>{drops=new Array(columns()).fill(0).map(()=>Math.floor(Math.random()*canvas.height/fontSize));});
+  window.addEventListener('resize',()=>{
+    drops=new Array(columns()).fill(0).map(()=>Math.floor(Math.random()*canvas.height/fontSize));
+  });
+
   draw();
 })();
 </script>

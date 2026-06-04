@@ -1161,26 +1161,22 @@ processBtn.addEventListener('click',async()=>{
   resize();
   window.addEventListener('resize',resize);
 
-  // ====== 背景Canvas（マトリックス風 — 文字が上から下に流れる） ======
-(function(){
-  const canvas = document.getElementById('bgCanvas');
-  const ctx = canvas.getContext('2d');
-  const fontSize = 14;
-  const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
-  let drops = [];
+  const katakana='アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+  const latin='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const nums='0123456789';
+  const chars=(katakana+latin+nums).split('');
 
-  function resize(){
-    canvas.width  = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const cols = Math.floor(canvas.width / fontSize);
-    // 既存ドロップ数を維持しつつリサイズ
-    drops = Array.from({length: cols}, (_, i) => drops[i] ?? Math.random() * -50);
+  const fontSize=16;
+  const columns=()=>Math.floor(canvas.width/fontSize);
+  let drops=[];
+
+  function resetDrops(){
+    drops=new Array(columns()).fill(0).map(()=>Math.floor(Math.random()*canvas.height/fontSize));
   }
-  window.addEventListener('resize', resize);
-  resize();
+  resetDrops();
 
   function draw(){
-    ctx.fillStyle='rgba(0,0,0,0.11)';
+    ctx.fillStyle='rgba(0,0,0,0.085)';
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
     ctx.font=fontSize+'px Share Tech Mono, monospace';
@@ -1190,10 +1186,10 @@ processBtn.addEventListener('click',async()=>{
       const x=i*fontSize;
       const y=drops[i]*fontSize;
 
-      ctx.fillStyle='rgba(90,255,140,0.18)';
+      ctx.fillStyle='rgba(90,255,140,0.28)';
       ctx.fillText(text,x,y);
 
-      ctx.fillStyle='rgba(180,255,210,0.30)';
+      ctx.fillStyle='rgba(180,255,210,0.48)';
       ctx.fillText(text,x,y-1);
 
       if(y>canvas.height && Math.random()>0.975){
@@ -1205,10 +1201,7 @@ processBtn.addEventListener('click',async()=>{
     requestAnimationFrame(draw);
   }
 
-  window.addEventListener('resize',()=>{
-    drops=new Array(columns()).fill(0).map(()=>Math.floor(Math.random()*canvas.height/fontSize));
-  });
-
+  window.addEventListener('resize',resetDrops);
   draw();
 })();
 </script>

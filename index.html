@@ -4,7 +4,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>臨床研究研修会 ダッシュボード / dual-theme control ui</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<title>臨床研究研修会 ダッシュボード / dual-theme control ui v2026-06-05c</title>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 <script>
@@ -1640,15 +1643,15 @@ label[for="templateFiles"] {
       <div class="sender-info-grid">
         <div class="field">
           <label>所属・部署名</label>
-          <input type="text" id="senderOrg" placeholder="例：XXがんセンター 臨床研究支援センター" />
+          <input type="text" id="senderOrg" placeholder="例：静岡がんセンター 臨床研究支援センター" />
         </div>
         <div class="field">
           <label>担当者名</label>
-          <input type="text" id="senderName" placeholder="例：山田 太郎" />
+          <input type="text" id="senderName" placeholder="例：森川 太郎" />
         </div>
         <div class="field" style="grid-column:1/-1">
           <label>シグネチャー（＊＊＊に挟まれた部分のみ入力）</label>
-          <textarea id="senderSignature" rows="5" style="min-height:100px" placeholder="例：XXがんセンター 臨床研究支援センター&#10;臨床研究管理・調整室&#10;山田 太郎&#10;TEL: 055-989-XXXX&#10;Email: t.yamada@xxch.jp"></textarea>
+          <textarea id="senderSignature" rows="5" style="min-height:100px" placeholder="例：静岡がんセンター 臨床研究支援センター&#10;臨床研究管理・調整室&#10;森川 太郎&#10;TEL: 055-989-XXXX&#10;Email: t.morikawa@scchr.jp"></textarea>
         </div>
       </div>
     </section>
@@ -2722,6 +2725,7 @@ const fields={
 };
 
 let currentHeaders=[],rawRows=[],dataRows=[],selectedRow=null,stagedRow=null,lastSaveMode='',selectedTemplates=[];
+// チェック時に即時 rawRows へ書き込む方式を使用（pendingChecks廃止）
 
 const HEAD_TEXT_DEFAULT='2026年度　臨床研究研修会';
 const HEAD_TEXT_COHOST='2026年度　臨床腫瘍学コース・臨床研究研修会（共催）';
@@ -3578,6 +3582,9 @@ function collectDeadlineAlerts(){
     const no=r[fullKeys.no]||'-';
     const eventDateRaw=r[fullKeys.date];
 
+    // label→csvKey マッピング
+    const labelToCsvKey={'起案1':'checkK1','起案2':'checkK2','起案3':'checkK3','院外締切':'checkK1','資料締切':'checkK2','配布資料DL締切':'checkK2'};
+
     const pushItem=(label,dateObj,raw)=>{
       if(!dateObj) return;
       const diff=daysBetween(baseToday,dateObj);
@@ -3587,7 +3594,8 @@ function collectDeadlineAlerts(){
         title,
         label,
         raw:raw||fmtDate(dateObj),
-        diff
+        diff,
+        csvKey:labelToCsvKey[label]||'checkK1'
       });
     };
 
@@ -3616,7 +3624,7 @@ function renderAlerts(){
     els.alertList.innerHTML=alerts.map((a,i)=>{
       const aid='alert-item-'+i;
       const tag=a.diff===0?'TODAY':a.diff===1?'TOMORROW':`+${a.diff}D`;
-      return `<div class="alert-item" id="${aid}">
+      return `<div class="alert-item" id="${aid}" data-no="${esc(a.no)}" data-csvkey="${esc(a.csvKey||'checkK1')}">
         <div class="alert-item-tag-wrap">
           <input type="checkbox" class="alert-check" onclick="alertCheckDone('${aid}',this.checked)" title="実施済みにする" />
           <span class="alert-tag">${tag}</span>
@@ -3742,6 +3750,7 @@ function renderResult(done=false){
 
 function downloadCsv(){
   if(!currentHeaders.length){setStatus('ダウンロード対象のマスターがありません。');return}
+  // rawRowsはチェック時点で即時書き込み済み→そのまま CSV 出力
   rawRows=compactRawRows(rawRows);
   // 開催日_DATE_1（"6月2日" 形式）を parseShortJapaneseDate で Date に変換して昇順ソート
   const sorted = [...rawRows].sort((a, b) => {
@@ -4108,8 +4117,8 @@ const SPARE_BUTTONS = {
   1: { url: 'http://10.6.186.1/cms/maintenance-login.php?loggedout=true&wp_lang=ja', label: 'HP編集' },
   2: { url: 'https://zoom.us/signin#/login', label: 'Zoom' },
   3: { url: 'https://www.scchr.jp/clinicaltrial/cscc_seminar/index.html', label: 'SCC_HP' },
-  4: { url: 'https://morikawa001.github.io/seminar/qr_maker.html', label: 'QRコード' },
-  5: { url: 'https://morikawa001.github.io/seminar/SilenceCutPro.html', label: 'SilenceCut' },
+  4: { url: 'https://morikawa001.github.io/seminar/qr_maker.html', label: 'QRコード生成' },
+  5: { url: 'https://morikawa001.github.io/seminar/SilenceCutPro.html', label: 'SilenceCut Pro' },
 };
 
 // 起動時に SPARE_BUTTONS の設定を適用（in-memoryキャッシュ方式）
@@ -4182,37 +4191,37 @@ function buildTodayCommands(rows){
 
     // 開催当日
     if(days===0){
-      cmds.push({no,title,urgency:'critical',action:'本日開催です。当日準備を確認してください。',reason:`Task完了: ${taskDone}/33`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成',recipient:'attendee',purpose:'reminder',no}]});
+      cmds.push({no,title,urgency:'critical',csvKey:'checkK3',action:'本日開催です。当日準備を確認してください。',reason:`Task完了: ${taskDone}/33`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成',recipient:'attendee',purpose:'reminder',no}]});
       if(!zoomUrl||zoomUrl==='https://zoom.us/'){
-        cmds.push({no,title,urgency:'critical',action:'Zoom URLが未入力です。今すぐ登録してください。',reason:'当日前にZoom URLが必要です',buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no}]});
+        cmds.push({no,title,urgency:'critical',csvKey:'checkK3',action:'Zoom URLが未入力です。今すぐ登録してください。',reason:'当日前にZoom URLが必要です',buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no}]});
       }
     }
     // 1-3日前
     else if(days>0&&days<=3){
-      cmds.push({no,title,urgency:'critical',action:`開催まで${days}日です。直前リマインドを送信してください。`,reason:`開催日: ${row[fullKeys.date]||'-'}`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成(講師)',recipient:'speaker',purpose:'reminder',no},{label:'メール作成(参加者)',recipient:'attendee',purpose:'reminder',no}]});
+      cmds.push({no,title,urgency:'critical',csvKey:'checkK2',action:`開催まで${days}日です。直前リマインドを送信してください。`,reason:`開催日: ${row[fullKeys.date]||'-'}`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成(講師)',recipient:'speaker',purpose:'reminder',no},{label:'メール作成(参加者)',recipient:'attendee',purpose:'reminder',no}]});
       if(!zoomUrl||zoomUrl==='https://zoom.us/'){
-        cmds.push({no,title,urgency:'critical',action:'Zoom URLが未設定です。至急入力してください。',reason:`開催${days}日前`,buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no}]});
+        cmds.push({no,title,urgency:'critical',csvKey:'checkK2',action:'Zoom URLが未設定です。至急入力してください。',reason:`開催${days}日前`,buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no}]});
       }
     }
     // 4-7日前
     else if(days>3&&days<=7){
-      cmds.push({no,title,urgency:'high',action:`開催${days}日前です。起案2・資料の準備を確認してください。`,reason:`開催日: ${row[fullKeys.date]||'-'}`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成',recipient:'speaker',purpose:'data_request',no}]});
+      cmds.push({no,title,urgency:'high',csvKey:'checkK2',action:`開催${days}日前です。起案2・資料の準備を確認してください。`,reason:`開催日: ${row[fullKeys.date]||'-'}`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成',recipient:'speaker',purpose:'data_request',no}]});
       if(!zoomUrl||zoomUrl==='https://zoom.us/'){
-        cmds.push({no,title,urgency:'high',action:'Zoom URLが未設定です。入力してください。',reason:'開催1週間前',buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no},{label:'Zoom情報メール',recipient:'attendee',purpose:'zoom_info',no}]});
+        cmds.push({no,title,urgency:'high',csvKey:'checkK2',action:'Zoom URLが未設定です。入力してください。',reason:'開催1週間前',buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no},{label:'Zoom情報メール',recipient:'attendee',purpose:'zoom_info',no}]});
       }
     }
     // 8-14日前
     else if(days>7&&days<=14){
       const hasZoom=zoomUrl&&zoomUrl!=='https://zoom.us/';
-      cmds.push({no,title,urgency:'normal',action:`開催${days}日前です。参加者への開催案内を確認してください。`,reason:`HP/Zoom設定確認を推奨`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成',recipient:'attendee',purpose:'announce',no}]});
+      cmds.push({no,title,urgency:'normal',csvKey:'checkHp',action:`開催${days}日前です。参加者への開催案内を確認してください。`,reason:`HP/Zoom設定確認を推奨`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成',recipient:'attendee',purpose:'announce',no}]});
     }
     // 15-35日前（準備フェーズ）
     else if(days>14&&days<=35){
       if(!speaker||speaker.trim()===''){
-        cmds.push({no,title,urgency:'high',action:'講師名が未入力です。登壇依頼を進めてください。',reason:`開催${days}日前`,buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no},{label:'登壇依頼メール',recipient:'speaker',purpose:'invitation',no}]});
+        cmds.push({no,title,urgency:'high',csvKey:'checkK1',action:'講師名が未入力です。登壇依頼を進めてください。',reason:`開催${days}日前`,buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no},{label:'登壇依頼メール',recipient:'speaker',purpose:'invitation',no}]});
       }
       if(!isCheckedValue(row[fullKeys.checkK1])){
-        cmds.push({no,title,urgency:'normal',action:`起案1がまだです。開催${days}日前なので起案1を進めてください。`,reason:'起案1は開催35日前が目安',buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no}]});
+        cmds.push({no,title,urgency:'normal',csvKey:'checkK1',action:`起案1がまだです。開催${days}日前なので起案1を進めてください。`,reason:'起案1は開催35日前が目安',buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no}]});
       }
     }
     // 開催後（事後処理）
@@ -4227,14 +4236,15 @@ function buildTodayCommands(rows){
         if(!postTask28)pending.push('起案3(受講証)');
         if(!postTask29)pending.push('講師へお礼');
         if(!postTask33)pending.push('受講証交付');
-        cmds.push({no,title,urgency:'high',action:`事後処理が残っています: ${pending.join(' / ')}`,reason:`開催から${Math.abs(days)}日経過`,buttons:[{label:'Task Checklist',href:'#taskChecklistPanel',no},{label:'お礼メール',recipient:'speaker',purpose:'thanks',no}]});
+        const postKey=!postTask29?'task29':!postTask33?'task33':!postTask28?'task28':'task25';
+        cmds.push({no,title,urgency:'high',csvKey:postKey,action:`事後処理が残っています: ${pending.join(' / ')}`,reason:`開催から${Math.abs(days)}日経過`,buttons:[{label:'Task Checklist',href:'#taskChecklistPanel',no},{label:'お礼メール',recipient:'speaker',purpose:'thanks',no}]});
       }
     }
 
     // 共通チェック: 進行表イントロ不備
     if(days>=0&&days<=14){
       if(!intro1.trim()||!intro2.trim()||!intro3.trim()){
-        cmds.push({no,title,urgency:'info',action:'進行表のイントロ文が不足しています。',reason:`intro1/2/3のいずれかが空`,buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no}]});
+        cmds.push({no,title,urgency:'info',csvKey:'checkK2',action:'進行表のイントロ文が不足しています。',reason:`intro1/2/3のいずれかが空`,buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no}]});
       }
     }
   });
@@ -4267,7 +4277,8 @@ function renderTodayCommand(){
       return `<button class="tc-btn primary" onclick="openMailTemplate('${esc(b.no||'')}','${esc(b.recipient||'')}','${esc(b.purpose||'')}')">${esc(b.label)}</button>`;
     }).join('');
     const cardId='tc-card-'+idx;
-    return `<div class="tc-card urgency-${urgClass}" id="${cardId}">
+    // data-no / data-csvkey を付与しCSV反映で利用
+    return `<div class="tc-card urgency-${urgClass}" id="${cardId}" data-no="${esc(cmd.no)}" data-csvkey="${esc(cmd.csvKey||'checkK1')}">
       <div class="tc-card-head">
         <div class="tc-card-check-row" onclick="tcToggleExpand('${cardId}')">
           <input type="checkbox" class="tc-check" id="chk_${cardId}" onclick="event.stopPropagation();tcCheckDone('${cardId}',this.checked)" />
@@ -4373,13 +4384,17 @@ function renderMailRecordOptions(){
 
 function openMailTemplate(no, recipient, purpose){
   const sel=document.getElementById('mailRecordSelect');
-  if(sel&&no){
-    sel.value=no;
-  }
+  if(sel&&no) sel.value=no;
   const rSel=document.getElementById('mailRecipient');
   if(rSel&&recipient) rSel.value=recipient;
   const pSel=document.getElementById('mailPurpose');
   if(pSel&&purpose) pSel.value=purpose;
+  // タブ同期（purposeに対応する.mail-tabをアクティブに）
+  if(purpose){
+    document.querySelectorAll('.mail-tab').forEach(b=>{
+      b.classList.toggle('active', b.dataset.purpose===purpose);
+    });
+  }
   generateMailTemplate();
   const mailEl=document.getElementById('mailTemplateSection');
   if(mailEl) mailEl.scrollIntoView({behavior:'smooth',block:'start'});
@@ -4396,6 +4411,38 @@ function tcCheckDone(cardId, checked){
   } else {
     card.classList.remove('done');
   }
+  // 即座に rawRows を更新し dataRows と画面も同期
+  const no=card.dataset.no||'';
+  const csvKeyName=card.dataset.csvkey||'checkK1';
+  if(no && csvKeyName){
+    writeCheckToRaw(no, csvKeyName, checked);
+    showCsvSavedToast();
+  }
+}
+// rawRowsの該当行にCHECK値を書き込む（画面再描画なし）
+function writeCheckToRaw(no, csvKeyName, checked){
+  if(!no || !csvKeyName){ console.warn('[CHECK] no or csvKeyName empty',no,csvKeyName); return; }
+  const flagKey=fullKeys[csvKeyName];
+  if(!flagKey){ console.warn('[CHECK] flagKey not found for',csvKeyName); return; }
+  ensureHeader(flagKey);
+  const row=rawRows.find(r=>String(r[fullKeys.no]||'').trim()===String(no).trim());
+  if(!row){ console.warn('[CHECK] row not found for no=',no,'rawRows=',rawRows.map(r=>r[fullKeys.no])); return; }
+  const before=row[flagKey];
+  row[flagKey]=boolToCsv(checked);
+  console.log('[CHECK] written: No='+no+' '+flagKey+' '+before+'→'+row[flagKey]);
+}
+function showCsvSavedToast(){
+  let t=document.getElementById('csvUpdateToast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='csvUpdateToast';
+    t.style.cssText='position:fixed;bottom:24px;right:24px;background:var(--panel2);border:1px solid var(--cyan);color:var(--fg);padding:10px 16px;border-radius:8px;font-size:0.85rem;z-index:9999;transition:opacity 0.4s;display:flex;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(0,0,0,0.4)';
+    document.body.appendChild(t);
+  }
+  t.innerHTML=`<span style="color:var(--cyan)">✓ チェックを反映しました</span><span style="color:var(--fg);font-size:0.78rem;opacity:0.7">「更新CSVをダウンロード」でファイルに保存</span>`;
+  t.style.opacity='1';
+  clearTimeout(t._tid);
+  t._tid=setTimeout(()=>{t.style.opacity='0';},3000);
 }
 function tcToggleExpand(cardId){
   const card=document.getElementById(cardId);
@@ -4421,12 +4468,33 @@ function alertCheckDone(aid, checked){
   if(!item) return;
   if(checked){
     item.classList.add('done');
-    item.title='クリックで展開';
-    item.onclick=function(){ alertToggleExpand(aid); };
+    item.title='クリックで展開／折りたたみ';
+    item.onclick=function(e){
+      // チェックボックス自体のクリックは無視
+      if(e&&e.target&&e.target.type==='checkbox') return;
+      alertToggleExpand(aid);
+    };
+    // 展開・折りたたみの初期状態: 山たたみ
+    const body=item.querySelector('.alert-body');
+    const meta=item.querySelector('.alert-meta');
+    if(body) body.style.display='none';
+    if(meta) meta.style.display='none';
   } else {
     item.classList.remove('done');
     item.onclick=null;
     item.title='';
+    // 展開復帰
+    const body=item.querySelector('.alert-body');
+    const meta=item.querySelector('.alert-meta');
+    if(body) body.style.display='';
+    if(meta) meta.style.display='';
+  }
+  // 即座に rawRows を更新し dataRows と画面も同期
+  const no=item.dataset.no||'';
+  const csvKeyName=item.dataset.csvkey||'checkK1';
+  if(no && csvKeyName){
+    writeCheckToRaw(no, csvKeyName, checked);
+    showCsvSavedToast();
   }
 }
 function alertToggleExpand(aid){
@@ -4454,58 +4522,7 @@ function mailTabClick(btn){
 }
 window.mailTabClick=mailTabClick;
 
-// openMailTemplate 拡張 — タブも連動
-const _origOpenMail=openMailTemplate;
-openMailTemplate=function(no,recipient,purpose){
-  _origOpenMail(no,recipient,purpose);
-  // タブ同期
-  if(purpose){
-    document.querySelectorAll('.mail-tab').forEach(b=>{
-      b.classList.toggle('active', b.dataset.purpose===purpose);
-    });
-  }
-};
-
-// mailRecordSelect 変更時もタブ同期
-document.addEventListener('DOMContentLoaded',function(){
-  const rSel=document.getElementById('mailRecordSelect');
-  if(rSel) rSel.addEventListener('change',function(){
-    if(this.value) generateMailTemplate();
-  });
-  // ブラッシュアップボタン制御: メール生成後に表示
-  const origGenBtn=document.getElementById('mailGenerateBtn');
-  if(origGenBtn){
-    origGenBtn.addEventListener('click',function(){
-      setTimeout(()=>{
-        const brushBtn=document.getElementById('mailBrushupBtn');
-        const preview=document.getElementById('mailPreviewWrap');
-        if(brushBtn&&preview&&preview.style.display!=='none') brushBtn.style.display='';
-      },100);
-    });
-  }
-
-  // ブラッシュアップボタン
-  const brushBtn=document.getElementById('mailBrushupBtn');
-  if(brushBtn) brushBtn.addEventListener('click',runGasBrushup);
-
-  // brushupCopyBtn
-  const brushCopy=document.getElementById('brushupCopyBtn');
-  if(brushCopy) brushCopy.addEventListener('click',function(){
-    const t=document.getElementById('gasBrushupResult');
-    if(t) navigator.clipboard.writeText(t.value).then(()=>{
-      const orig=brushCopy.textContent; brushCopy.textContent='コピー完了';
-      setTimeout(()=>{ brushCopy.textContent=orig; },1600);
-    });
-  });
-
-  // brushupApplyBtn — ブラッシュアップ結果を本文エリアに反映
-  const applyBtn=document.getElementById('brushupApplyBtn');
-  if(applyBtn) applyBtn.addEventListener('click',function(){
-    const src=document.getElementById('gasBrushupResult');
-    const dst=document.getElementById('mailBodyDisplay');
-    if(src&&dst){ dst.value=src.value; dst.removeAttribute('readonly'); }
-  });
-});
+// openMailTemplate 拡張ブロックは上記の openMailTemplate 本体に統合済み—不要
 
 // GAS ブラッシュアップ実行
 const GAS_BRUSHUP_URL='https://script.google.com/macros/s/AKfycbwFGWXonRPSDqhToxurlrxmvb0oMydOdM18_2Jy5aQWDXP60o6bKjkjYYfu741dgkqB/exec';
@@ -4532,13 +4549,19 @@ async function runGasBrushup(){
 
   // GASの doPost は受取ったJSONをそのままGemini APIに投げるプロキシ構造のため
   // Gemini API形式の payload をダッシュボード側で組み立てる
-  const prompt=`以下のメール本文の宛名を適切な位置で改行してください。メール文は極力変更せず、誤字脱字のみ修正し、文体を整えてください。
+  const prompt=`以下のメール本文を詳細に校間してください。主な修正内容は以下の3点のみです。
+
+修正内容：
+1. 宛名・対象者の後に空行を入れ、段落間に適切な空行を追加して可読性を高める
+2. 誤字・脱字・内容の矛盾を修正する
+3. 文字表記の統一（半角/全角字の混在など）
+
 「件名：${subject}」
 
 「本文：
 ${mailBody}」
 
-【出力形式】ブラッシュアップ後の本文のみを返してください。説明文や先頭コメントは不要です。`;
+【注意】内容・文体・敌語表現は変えないこと。ブラッシュアップ後の本文のみを返してください。説明文・先頭コメントは不要です。`;
 
   const geminiPayload={
     contents:[{ parts:[{ text: prompt }] }],
@@ -4750,24 +4773,57 @@ function generateMailTemplate(){
 }
 
 document.addEventListener('DOMContentLoaded',function(){
+  // 「メール文面を生成」ボタン
   const genBtn=document.getElementById('mailGenerateBtn');
-  if(genBtn) genBtn.addEventListener('click',generateMailTemplate);
+  if(genBtn) genBtn.addEventListener('click',function(){
+    generateMailTemplate();
+    // 生成後にブラッシュアップボタンを表示
+    setTimeout(()=>{
+      const brushBtn=document.getElementById('mailBrushupBtn');
+      const preview=document.getElementById('mailPreviewWrap');
+      if(brushBtn&&preview&&preview.style.display!=='none') brushBtn.style.display='';
+    },80);
+  });
 
+  // ブラッシュアップボタン
+  const brushBtn=document.getElementById('mailBrushupBtn');
+  if(brushBtn) brushBtn.addEventListener('click',runGasBrushup);
+
+  // brushupCopyBtn
+  const brushCopy=document.getElementById('brushupCopyBtn');
+  if(brushCopy) brushCopy.addEventListener('click',function(){
+    const t=document.getElementById('gasBrushupResult');
+    if(t) navigator.clipboard.writeText(t.value).then(()=>{
+      const orig=brushCopy.textContent; brushCopy.textContent='コピー完了';
+      setTimeout(()=>{ brushCopy.textContent=orig; },1600);
+    });
+  });
+
+  // brushupApplyBtn — ブラッシュアップ結果を本文エリアに反映
+  const applyBtn=document.getElementById('brushupApplyBtn');
+  if(applyBtn) applyBtn.addEventListener('click',function(){
+    const src=document.getElementById('gasBrushupResult');
+    const dst=document.getElementById('mailBodyDisplay');
+    if(src&&dst){ dst.value=src.value; dst.removeAttribute('readonly'); }
+  });
+
+  // 件名コピー
   const copySubjectBtn=document.getElementById('mailCopySubjectBtn');
   if(copySubjectBtn) copySubjectBtn.addEventListener('click',function(){
     const t=document.getElementById('mailSubjectDisplay');
-    if(t) navigator.clipboard.writeText(t.value||t.textContent||'').then(()=>{
+    if(t) navigator.clipboard.writeText(t.value||'').then(()=>{
       const orig=copySubjectBtn.textContent; copySubjectBtn.textContent='コピー完了';
       setTimeout(()=>{ copySubjectBtn.textContent=orig; },1600);
     });
   });
 
+  // 件名+本文コピー
   const copyAllBtn=document.getElementById('mailCopyAllBtn');
   if(copyAllBtn) copyAllBtn.addEventListener('click',function(){
     const s=document.getElementById('mailSubjectDisplay');
     const b=document.getElementById('mailBodyDisplay');
     if(s&&b){
-      const text=`件名: ${s.value||s.textContent||''}\n\n${b.value}`;
+      const text=`件名: ${s.value||''}\n\n${b.value}`;
       navigator.clipboard.writeText(text).then(()=>{
         const orig=copyAllBtn.textContent; copyAllBtn.textContent='コピー完了';
         setTimeout(()=>{ copyAllBtn.textContent=orig; },1600);
@@ -4775,6 +4831,7 @@ document.addEventListener('DOMContentLoaded',function(){
     }
   });
 
+  // 本文コピー
   const copyBtn2=document.getElementById('mailCopyBtn2');
   if(copyBtn2) copyBtn2.addEventListener('click',function(){
     const b=document.getElementById('mailBodyDisplay');
@@ -4784,15 +4841,19 @@ document.addEventListener('DOMContentLoaded',function(){
     });
   });
 
-  // mailRecordSelect change -> auto generate if already selected
+  // mailRecordSelect / recipient / purpose 変更時に自動生成
   const mailSel=document.getElementById('mailRecordSelect');
   if(mailSel) mailSel.addEventListener('change',function(){
     if(this.value) generateMailTemplate();
   });
   const recipientSel=document.getElementById('mailRecipient');
-  if(recipientSel) recipientSel.addEventListener('change',function(){ if(document.getElementById('mailRecordSelect').value) generateMailTemplate(); });
+  if(recipientSel) recipientSel.addEventListener('change',function(){
+    if(document.getElementById('mailRecordSelect').value) generateMailTemplate();
+  });
   const purposeSel=document.getElementById('mailPurpose');
-  if(purposeSel) purposeSel.addEventListener('change',function(){ if(document.getElementById('mailRecordSelect').value) generateMailTemplate(); });
+  if(purposeSel) purposeSel.addEventListener('change',function(){
+    if(document.getElementById('mailRecordSelect').value) generateMailTemplate();
+  });
 });
 
 // renderAlerts / renderStats: Today Command・ExceptionQueue・mailRecordSelect は各関数本体に統合済み
@@ -4864,333 +4925,5 @@ window.loadDummyData=loadDummyData;
 
 
 </script>
-<script data-pplx-inline-edit>
-(function () {
-  if (window === window.top) return;
-
-  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
-  const MAX_FONT_BYTES = 500 * 1024;
-  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
-  let scrollForwarding = false;
-  let scrollRaf = 0;
-  let trustedTopOrigin = null;
-
-  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
-  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
-  // across multiple labels.
-  function matchesAllowedOrigin(origin) {
-    if (!origin) return false;
-    for (const entry of allowedParentOrigins) {
-      if (!entry.includes("*")) {
-        if (entry === origin) return true;
-        continue;
-      }
-      const pattern = new RegExp(
-        "^" +
-          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
-          "$",
-      );
-      if (pattern.test(origin)) return true;
-    }
-    return false;
-  }
-
-  // Trust decision: when the sender is same-origin-visible (event.origin is a
-  // real origin like https://www.perplexity.ai) we trust event.origin directly.
-  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
-  // broker's stamped `parentOrigin` to identify the top window. The fallback
-  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
-  // on the response path (see postToTrustedTop) to ensure replies can't be
-  // delivered to anyone but the actual top window of that claimed origin.
-  function getTrustedParentOrigin(event) {
-    const forwardedParentOrigin =
-      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
-    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
-    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
-  }
-
-  // All responses go to window.top with targetOrigin = the allowlisted origin.
-  // An attacker that iframes us inside their own null-origin broker can claim
-  // any parentOrigin they like, but the browser will drop the reply whenever
-  // the real top's origin doesn't match — so the screenshot never leaves.
-  function postToTrustedTop(message) {
-    if (!trustedTopOrigin) return;
-    try {
-      window.top.postMessage(message, trustedTopOrigin);
-    } catch (_error) {}
-  }
-
-  function inlineAll(original, clone) {
-    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
-
-    try {
-      const computedStyle = getComputedStyle(original);
-      // cssText on a computed style is the serialized declaration in modern
-      // Chromium/Safari — a single read beats enumerating ~400 longhand
-      // properties. Firefox returns "" here, so we fall back on empty.
-      const serialized = computedStyle.cssText;
-      if (serialized) {
-        clone.style.cssText = serialized;
-      } else {
-        const parts = new Array(computedStyle.length);
-        for (let index = 0; index < computedStyle.length; index += 1) {
-          const property = computedStyle[index];
-          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
-        }
-        clone.style.cssText = parts.join("");
-      }
-    } catch (_error) {}
-
-    const originalChildren = original.children;
-    const clonedChildren = clone.children;
-    for (
-      let index = 0;
-      index < originalChildren.length && index < clonedChildren.length;
-      index += 1
-    ) {
-      inlineAll(originalChildren[index], clonedChildren[index]);
-    }
-  }
-
-  function extractFontUrl(srcValue) {
-    const matches = [
-      ...srcValue.matchAll(
-        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
-      ),
-    ];
-    if (matches.length === 0) return null;
-    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
-    if (woff2) return woff2[1];
-    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
-    if (woff) return woff[1];
-    return matches[0][1];
-  }
-
-  // Cache resolved font URL -> data URI across captures. Fonts on a page
-  // essentially never change, and a batch run emits multiple captures back to
-  // back — without this we'd refetch + re-base64 every time.
-  const fontDataUriCache = new Map();
-  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
-
-  async function fetchAsDataUri(url) {
-    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
-    let dataUri = null;
-    try {
-      const response = await fetch(url, { mode: "cors", credentials: "omit" });
-      if (response.ok) {
-        const blob = await response.blob();
-        if (blob.size <= MAX_FONT_BYTES) {
-          dataUri = await new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onloadend = () =>
-              resolve(typeof reader.result === "string" ? reader.result : null);
-            reader.onerror = () => resolve(null);
-            reader.readAsDataURL(blob);
-          });
-        }
-      }
-    } catch (_error) {
-      dataUri = null;
-    }
-    fontDataUriCache.set(url, dataUri);
-    return dataUri;
-  }
-
-  function collectFontFaceRuleTexts() {
-    const rules = [];
-    for (const sheet of document.styleSheets) {
-      let cssRules;
-      try {
-        cssRules = sheet.cssRules;
-      } catch (_error) {
-        continue;
-      }
-      if (!cssRules) continue;
-      for (const rule of cssRules) {
-        const cssText = rule.cssText || "";
-        if (cssText.startsWith("@font-face")) rules.push(cssText);
-      }
-    }
-    return rules;
-  }
-
-  async function buildInlinedFontCss() {
-    const ruleTexts = collectFontFaceRuleTexts();
-    if (ruleTexts.length === 0) return null;
-
-    const resolved = ruleTexts.map((cssText) => {
-      if (!SRC_DECLARATION_RE.test(cssText)) return null;
-      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
-      if (!srcMatch) return null;
-      const url = extractFontUrl(srcMatch[1]);
-      if (!url) return null;
-      try {
-        return { cssText, url: new URL(url, document.baseURI).href };
-      } catch (_error) {
-        return null;
-      }
-    });
-
-    const dataUris = await Promise.all(
-      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
-    );
-
-    const inlined = [];
-    let totalBytes = 0;
-    for (let index = 0; index < resolved.length; index += 1) {
-      const entry = resolved[index];
-      const dataUri = dataUris[index];
-      if (!entry || !dataUri) continue;
-      const approxBytes = dataUri.length * 0.75;
-      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
-      totalBytes += approxBytes;
-      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
-    }
-    return inlined.length > 0 ? inlined.join("\n") : null;
-  }
-
-  function stripExternal(clone) {
-    const images = clone.querySelectorAll("img");
-    for (let index = 0; index < images.length; index += 1) {
-      const src = images[index].getAttribute("src");
-      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
-    }
-
-    const elements = clone.querySelectorAll("*");
-    for (let index = 0; index < elements.length; index += 1) {
-      const style = elements[index].style.cssText;
-      if (style && style.includes("url(")) {
-        elements[index].style.cssText = style.replace(
-          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
-          "none",
-        );
-      }
-    }
-  }
-
-  function emitScroll() {
-    scrollRaf = 0;
-    if (!scrollForwarding) return;
-    postToTrustedTop({
-      type: "INLINE_EDIT_SCROLL",
-      scrollX: window.scrollX,
-      scrollY: window.scrollY,
-    });
-  }
-
-  window.addEventListener(
-    "scroll",
-    function () {
-      if (!scrollForwarding || scrollRaf) return;
-      scrollRaf = requestAnimationFrame(emitScroll);
-    },
-    { passive: true, capture: true },
-  );
-
-  async function handleCaptureRequest(event) {
-    const requestId = event.data.requestId;
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-
-    function postResult(dataUrl) {
-      postToTrustedTop({
-        type: "INLINE_EDIT_SCREENSHOT_RESULT",
-        requestId,
-        dataUrl,
-        scrollX,
-        scrollY,
-      });
-    }
-
-    try {
-      // Wait for any pending web fonts to resolve so both inline metrics and
-      // the @font-face inlining below see the same loaded faces.
-      if (document.fonts && document.fonts.ready) {
-        try {
-          await document.fonts.ready;
-        } catch (_error) {}
-      }
-
-      const clone = document.documentElement.cloneNode(true);
-      inlineAll(document.documentElement, clone);
-
-      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
-      for (let index = 0; index < removedNodes.length; index += 1) {
-        removedNodes[index].remove();
-      }
-
-      stripExternal(clone);
-
-      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
-      // can resolve them — external font URLs aren't fetched during
-      // foreignObject rendering, which would otherwise force a fallback face
-      // and change text metrics.
-      const inlinedFontCss = await buildInlinedFontCss();
-      if (inlinedFontCss) {
-        const styleEl = document.createElement("style");
-        styleEl.textContent = inlinedFontCss;
-        const head = clone.querySelector("head");
-        if (head) head.appendChild(styleEl);
-        else clone.insertBefore(styleEl, clone.firstChild);
-      }
-
-      const html = new XMLSerializer().serializeToString(clone);
-      const svg =
-        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
-        '<foreignObject width="100%" height="100%">' +
-        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
-        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
-        html +
-        "</div></div></foreignObject></svg>";
-      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-      const image = new Image();
-      image.onload = function () {
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext("2d").drawImage(image, 0, 0);
-        postResult(canvas.toDataURL("image/png"));
-      };
-      image.onerror = function () {
-        postResult(null);
-      };
-      image.src = svgUrl;
-    } catch (_error) {
-      postResult(null);
-    }
-  }
-
-  window.addEventListener("message", function (event) {
-    if (!event.data) return;
-    // Only accept messages from the direct parent frame. Blocks sibling /
-    // unrelated-window postMessage senders that could otherwise reach us.
-    if (event.source !== window.parent) return;
-
-    const trustedParentOrigin = getTrustedParentOrigin(event);
-    if (!trustedParentOrigin) return;
-    trustedTopOrigin = trustedParentOrigin;
-
-    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
-      scrollForwarding = true;
-      emitScroll();
-      return;
-    }
-
-    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
-      scrollForwarding = false;
-      if (scrollRaf) cancelAnimationFrame(scrollRaf);
-      scrollRaf = 0;
-      return;
-    }
-
-    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
-
-    handleCaptureRequest(event);
-  });
-})();
-
-
-</script></body>
+</body>
 </html>

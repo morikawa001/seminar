@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -308,6 +309,19 @@ input[readonly],textarea[readonly]{
   gap:18px;
 }
 .hero-panel{padding:20px 22px}
+/* 横長モード: Today Commandの下に全幅で展開 */
+.hero-panel.wide .hero-head{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:20px 28px;
+  align-items:start;
+}
+.hero-panel.wide .id-block{
+  max-width:340px;
+}
+.hero-panel.wide .hero-stats{
+  grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+}
 .hero-head{
   display:flex;
   justify-content:space-between;
@@ -497,19 +511,13 @@ label[for="templateFiles"] {
   grid-template-columns:repeat(3,minmax(0,1fr));
   gap:10px;
 }
-.main-grid{
-  display:grid;
-  grid-template-columns:1.4fr 1fr;
-  gap:18px;
-  align-items:start;
+/* left-pane内のmini-gridは1列で折り返す */
+.left-pane .mini-grid{
+  grid-template-columns:1fr;
 }
-.main-grid>#nixieClockPanel{
-  grid-column:1;
-}
-.main-grid>.side-stack{
-  grid-column:2;
-  grid-row:1 / span 2;
-}
+.left-pane .mini-box b{font-size:1rem}
+.left-pane .mini-box p{display:inline;margin-left:8px}
+/* main-grid: 廃止→ two-col-grid.entry-row を使用 */
 .master-grid{
   display:grid;
   grid-template-columns:repeat(2,minmax(0,1fr));
@@ -534,6 +542,15 @@ label[for="templateFiles"] {
 }
 .side-stack #aiBrushupPanel #aiBrushupResult{
   min-height:160px;
+  resize:vertical;
+}
+.right-stack{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.right-stack #aiBrushupResult{
+  min-height:120px;
   resize:vertical;
 }
 .auto-grid{
@@ -755,7 +772,8 @@ label[for="templateFiles"] {
   font-size:.86rem;
 }
 @media (max-width:1240px){
-  .hero-grid,.main-grid,.dual-grid,.parameter-wrap{grid-template-columns:1fr}
+  .hero-grid,.main-grid,.dual-grid,.parameter-wrap,
+  .two-col-grid,.two-col-grid.tc-row,.two-col-grid.entry-row{grid-template-columns:1fr}
   .main-grid>#nixieClockPanel,.main-grid>.side-stack{grid-column:auto;grid-row:auto}
 }
 @media (max-width:860px){
@@ -825,7 +843,8 @@ label[for="templateFiles"] {
   /* 全グリッドを各1カラム（hero-stats は除外） */
   .hero-grid,.main-grid,.dual-grid,.parameter-wrap,
   .master-grid,.auto-grid,.action-grid,.summary-grid,
-  .mini-grid,.task-sub-grid,
+  .mini-grid,.task-sub-grid,.two-col-grid,
+  .two-col-grid.tc-row,.two-col-grid.entry-row,
   .table-head,.table-row,.template-row,.alert-item,
   .schedule-card,.param-side{
     grid-template-columns:1fr !important;
@@ -1080,15 +1099,471 @@ label[for="templateFiles"] {
   font-style:normal; font-size:.85rem;
 }
 .task-toggle-btn.open .toggle-icon{ transform:rotate(180deg); }
+
+
+/* =====================================================
+   TODAY COMMAND / EXCEPTION QUEUE / MAIL TEMPLATE 追加CSS
+   ===================================================== */
+
+/* Today Command カード */
+.today-command-grid{display:grid;gap:12px}
+.tc-card{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:16px 18px;
+  display:grid;
+  gap:10px;
+}
+.tc-card.urgency-critical{border-left:4px solid var(--danger)}
+.tc-card.urgency-high{border-left:4px solid var(--warn)}
+.tc-card.urgency-normal{border-left:4px solid var(--green)}
+.tc-card.urgency-info{border-left:4px solid var(--cyan)}
+.tc-card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.tc-card-left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tc-no-badge{
+  font-family:'Share Tech Mono',monospace;
+  font-size:.8rem;
+  padding:3px 9px;
+  border-radius:6px;
+  background:var(--panel3);
+  border:1px solid var(--line2);
+  color:var(--muted);
+}
+.tc-urgency-tag{
+  display:inline-flex;
+  align-items:center;
+  padding:3px 10px;
+  border-radius:999px;
+  font-size:.73rem;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+.tc-urgency-tag.critical{background:rgba(255,143,177,.12);color:var(--danger);border:1px solid rgba(255,143,177,.25)}
+.tc-urgency-tag.high{background:rgba(255,230,128,.10);color:var(--warn);border:1px solid rgba(255,230,128,.22)}
+.tc-urgency-tag.normal{background:rgba(91,255,156,.08);color:var(--green);border:1px solid rgba(91,255,156,.18)}
+.tc-urgency-tag.info{background:rgba(116,233,214,.08);color:var(--cyan);border:1px solid rgba(116,233,214,.18)}
+[data-theme="light"] .tc-urgency-tag.critical{background:#fff0ef;color:var(--danger);border:1px solid #f4d9d7}
+[data-theme="light"] .tc-urgency-tag.high{background:#fff8e7;color:var(--warn);border:1px solid #f2e3b4}
+[data-theme="light"] .tc-urgency-tag.normal{background:#eef7f3;color:var(--success);border:1px solid #d7eee5}
+[data-theme="light"] .tc-urgency-tag.info{background:#eef5fb;color:#0f7b6c;border:1px solid #d7e8f7}
+.tc-title{font-weight:700;color:var(--text-strong);font-size:1rem}
+.tc-action{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:.92rem;
+  color:var(--text);
+}
+.tc-action-icon{font-style:normal;font-size:1rem}
+.tc-reason{font-size:.85rem;color:var(--muted)}
+.tc-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.tc-btn{
+  min-height:34px;
+  padding:0 13px;
+  border-radius:8px;
+  border:1px solid var(--line2);
+  background:var(--button-bg);
+  color:var(--text-strong);
+  font-size:.83rem;
+  font-weight:700;
+  letter-spacing:.02em;
+  cursor:pointer;
+  transition:background 140ms,border-color 140ms;
+}
+.tc-btn:hover{background:var(--panel3);border-color:var(--green)}
+.tc-btn.primary{
+  background:color-mix(in srgb, var(--green) 12%, var(--button-primary-bg));
+  border-color:var(--green);
+  color:var(--green);
+}
+[data-theme="light"] .tc-btn.primary{background:var(--button-primary-bg);color:#fff;border-color:var(--button-primary-bg)}
+.tc-empty{
+  text-align:center;
+  padding:28px 16px;
+  color:var(--muted);
+  font-size:.92rem;
+}
+.tc-empty-icon{font-size:1.8rem;display:block;margin-bottom:8px;opacity:.6}
+
+/* Exception Queue */
+.eq-grid{display:grid;gap:10px}
+.eq-item{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:13px 15px;
+  display:grid;
+  grid-template-columns:100px 1fr auto;
+  gap:12px;
+  align-items:center;
+}
+.eq-item.sev-critical{border-left:3px solid var(--danger)}
+.eq-item.sev-warning{border-left:3px solid var(--warn)}
+.eq-item.sev-info{border-left:3px solid var(--cyan)}
+.eq-tag{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:26px;
+  padding:3px 10px;
+  border-radius:999px;
+  font-size:.74rem;
+  font-weight:800;
+  letter-spacing:.06em;
+}
+.eq-tag.critical{background:rgba(255,143,177,.12);color:var(--danger);border:1px solid rgba(255,143,177,.22)}
+.eq-tag.warning{background:rgba(255,230,128,.10);color:var(--warn);border:1px solid rgba(255,230,128,.20)}
+.eq-tag.info{background:rgba(116,233,214,.08);color:var(--cyan);border:1px solid rgba(116,233,214,.18)}
+[data-theme="light"] .eq-tag.critical{background:#fff0ef;color:var(--danger);border:1px solid #f4d9d7}
+[data-theme="light"] .eq-tag.warning{background:#fff8e7;color:var(--warn);border:1px solid #f2e3b4}
+[data-theme="light"] .eq-tag.info{background:#eef5fb;color:#0f7b6c;border:1px solid #d7e8f7}
+.eq-item-body strong{font-weight:700;color:var(--text-strong);font-size:.95rem}
+.eq-item-body p{font-size:.85rem;color:var(--muted);margin-top:2px}
+.eq-no{font-family:'Share Tech Mono',monospace;font-size:.79rem;color:var(--muted)}
+
+/* Mail Template Panel */
+.mail-panel-grid{display:grid;gap:16px}
+.mail-controls{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.mail-preview{
+  background:var(--panel2);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:0;
+  overflow:hidden;
+}
+.mail-preview-head{
+  padding:12px 16px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.mail-preview-head .small-label{display:inline;text-transform:uppercase;font-size:.72rem;letter-spacing:.14em;color:var(--muted);font-weight:800}
+.mail-subject-wrap{
+  padding:12px 16px 8px;
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.mail-subject-label{font-size:.74rem;color:var(--muted);font-weight:800;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.mail-subject-text{font-size:.97rem;color:var(--text-strong);font-weight:600;word-break:break-all}
+.mail-body-area{
+  width:100%;
+  min-height:260px;
+  padding:14px 16px;
+  font-size:.92rem;
+  line-height:1.7;
+  background:var(--panel2);
+  border:none;
+  color:var(--text-strong);
+  resize:vertical;
+  border-radius:0;
+}
+.mail-body-area:focus{outline:none;box-shadow:none;border:none}
+.mail-missing-warn{
+  padding:10px 14px;
+  background:rgba(255,143,177,.07);
+  border:1px solid rgba(255,143,177,.2);
+  border-radius:10px;
+  font-size:.88rem;
+  color:var(--danger);
+}
+[data-theme="light"] .mail-missing-warn{background:#fff0ef;border:1px solid #f4d9d7}
+.mail-missing-warn strong{display:block;margin-bottom:4px;font-size:.9rem}
+.mail-footer-btns{display:flex;gap:10px;flex-wrap:wrap;padding:12px 16px;border-top:1px solid var(--line)}
+
+/* Top nav new anchors */
+.panel-nav-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+
+/* Responsive for new grids */
+@media (max-width:860px){
+  .eq-item{grid-template-columns:1fr}
+  .mail-controls{grid-template-columns:1fr}
+}
+@media (max-width:480px){
+  .tc-card{padding:12px 14px}
+  .tc-btns{gap:6px}
+  .mail-controls{grid-template-columns:1fr}
+}
+
+
+/* Today Command + Quick Operation 横並びグリッド */
+.tc-qo-grid{
+  display:grid;
+  grid-template-columns:1fr 420px;
+  gap:20px;
+  align-items:start;
+}
+@media(max-width:1100px){.tc-qo-grid{grid-template-columns:1fr}}
+
+/* Sender Info Panel */
+.sender-info-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+@media(max-width:680px){.sender-info-grid{grid-template-columns:1fr}}
+
+/* ── Round 3→4: 統一2列グリッド ── */
+/* 全パネル行のコンテナ */
+.two-col-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  align-items:start;
+}
+/* 差出人情報 + 時計の縦積みコンテナ */
+.right-col-stack{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+.right-col-stack .nixie-panel{
+  width:100%;
+  box-sizing:border-box;
+}
+/* Today Command + DualUI 行: TC広め */
+.two-col-grid.tc-row{
+  grid-template-columns:1fr 380px;
+}
+/* Entry Console + 右スタック: EC広め */
+.two-col-grid.entry-row{
+  grid-template-columns:1.4fr 1fr;
+}
+@media(max-width:1100px){
+  .two-col-grid,.two-col-grid.tc-row,.two-col-grid.entry-row{
+    grid-template-columns:1fr 1fr;
+  }
+}
+@media(max-width:860px){
+  .two-col-grid,.two-col-grid.tc-row,.two-col-grid.entry-row{
+    grid-template-columns:1fr;
+  }
+}
+
+/* Exception Queue スタイル */
+.eq-item{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:10px 14px;
+  padding:12px 14px;
+  border-bottom:1px solid var(--line1);
+  align-items:center;
+}
+.eq-item:last-child{border-bottom:none}
+.eq-tag{
+  display:inline-block;
+  padding:2px 8px;
+  border-radius:4px;
+  font-size:.72rem;
+  font-weight:700;
+  letter-spacing:.06em;
+  background:var(--muted);
+  color:var(--bg);
+}
+.eq-tag.critical{background:var(--danger);color:#fff}
+.eq-tag.warning{background:var(--warn);color:#1a1400}
+.eq-tag.info{background:var(--cyan);color:#0a1a18}
+.eq-no{font-size:.8rem;color:var(--muted);margin-top:4px}
+.eq-item-body strong{font-size:.95rem}
+.eq-item-body p{font-size:.84rem;color:var(--muted);margin-top:2px}
+.sev-critical{border-left:3px solid var(--danger)}
+.sev-warning{border-left:3px solid var(--warn)}
+.sev-info{border-left:3px solid var(--cyan)}
+
+/* Mail Template スタイル */
+.mail-tab-bar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-bottom:14px;
+}
+.mail-tab{
+  padding:5px 12px;
+  border-radius:4px;
+  font-size:.82rem;
+  cursor:pointer;
+  background:var(--panel2);
+  color:var(--muted);
+  border:1px solid var(--line1);
+  transition:background 150ms,color 150ms;
+}
+.mail-tab:hover{background:var(--line2);color:var(--text-strong)}
+.mail-tab.active{
+  background:var(--green);
+  color:var(--bg);
+  border-color:var(--green);
+  font-weight:700;
+}
+.mail-select-row{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+  margin-bottom:14px;
+}
+@media(max-width:860px){.mail-select-row{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.mail-select-row{grid-template-columns:1fr}}
+.mail-missing-warn{
+  padding:8px 12px;
+  background:color-mix(in srgb, var(--warn) 15%, transparent);
+  border:1px solid var(--warn);
+  border-radius:6px;
+  font-size:.88rem;
+  color:var(--warn);
+  margin-bottom:10px;
+  display:none;
+}
+.mail-preview{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.mail-subject-row{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.mail-subject-row input{flex:1;min-width:0}
+.gas-brushup-row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+  padding:10px 14px;
+  background:color-mix(in srgb,var(--cyan) 8%,transparent);
+  border:1px solid color-mix(in srgb,var(--cyan) 30%,transparent);
+  border-radius:6px;
+}
+.gas-brushup-row label{font-size:.88rem;color:var(--cyan);flex:1}
+.gas-status{font-size:.83rem;color:var(--muted);margin-top:6px;display:none}
+
+/* Today Command カード: チェック付き折りたたみ */
+.tc-card{transition:all 200ms ease}
+.tc-card.done{
+  border-left-color:var(--line2) !important;
+  background:color-mix(in srgb, var(--panel2) 80%, transparent);
+  opacity:.65;
+}
+.tc-card.done .tc-action,.tc-card.done .tc-reason,.tc-card.done .tc-btns{display:none}
+.tc-card-check-row{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.tc-check{
+  width:18px;height:18px;border-radius:4px;
+  border:2px solid var(--line2);
+  background:var(--button-bg);
+  cursor:pointer;
+  accent-color:var(--green);
+  flex-shrink:0;
+}
+.tc-check:checked{accent-color:var(--green)}
+.tc-done-label{font-size:.78rem;color:var(--muted);font-style:italic;display:none}
+.tc-card.done .tc-done-label{display:inline}
+.tc-expand-hint{font-size:.74rem;color:var(--cyan);cursor:pointer;display:none;margin-left:auto}
+.tc-card.done .tc-expand-hint{display:inline}
+
+/* Deadline Alert チェック付き折りたたみ */
+.alert-item.done{opacity:.5;cursor:pointer}
+.alert-item.done .alert-body{display:none}
+.alert-item.done .alert-meta{display:none}
+.alert-check{
+  width:16px;height:16px;border-radius:3px;
+  border:2px solid var(--line2);
+  background:var(--button-bg);
+  cursor:pointer;
+  accent-color:var(--green);
+  flex-shrink:0;
+}
+.alert-check:checked{accent-color:var(--green)}
+.alert-item-tag-wrap{display:flex;align-items:center;gap:6px}
+
+/* Mail Template: タブ型用途選択 */
+.mail-purpose-tabs{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  padding:10px 0 6px;
+  border-bottom:1px solid var(--line);
+  margin-bottom:12px;
+}
+.mail-tab{
+  padding:5px 12px;
+  border-radius:8px;
+  border:1px solid var(--line2);
+  background:var(--button-bg);
+  color:var(--text);
+  font-size:.8rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:background 120ms,border-color 120ms,color 120ms;
+  white-space:nowrap;
+}
+.mail-tab:hover{background:var(--panel3);border-color:var(--cyan)}
+.mail-tab.active{
+  background:color-mix(in srgb, var(--green) 15%, var(--panel2));
+  border-color:var(--green);
+  color:var(--green);
+}
+[data-theme="light"] .mail-tab.active{background:var(--button-primary-bg);color:#fff;border-color:var(--button-primary-bg)}
+
+/* GAS ブラッシュアップ */
+.gas-brushup-wrap{
+  border:1px solid var(--line);
+  border-radius:12px;
+  overflow:hidden;
+  margin-top:4px;
+}
+.gas-brushup-head{
+  padding:10px 14px;
+  background:var(--panel2);
+  border-bottom:1px solid var(--line);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.gas-brushup-head .small-label{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--cyan)}
+.gas-brushup-textarea{
+  width:100%;min-height:200px;padding:12px 14px;
+  font-size:.9rem;line-height:1.7;
+  background:var(--panel2);border:none;
+  color:var(--text-strong);resize:vertical;
+}
+.gas-brushup-textarea:focus{outline:none}
+.gas-spinner{
+  display:none;
+  width:16px;height:16px;
+  border:2px solid var(--line2);
+  border-top-color:var(--cyan);
+  border-radius:50%;
+  animation:spin 700ms linear infinite;
+  flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
 <canvas id="bgCodeCanvas" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
 <div class="scanline"></div>
 <div class="wrap">
-  <section class="hero-grid">
-    <section class="hero-panel" id="topControlPanel">
-      <div class="corner-label">Dual Theme Control UI</div>
+
+  <!-- ===== ROW 0: Dual Theme Control UI (最上部・全幅) ===== -->
+  <section class="hero-panel wide" id="topControlPanel">
+    <div class="corner-label">Dual Theme Control UI</div>
       <div class="hero-head">
         <div class="id-block">
           <div class="kicker">Clinical Research Training Control</div>
@@ -1101,10 +1576,14 @@ label[for="templateFiles"] {
           <div class="stat-box"><span>Records</span><b id="sumAllTop">0</b></div>
           <div class="stat-box"><span>Current Year</span><b id="sumYearTop">0</b></div>
           <div class="stat-box"><span>Next No</span><b id="sumNextTop">-</b></div>
-           <a class="btn manual-btn" href="https://morikawa001.github.io/seminar/seminar.html" target="_blank" rel="noopener noreferrer">取扱説明</a>
+          <a class="btn manual-btn" href="https://morikawa001.github.io/seminar/seminar.html" target="_blank" rel="noopener noreferrer">取扱説明</a>
           <a class="btn manual-btn" href="https://morikawa001.github.io/seminar/kenshukai-notion-csv-generator.html" target="_blank" rel="noopener noreferrer">申込者管理</a>
           <a class="btn manual-btn" href="https://morikawa001.github.io/seminar/attend.html" target="_blank" rel="noopener noreferrer">受講者管理</a>
           <a class="btn manual-btn" href="https://morikawa001.github.io/seminar/license.html" target="_blank" rel="noopener noreferrer">受講証交付</a>
+          <a class="btn manual-btn" href="#senderInfoSection">差出人情報</a>
+          <a class="btn manual-btn" href="#todayCommandSection">Today Command</a>
+          <a class="btn manual-btn" href="#exceptionQueueSection">Exception Queue</a>
+          <a class="btn manual-btn" href="#mailTemplateSection">Mail Template</a>
           <a class="btn manual-btn" href="#masterTableSection">Master Table</a>
           <a class="btn manual-btn" href="#entryConsoleSection">Entry Console</a>
           <a class="btn manual-btn" href="#templateInjectionSection">Template Inject</a>
@@ -1116,25 +1595,28 @@ label[for="templateFiles"] {
           <a class="btn manual-btn" id="spareBtn5" href="https://example.com" target="_blank" rel="noopener noreferrer" ondblclick="editSpareUrl(5)" title="ダブルクリックでURL・ラベルを編集">予備ボタン5</a>
         </div>
       </div>
-    </section>
+  </section>
 
+  <!-- ===== ROW 1: Quick Operation + 差出人情報 ===== -->
+  <div class="two-col-grid">
     <section class="panel command-panel">
       <div class="corner-label">Operation Console</div>
       <div class="panel-head">
         <div>
           <h2>Quick Operation</h2>
-          <p>テーマ切替を含む主要操作を右上に集約しています。</p>
+          <p>CSV操作・新規DB・テーマ切替を一括管理します。</p>
         </div>
       </div>
       <button class="btn" id="themeBtn">表示テーマ切替</button>
       <div class="file-pick">
-  <label for="csvFile" class="btn">CSV 選択</label>
-  <input id="csvFile" type="file" accept=".csv,text/csv">
-  <input id="csvFileName" value="" readonly placeholder="ファイル未選択">
-</div>
+        <label for="csvFile" class="btn">CSV 選択</label>
+        <input id="csvFile" type="file" accept=".csv,text/csv">
+        <input id="csvFileName" value="" readonly placeholder="ファイル未選択">
+      </div>
       <div class="action-grid">
         <button class="btn" id="newDbBtn">新規DB作成</button>
-        <button class="btn primary" id="openConfirmBtn">入力画面に進む</button>
+        <button class="btn" id="dummyDataBtn" onclick="loadDummyData()">ダミーデータ読込</button>
+        <button class="btn primary" id="openConfirmBtn" style="grid-column:1/-1">入力画面に進む</button>
       </div>
       <select class="btn" id="recordSelect" disabled>
         <option value="">Noを選択して表示</option>
@@ -1145,49 +1627,70 @@ label[for="templateFiles"] {
         <div class="mini-box"><span>Year Count</span><b id="miniYearCount">0</b><p>当年度登録件数</p></div>
       </div>
     </section>
-  </section>
 
-  <section class="dual-grid">
-  <section class="panel">
-    <div class="corner-label">Annual Parameter</div>
+    <div class="right-col-stack">
+    <section class="panel" id="senderInfoSection">
+      <div class="corner-label">Sender Info</div>
+      <div class="panel-head">
+        <div>
+          <h2>差出人情報</h2>
+          <p>メールの冒頭・末尾シグネチャーに自動反映されます。</p>
+        </div>
+      </div>
+      <div class="sender-info-grid">
+        <div class="field">
+          <label>所属・部署名</label>
+          <input type="text" id="senderOrg" placeholder="例：XXがんセンター 臨床研究支援センター" />
+        </div>
+        <div class="field">
+          <label>担当者名</label>
+          <input type="text" id="senderName" placeholder="例：山田 太郎" />
+        </div>
+        <div class="field" style="grid-column:1/-1">
+          <label>シグネチャー（＊＊＊に挟まれた部分のみ入力）</label>
+          <textarea id="senderSignature" rows="5" style="min-height:100px" placeholder="例：XXがんセンター 臨床研究支援センター&#10;臨床研究管理・調整室&#10;山田 太郎&#10;TEL: 055-989-XXXX&#10;Email: t.yamada@xxch.jp"></textarea>
+        </div>
+      </div>
+    </section>
+      <!-- 時計: 差出人情報直下・同幅 -->
+      <section class="nixie-panel" id="nixieClockPanel">
+        <div class="nixie-date-row">
+          <span class="nixie-digit" id="nixieYear">2026</span>
+          <span class="nixie-sep">/</span>
+          <span class="nixie-digit" id="nixieMonth">01</span>
+          <span class="nixie-sep">/</span>
+          <span class="nixie-digit" id="nixieDay">01</span>
+        </div>
+        <div class="nixie-time-row">
+          <span class="nixie-time-digit" id="nixieHour">00</span>
+          <span class="nixie-colon">:</span>
+          <span class="nixie-time-digit" id="nixieMin">00</span>
+          <span class="nixie-colon">:</span>
+          <span class="nixie-time-digit" id="nixieSec">00</span>
+        </div>
+        <div class="nixie-day-badge" id="nixieDow">月曜日</div>
+      </section>
+    </div>
+  </div>
+
+  <!-- ===== ROW 2: Today Command (全幅) ===== -->
+  <section class="panel" id="todayCommandSection">
+    <div class="corner-label">Today Command</div>
     <div class="panel-head">
       <div>
-        <h2>Annual Plan Parameter</h2>
-        <p>年間計画の進み具合を、ダーク時はHUD風、ライト時は落ち着いた業務UI風リングで表示します。</p>
+        <h2>Today Command</h2>
+        <p>本日優先すべきアクションを自動判定して表示します。CSVを読み込むと更新されます。</p>
       </div>
-    
-        <div class="panel-nav-actions">
-          <a class="btn small manual-btn" href="#topControlPanel">Dual Theme Control UI</a>
-        </div>
+      <div class="panel-nav-actions">
+        <a class="btn small manual-btn" href="#exceptionQueueSection">Exception Queue</a>
+        <a class="btn small manual-btn" href="#mailTemplateSection">Mail Template</a>
+        <a class="btn small manual-btn" href="#topControlPanel">Dual Theme Control UI</a>
       </div>
-    <div class="parameter-wrap">
-      <div class="param-gauge">
-        <svg class="param-svg" viewBox="0 0 240 240" aria-hidden="true">
-          <circle cx="120" cy="120" r="92" fill="none" stroke="var(--ring-track)" stroke-width="10"></circle>
-          <circle cx="120" cy="120" r="72" fill="none" stroke="var(--ring-dash)" stroke-width="3" stroke-dasharray="3 7"></circle>
-          <circle cx="120" cy="120" r="92" fill="none" stroke="url(#progressGrad)" stroke-width="10" stroke-linecap="round" stroke-dasharray="578" stroke-dashoffset="578" id="annualGauge"></circle>
-          <circle cx="120" cy="120" r="108" fill="none" stroke="var(--ring-dots)" stroke-width="1" stroke-dasharray="1 9"></circle>
-          <defs>
-            <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="var(--green2)"></stop>
-              <stop offset="60%" stop-color="var(--green)"></stop>
-              <stop offset="100%" stop-color="var(--cyan)"></stop>
-            </linearGradient>
-          </defs>
-        </svg>
-        <div class="param-core">
-          <div>
-            <small>Progress Ratio</small>
-            <strong id="annualGaugeText">0%</strong>
-            <span id="annualGaugeSub">0 / 0 Completed</span>
-          </div>
-        </div>
-      </div>
-      <div class="param-meta">
-        <div class="param-side"><div><span class="small-label">年度件数</span><p class="radar-note">現在年度に属する登録件数</p></div><b id="paramYearCount">0</b></div>
-        <div class="param-side"><div><span class="small-label">開催済み</span><p class="radar-note">今日より前に開催済みの件数</p></div><b id="paramDoneCount">0</b></div>
-        <div class="param-side"><div><span class="small-label">直近30日</span><p class="radar-note">30日以内に開催予定の件数</p></div><b id="paramSoonCount">0</b></div>
-        <div class="param-side"><div><span class="small-label">追加予定</span><p class="radar-note">現在フォームに保持している保存前データ</p></div><b id="paramDraftCount">0</b></div>
+    </div>
+    <div class="today-command-grid" id="todayCommandList">
+      <div class="tc-empty">
+        <i class="tc-empty-icon">&#9881;</i>
+        CSVを読み込むか、新規DBを作成すると本日のアクション候補がここに表示されます。
       </div>
     </div>
   </section>
@@ -1211,10 +1714,10 @@ label[for="templateFiles"] {
         <div class="mono">No data</div>
       </div>
     </div>
-  </section>
-  </section><!-- /dual-grid: Annual+Deadline -->
+  </section><!-- /Deadline Alert -->
 
-  <section class="main-grid">
+  <!-- ===== ROW 4: Entry Console + 右スタック ===== -->
+  <div class="two-col-grid entry-row">
     <section class="panel" id="entryConsoleSection">
       <div class="corner-label">Entry Console</div>
       <div class="panel-head">
@@ -1295,26 +1798,7 @@ label[for="templateFiles"] {
       <div class="status-box" id="statusBox">CSVを読み込むか、新規データベースを作成すると入力を開始できます。</div>
     </section>
 
-    <!-- Nixie Clock Panel -->
-    <section class="nixie-panel" id="nixieClockPanel">
-      <div class="nixie-date-row">
-        <span class="nixie-digit" id="nixieYear">2026</span>
-        <span class="nixie-sep">/</span>
-        <span class="nixie-digit" id="nixieMonth">01</span>
-        <span class="nixie-sep">/</span>
-        <span class="nixie-digit" id="nixieDay">01</span>
-      </div>
-      <div class="nixie-time-row">
-        <span class="nixie-time-digit" id="nixieHour">00</span>
-        <span class="nixie-colon">:</span>
-        <span class="nixie-time-digit" id="nixieMin">00</span>
-        <span class="nixie-colon">:</span>
-        <span class="nixie-time-digit" id="nixieSec">00</span>
-      </div>
-      <div class="nixie-day-badge" id="nixieDow">月曜日</div>
-    </section>
-
-    <aside class="side-stack">
+    <div class="right-stack">
       <!-- AI Brushup Panel -->
       <section class="panel" id="aiBrushupPanel">
         <div class="corner-label">AI Brushup</div>
@@ -1434,12 +1918,134 @@ label[for="templateFiles"] {
         </div>
         <div class="progress-shell"><div class="progress-bar" id="roadmapBar"></div></div>
       </section>
-    </aside>
+    </div>
+  </div><!-- /entry-row -->
+
+  <!-- ===== ROW 5: Exception Queue + Deadline Alert (既存) → ここでExcQを挿入 ===== -->
+  <!-- ExceptionQueueSection -->
+  <section class="panel" id="exceptionQueueSection">
+    <div class="corner-label">Exception Queue</div>
+    <div class="panel-head">
+      <div>
+        <h2>Exception Queue</h2>
+        <p>データの不備・例外をルールベースで自動検出します。CSV読込後に更新されます。</p>
+      </div>
+      <div class="panel-nav-actions">
+        <a class="btn small manual-btn" href="#mailTemplateSection">Mail Template</a>
+        <a class="btn small manual-btn" href="#todayCommandSection">Today Command</a>
+        <a class="btn small manual-btn" href="#topControlPanel">Dual Theme Control UI</a>
+      </div>
+    </div>
+    <div class="alert-wrap" id="exceptionQueueList">
+      <div class="eq-item sev-info">
+        <div><span class="eq-tag info">WAIT</span><div class="eq-no" style="margin-top:4px">-</div></div>
+        <div class="eq-item-body"><strong>例外検出待機中</strong><p>CSVを読み込むか、新規DBを作成すると例外がここに表示されます。</p></div>
+        <div></div>
+      </div>
+    </div>
   </section>
 
+  <!-- ===== ROW 6: Mail Template (全幅) ===== -->
+  <section class="panel" id="mailTemplateSection">
+    <div class="corner-label">Mail Template</div>
+    <div class="panel-head">
+      <div>
+        <h2>Mail Template</h2>
+        <p>研修会レコードを選択し、用途タブを選ぶとメール文面を自動生成します。</p>
+      </div>
+      <div class="panel-nav-actions">
+        <a class="btn small manual-btn" href="#exceptionQueueSection">Exception Queue</a>
+        <a class="btn small manual-btn" href="#todayCommandSection">Today Command</a>
+        <a class="btn small manual-btn" href="#topControlPanel">Dual Theme Control UI</a>
+      </div>
+    </div>
 
-  <section class="task-main-grid">
-      <section class="dual-grid task-sub-grid">
+    <!-- hidden selects for JS compatibility -->
+    <select id="mailRecipient" style="display:none">
+      <option value="">宛先を選択</option>
+      <option value="speaker">講師</option>
+      <option value="cohost">共催・関係者</option>
+    </select>
+    <select id="mailPurpose" style="display:none">
+      <option value="">用途を選択してください</option>
+      <option value="ishi_req">依頼状送付（講師・開催5W前）</option>
+      <option value="hp_report_speaker">HP掲載報告+資料依頼（講師・HP掲載当日）</option>
+      <option value="data_reminder_speaker">資料提出リマインド（講師・開催2W前）</option>
+      <option value="honban_reminder_speaker">本番前リマインド（講師・開催1W前）</option>
+      <option value="shakin_transfer">謝金振込通知（講師・開催7日以内）</option>
+      <option value="hp_upload_req">HP予約投稿依頼（関係者・HP掲載1W前）</option>
+      <option value="hp_done_report">HP掲載完了報告①（関係者・HP掲載1W前）</option>
+      <option value="hp_done_report_day">HP掲載完了報告②（関係者・HP掲載当日）</option>
+      <option value="denshi_post_req">電子カルテ掲載依頼（関係者・HP掲載当日）</option>
+      <option value="denshi_replace_req">電子カルテ差替依頼（関係者・開催1W前）</option>
+      <option value="shakin_proc_req">謝金支払手続依頼（関係者・開催翌〜3日）</option>
+      <option value="seminar_prep">研修会準備依頼（関係者・当日）</option>
+      <option value="jikan_gaizangyo">時間外勤務前申請（関係者・当日）</option>
+    </select>
+
+    <!-- 用途タブ（13種） -->
+    <div class="mail-tab-bar" id="mailTabBar">
+      <button class="mail-tab active" data-recipient="speaker" data-purpose="ishi_req" onclick="mailTabClick(this)">依頼状送付</button>
+      <button class="mail-tab" data-recipient="speaker" data-purpose="hp_report_speaker" onclick="mailTabClick(this)">HP掲載報告+資料依頼</button>
+      <button class="mail-tab" data-recipient="speaker" data-purpose="data_reminder_speaker" onclick="mailTabClick(this)">資料提出リマインド</button>
+      <button class="mail-tab" data-recipient="speaker" data-purpose="honban_reminder_speaker" onclick="mailTabClick(this)">本番前リマインド</button>
+      <button class="mail-tab" data-recipient="speaker" data-purpose="shakin_transfer" onclick="mailTabClick(this)">謝金振込通知</button>
+      <button class="mail-tab" data-recipient="cohost" data-purpose="hp_upload_req" onclick="mailTabClick(this)">HP予約投稿依頼</button>
+      <button class="mail-tab" data-recipient="cohost" data-purpose="hp_done_report" onclick="mailTabClick(this)">HP掲載完了報告①</button>
+      <button class="mail-tab" data-recipient="cohost" data-purpose="hp_done_report_day" onclick="mailTabClick(this)">HP掲載完了報告②</button>
+      <button class="mail-tab" data-recipient="cohost" data-purpose="denshi_post_req" onclick="mailTabClick(this)">電子カルテ掲載依頼</button>
+      <button class="mail-tab" data-recipient="cohost" data-purpose="denshi_replace_req" onclick="mailTabClick(this)">電子カルテ差替依頼</button>
+      <button class="mail-tab" data-recipient="cohost" data-purpose="shakin_proc_req" onclick="mailTabClick(this)">謝金支払手続依頼</button>
+      <button class="mail-tab" data-recipient="cohost" data-purpose="seminar_prep" onclick="mailTabClick(this)">研修会準備依頼</button>
+      <button class="mail-tab" data-recipient="cohost" data-purpose="jikan_gaizangyo" onclick="mailTabClick(this)">時間外勤務前申請</button>
+    </div>
+
+    <!-- レコード選択行 -->
+    <div class="mail-select-row">
+      <div class="field">
+        <label>研修会No選択</label>
+        <select id="mailRecordSelect">
+          <option value="">Noを選択してください</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>生成ボタン</label>
+        <button class="btn primary" id="mailGenerateBtn">メール文面を生成</button>
+      </div>
+      <div class="field" style="align-self:end">
+        <button class="btn" id="mailCopyAllBtn">件名＋本文をコピー</button>
+      </div>
+    </div>
+
+    <!-- 不足情報警告 -->
+    <div class="mail-missing-warn" id="mailMissingWarn">
+      <strong>⚠ 不足情報：</strong><span id="mailMissingList"></span>
+    </div>
+
+    <!-- プレビューエリア -->
+    <div class="mail-preview" id="mailPreviewWrap" style="display:none">
+      <div class="field">
+        <label>件名</label>
+        <div class="mail-subject-row">
+          <input id="mailSubjectDisplay" type="text" readonly style="background:var(--panel2);cursor:text;user-select:text" placeholder="（メール生成後に表示）">
+          <button class="btn small" id="mailCopySubjectBtn">件名コピー</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>本文（直接編集可）</label>
+        <textarea id="mailBodyDisplay" rows="18" style="min-height:320px;font-family:inherit;line-height:1.7"></textarea>
+      </div>
+      <!-- GAS AIブラッシュアップ -->
+      <div class="gas-brushup-row">
+        <label>AI ブラッシュアップ（GAS経由・Gemini）</label>
+        <button class="btn small" id="mailBrushupBtn">AIブラッシュアップ実行</button>
+      </div>
+      <div class="status-box gas-status" id="gasBrushupStatus" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- ===== ROW 7: Commit Check + Export Result ===== -->
+  <div class="two-col-grid">
     <section class="panel">
       <div class="corner-label">Verify</div>
       <div class="panel-head">
@@ -1496,8 +2102,10 @@ label[for="templateFiles"] {
         <button class="btn primary" id="downloadBtn" disabled>更新CSVをダウンロード</button>
       </div>
     </section>
-      </section><!-- /task-sub-grid -->
-      <section class="panel" id="taskChecklistPanel">
+  </div><!-- /Commit+Export row -->
+
+  <!-- ===== ROW 8: Task Checklist (全幅) ===== -->
+  <section class="panel" id="taskChecklistPanel">
         <div class="corner-label">Task Checklist</div>
         <div class="panel-head">
           <div>
@@ -1762,8 +2370,7 @@ label[for="templateFiles"] {
         </div>
         <div class="hint-box">各タスクを完了したらチェックを入れてください。CSV保存時に状態が保持されます。</div>
         </div>
-      </section>
-  </section><!-- /task-main-grid -->
+  </section><!-- /taskChecklistPanel -->
 
   <section class="panel" id="templateInjectionSection">
     <div class="corner-label">Template Merge</div>
@@ -2002,8 +2609,8 @@ const fullKeys={
 
 const els={
   csvFile:document.getElementById('csvFile'),
-　csvFileName:document.getElementById('csvFileName'),
-　newDbBtn:document.getElementById('newDbBtn'),
+  csvFileName:document.getElementById('csvFileName'),
+  newDbBtn:document.getElementById('newDbBtn'),
   recordSelect:document.getElementById('recordSelect'),
   openConfirmBtn:document.getElementById('openConfirmBtn'),
   appendBtn:document.getElementById('appendBtn'),
@@ -2998,27 +3605,43 @@ function collectDeadlineAlerts(){
 function renderAlerts(){
   if(!currentHeaders.length){
     els.alertList.innerHTML='<div class="alert-item"><div><span class="alert-tag">WAIT</span></div><div><strong>期限監視待機中</strong><p>CSVを読み込むと期限アラートがここに表示されます。</p></div><div class="mono">No data</div></div>';
+    renderTodayCommand();
+    renderExceptionQueue();
     return;
   }
   const alerts=collectDeadlineAlerts();
   if(!alerts.length){
     els.alertList.innerHTML='<div class="alert-item"><div><span class="alert-tag">CLEAR</span></div><div><strong>期限逼迫タスクなし</strong><p>現在、7日以内に期限が迫っているタスクはありません。</p></div><div class="mono">Stable</div></div>';
-    return;
+  } else {
+    els.alertList.innerHTML=alerts.map((a,i)=>{
+      const aid='alert-item-'+i;
+      const tag=a.diff===0?'TODAY':a.diff===1?'TOMORROW':`+${a.diff}D`;
+      return `<div class="alert-item" id="${aid}">
+        <div class="alert-item-tag-wrap">
+          <input type="checkbox" class="alert-check" onclick="alertCheckDone('${aid}',this.checked)" title="実施済みにする" />
+          <span class="alert-tag">${tag}</span>
+        </div>
+        <div class="alert-body"><strong>No.${esc(a.no)} / ${esc(a.title)}</strong><p>${esc(a.label)} : ${esc(a.raw||'-')}</p></div>
+        <div class="alert-meta mono">Task alert</div>
+      </div>`;
+    }).join('');
   }
-  els.alertList.innerHTML=alerts.map(a=>`<div class="alert-item"><div><span class="alert-tag">${a.diff===0?'TODAY':a.diff===1?'TOMORROW':`+${a.diff}D`}</span></div><div><strong>No.${esc(a.no)} / ${esc(a.title)}</strong><p>${esc(a.label)} : ${esc(a.raw||'-')}</p></div><div class="mono">Task alert</div></div>`).join('');
+  // Today Command / Exception Queue を常に同期
+  renderTodayCommand();
+  renderExceptionQueue();
 }
 
 function updateAnnualGauge(done,total,yearCount,soon,draftCount){
   const circumference=578;
   const ratio=total?Math.max(0,Math.min(1,done/total)):0;
   const offset=circumference-(circumference*ratio);
-  els.annualGauge.style.strokeDashoffset=String(offset);
-  els.annualGaugeText.textContent=`${Math.round(ratio*100)}%`;
-  els.annualGaugeSub.textContent=`${done} / ${total} Completed`;
-  els.paramYearCount.textContent=String(yearCount);
-  els.paramDoneCount.textContent=String(done);
-  els.paramSoonCount.textContent=String(soon);
-  els.paramDraftCount.textContent=String(draftCount);
+  if(els.annualGauge) els.annualGauge.style.strokeDashoffset=String(offset);
+  if(els.annualGaugeText) els.annualGaugeText.textContent=`${Math.round(ratio*100)}%`;
+  if(els.annualGaugeSub) els.annualGaugeSub.textContent=`${done} / ${total} Completed`;
+  if(els.paramYearCount) els.paramYearCount.textContent=String(yearCount);
+  if(els.paramDoneCount) els.paramDoneCount.textContent=String(done);
+  if(els.paramSoonCount) els.paramSoonCount.textContent=String(soon);
+  if(els.paramDraftCount) els.paramDraftCount.textContent=String(draftCount);
 }
 
 function renderStats(){
@@ -3074,6 +3697,8 @@ const yearCount = dataRows.filter(r => {
   els.roadmapBar.style.width = `${ratio}%`;
 
   updateAnnualGauge(done, total, yearCount, soon, draftCount);
+  // mailRecordSelect を常に同期
+  renderMailRecordOptions();
 }
 
 function renderConfirm(warns){
@@ -3487,43 +4112,1085 @@ const SPARE_BUTTONS = {
   5: { url: 'https://morikawa001.github.io/seminar/SilenceCutPro.html', label: 'SilenceCut Pro' },
 };
 
-// 起動時に SPARE_BUTTONS の設定を適用（localStorageがあればそちらを優先）
+// 起動時に SPARE_BUTTONS の設定を適用（in-memoryキャッシュ方式）
+const _spareBtnCache = {}; // { [num]: {url, label} }
 document.addEventListener('DOMContentLoaded', function(){
   [1,2,3,4,5].forEach(function(num){
     const btn = document.getElementById('spareBtn' + num);
     if(!btn) return;
     const cfg = SPARE_BUTTONS[num];
-    // ラベル：SPARE_BUTTONSの値を基本とし、localStorageがあれば上書き
-    try {
-      const savedLabel = localStorage.getItem('spareBtn' + num + '_label');
-      btn.textContent = savedLabel || cfg.label;
-    } catch(e){ btn.textContent = cfg.label; }
-    // URL：SPARE_BUTTONSの値を基本とし、localStorageがあれば上書き
-    try {
-      const savedUrl = localStorage.getItem('spareBtn' + num + '_url');
-      btn.setAttribute('href', savedUrl || cfg.url);
-    } catch(e){ btn.setAttribute('href', cfg.url); }
+    btn.textContent = cfg.label;
+    btn.setAttribute('href', cfg.url);
+    _spareBtnCache[num] = {url: cfg.url, label: cfg.label};
   });
 });
 
-// ダブルクリックでURL・ラベルを変更（localStorageに保存しリロード後も持続）
+// ダブルクリックでURL・ラベルを変更（セッション中のみ保持）
 function editSpareUrl(num){
   const btn = document.getElementById('spareBtn' + num);
   if(!btn) return;
   const currentUrl   = btn.getAttribute('href');
   const currentLabel = btn.textContent.trim();
   const newUrl = prompt('「ボタン' + num + '」 URLを入力:', currentUrl);
-  if(newUrl === null) return; // キャンセル
+  if(newUrl === null) return;
   const newLabel = prompt('「ボタン' + num + '」 ラベルを入力:', currentLabel);
-  if(newLabel === null) return; // キャンセル
-  if(newUrl.trim())   btn.setAttribute('href', newUrl.trim());
-  if(newLabel.trim()) btn.textContent = newLabel.trim();
-  try {
-    if(newUrl.trim())   localStorage.setItem('spareBtn' + num + '_url',   newUrl.trim());
-    if(newLabel.trim()) localStorage.setItem('spareBtn' + num + '_label', newLabel.trim());
-  } catch(e){}
+  if(newLabel === null) return;
+  if(newUrl.trim())   { btn.setAttribute('href', newUrl.trim()); if(_spareBtnCache[num]) _spareBtnCache[num].url=newUrl.trim(); }
+  if(newLabel.trim()) { btn.textContent = newLabel.trim(); if(_spareBtnCache[num]) _spareBtnCache[num].label=newLabel.trim(); }
 }
 window.editSpareUrl = editSpareUrl;
+
+
+// ===== 追加機能 JS =====
+
+// =====================================================
+// TODAY COMMAND 判定ロジック
+// =====================================================
+
+function calcDaysUntilEvent(row){
+  const d=parseShortJapaneseDate(row[fullKeys.date], row[fullKeys.year]);
+  if(!d) return null;
+  const today=new Date(); const t0=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+  return Math.round((d-t0)/86400000);
+}
+
+function countTasksDone(row){
+  let done=0;
+  for(let i=1;i<=33;i++){
+    const k='task'+String(i).padStart(2,'0');
+    if(isCheckedValue(row[fullKeys[k]])) done++;
+  }
+  return done;
+}
+
+function buildTodayCommands(rows){
+  const today=new Date(); const t0=new Date(today.getFullYear(),today.getMonth(),today.getDate());
+  const cmds=[];
+  rows.forEach(row=>{
+    const days=calcDaysUntilEvent(row);
+    if(days===null) return;
+    const no=row[fullKeys.no]||'?';
+    const title=row[fullKeys.title]||'（無題）';
+    const speaker=row[fullKeys.speaker]||'';
+    const zoomUrl=row[fullKeys.zoomUrl]||'';
+    const passcode=row[fullKeys.passcode]||'';
+    const zoomId=row[fullKeys.zoomId]||'';
+    const intro1=row[fullKeys.intro1]||'';
+    const intro2=row[fullKeys.intro2]||'';
+    const intro3=row[fullKeys.intro3]||'';
+    const taskDone=countTasksDone(row);
+
+    // 開催当日
+    if(days===0){
+      cmds.push({no,title,urgency:'critical',action:'本日開催です。当日準備を確認してください。',reason:`Task完了: ${taskDone}/33`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成',recipient:'attendee',purpose:'reminder',no}]});
+      if(!zoomUrl||zoomUrl==='https://zoom.us/'){
+        cmds.push({no,title,urgency:'critical',action:'Zoom URLが未入力です。今すぐ登録してください。',reason:'当日前にZoom URLが必要です',buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no}]});
+      }
+    }
+    // 1-3日前
+    else if(days>0&&days<=3){
+      cmds.push({no,title,urgency:'critical',action:`開催まで${days}日です。直前リマインドを送信してください。`,reason:`開催日: ${row[fullKeys.date]||'-'}`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成(講師)',recipient:'speaker',purpose:'reminder',no},{label:'メール作成(参加者)',recipient:'attendee',purpose:'reminder',no}]});
+      if(!zoomUrl||zoomUrl==='https://zoom.us/'){
+        cmds.push({no,title,urgency:'critical',action:'Zoom URLが未設定です。至急入力してください。',reason:`開催${days}日前`,buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no}]});
+      }
+    }
+    // 4-7日前
+    else if(days>3&&days<=7){
+      cmds.push({no,title,urgency:'high',action:`開催${days}日前です。起案2・資料の準備を確認してください。`,reason:`開催日: ${row[fullKeys.date]||'-'}`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成',recipient:'speaker',purpose:'data_request',no}]});
+      if(!zoomUrl||zoomUrl==='https://zoom.us/'){
+        cmds.push({no,title,urgency:'high',action:'Zoom URLが未設定です。入力してください。',reason:'開催1週間前',buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no},{label:'Zoom情報メール',recipient:'attendee',purpose:'zoom_info',no}]});
+      }
+    }
+    // 8-14日前
+    else if(days>7&&days<=14){
+      const hasZoom=zoomUrl&&zoomUrl!=='https://zoom.us/';
+      cmds.push({no,title,urgency:'normal',action:`開催${days}日前です。参加者への開催案内を確認してください。`,reason:`HP/Zoom設定確認を推奨`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成',recipient:'attendee',purpose:'announce',no}]});
+    }
+    // 15-35日前（準備フェーズ）
+    else if(days>14&&days<=35){
+      if(!speaker||speaker.trim()===''){
+        cmds.push({no,title,urgency:'high',action:'講師名が未入力です。登壇依頼を進めてください。',reason:`開催${days}日前`,buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no},{label:'登壇依頼メール',recipient:'speaker',purpose:'invitation',no}]});
+      }
+      if(!isCheckedValue(row[fullKeys.checkK1])){
+        cmds.push({no,title,urgency:'normal',action:`起案1がまだです。開催${days}日前なので起案1を進めてください。`,reason:'起案1は開催35日前が目安',buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no}]});
+      }
+    }
+    // 開催後（事後処理）
+    else if(days<0&&days>=-30){
+      const postTask25=isCheckedValue(row[fullKeys.task25]);
+      const postTask28=isCheckedValue(row[fullKeys.task28]);
+      const postTask29=isCheckedValue(row[fullKeys.task29]);
+      const postTask33=isCheckedValue(row[fullKeys.task33]);
+      if(!postTask25||!postTask28||!postTask29||!postTask33){
+        const pending=[];
+        if(!postTask25)pending.push('Zoomレポート');
+        if(!postTask28)pending.push('起案3(受講証)');
+        if(!postTask29)pending.push('講師へお礼');
+        if(!postTask33)pending.push('受講証交付');
+        cmds.push({no,title,urgency:'high',action:`事後処理が残っています: ${pending.join(' / ')}`,reason:`開催から${Math.abs(days)}日経過`,buttons:[{label:'Task Checklist',href:'#taskChecklistPanel',no},{label:'お礼メール',recipient:'speaker',purpose:'thanks',no}]});
+      }
+    }
+
+    // 共通チェック: 進行表イントロ不備
+    if(days>=0&&days<=14){
+      if(!intro1.trim()||!intro2.trim()||!intro3.trim()){
+        cmds.push({no,title,urgency:'info',action:'進行表のイントロ文が不足しています。',reason:`intro1/2/3のいずれかが空`,buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no}]});
+      }
+    }
+  });
+
+  // 緊急度順ソート
+  const order={critical:0,high:1,normal:2,info:3};
+  cmds.sort((a,b)=>order[a.urgency]-order[b.urgency]);
+  return cmds.slice(0,6); // 最大6件
+}
+
+function renderTodayCommand(){
+  const el=document.getElementById('todayCommandList');
+  if(!el) return;
+  if(!currentHeaders.length){
+    el.innerHTML='<div class="tc-empty"><i class="tc-empty-icon">&#9881;</i>CSVを読み込むか、新規DBを作成すると本日のアクション候補がここに表示されます。</div>';
+    return;
+  }
+  const cmds=buildTodayCommands(dataRows);
+  if(!cmds.length){
+    el.innerHTML='<div class="tc-empty"><i class="tc-empty-icon">&#10003;</i>本日の優先アクションはありません。全て対応済みです。</div>';
+    return;
+  }
+  el.innerHTML=cmds.map((cmd,idx)=>{
+    const urgClass={'critical':'critical','high':'high','normal':'normal','info':'info'}[cmd.urgency]||'normal';
+    const urgLabel={'critical':'緊急','high':'要対応','normal':'確認','info':'情報'}[cmd.urgency]||'確認';
+    const btns=cmd.buttons.map(b=>{
+      if(b.href){
+        return `<a class="tc-btn" href="${esc(b.href)}" onclick="${b.no?`selectRecordByNo('${esc(b.no)}');`:''}return true;">${esc(b.label)}</a>`;
+      }
+      return `<button class="tc-btn primary" onclick="openMailTemplate('${esc(b.no||'')}','${esc(b.recipient||'')}','${esc(b.purpose||'')}')">${esc(b.label)}</button>`;
+    }).join('');
+    const cardId='tc-card-'+idx;
+    return `<div class="tc-card urgency-${urgClass}" id="${cardId}">
+      <div class="tc-card-head">
+        <div class="tc-card-check-row" onclick="tcToggleExpand('${cardId}')">
+          <input type="checkbox" class="tc-check" id="chk_${cardId}" onclick="event.stopPropagation();tcCheckDone('${cardId}',this.checked)" />
+          <span class="tc-no-badge">No.${esc(cmd.no)}</span>
+          <span class="tc-urgency-tag ${urgClass}">${urgLabel}</span>
+          <span class="tc-title">${esc(cmd.title)}</span>
+          <span class="tc-done-label">完了済み</span>
+          <span class="tc-expand-hint">▼ 展開</span>
+        </div>
+      </div>
+      <div class="tc-action"><i class="tc-action-icon">&#9654;</i>${esc(cmd.action)}</div>
+      <div class="tc-reason">${esc(cmd.reason)}</div>
+      <div class="tc-btns">${btns}</div>
+    </div>`;
+  }).join('');
+}
+
+// =====================================================
+// EXCEPTION QUEUE 判定ロジック
+// =====================================================
+
+function buildExceptions(rows){
+  const exceptions=[];
+  rows.forEach(row=>{
+    const no=row[fullKeys.no]||'?';
+    const title=row[fullKeys.title]||'（無題）';
+    const days=calcDaysUntilEvent(row);
+
+    const push=(sev,label,detail)=>exceptions.push({no,title,sev,label,detail});
+
+    // 必須フィールド欠落
+    if(!String(row[fullKeys.title]||'').trim()) push('critical','タイトル未入力','テーマ(標題)_TITLEが空です');
+    if(!String(row[fullKeys.speaker]||'').trim()) push('critical','講師未入力','担当講師_SPEAKERが空です');
+    if(!String(row[fullKeys.date]||'').trim()) push('critical','開催日未入力','開催日_DATE_1が空です');
+
+    // Zoom関連（開催14日前以内）
+    if(days!==null&&days<=14&&days>=0){
+      const zoomUrl=String(row[fullKeys.zoomUrl]||'').trim();
+      if(!zoomUrl||zoomUrl==='https://zoom.us/') push('critical','Zoom URL未設定','zoom_url_zoom_urlが空または初期値です');
+      const passcode=String(row[fullKeys.passcode]||'').trim();
+      if(!passcode) push('warning','パスコード未入力','Zoom_パスコード_PASSCODEが空です');
+      const zoomId=String(row[fullKeys.zoomId]||'').trim();
+      if(!zoomId) push('warning','Zoom ID未入力','Zoom_ID_WEBINER_IDが空です');
+    }
+
+    // 進行表イントロ（開催7日前以内）
+    if(days!==null&&days<=7&&days>=0){
+      if(!String(row[fullKeys.intro1]||'').trim()) push('warning','進行表導入なし','進行表導入_INTRO_1が空です');
+      if(!String(row[fullKeys.intro2]||'').trim()) push('warning','趣旨説明なし','進行表研修会趣旨説明_INTRO_2が空です');
+      if(!String(row[fullKeys.intro3]||'').trim()) push('warning','講師紹介なし','進行表講師紹介_INTRO_3が空です');
+    }
+
+    // 起案関連チェック
+    if(days!==null&&days<=-1){ // 開催済
+      if(!isCheckedValue(row[fullKeys.checkK3])) push('warning','起案3未完','起案3チェック_CHECK_K3が未チェックです');
+      if(!isCheckedValue(row[fullKeys.task29])) push('info','講師へお礼未完','講師へお礼連絡_CHECKが未チェックです');
+      if(!isCheckedValue(row[fullKeys.task33])) push('info','受講証交付未完','受講証修了証メール交付_CHECKが未チェックです');
+    }
+    if(days!==null&&days<=0&&days>=-1){
+      if(!isCheckedValue(row[fullKeys.checkK1])) push('warning','起案1未チェック','起案1チェック_CHECK_K1が未チェックです');
+    }
+  });
+
+  const order={critical:0,warning:1,info:2};
+  exceptions.sort((a,b)=>order[a.sev]-order[b.sev]);
+  return exceptions;
+}
+
+function renderExceptionQueue(){
+  const el=document.getElementById('exceptionQueueList');
+  if(!el) return;
+  if(!currentHeaders.length){
+    el.innerHTML='<div class="alert-item"><div><span class="alert-tag">WAIT</span></div><div><strong>例外検出待機中</strong><p>CSVを読み込むか、新規DBを作成すると例外がここに表示されます。</p></div><div class="mono">No data</div></div>';
+    return;
+  }
+  const exceptions=buildExceptions(dataRows);
+  if(!exceptions.length){
+    el.innerHTML='<div class="alert-item"><div><span class="alert-tag">CLEAR</span></div><div><strong>例外なし</strong><p>検出された不備・例外はありません。</p></div><div class="mono">OK</div></div>';
+    return;
+  }
+  el.innerHTML=exceptions.map(ex=>{
+    const tagClass=ex.sev==='critical'?'critical':ex.sev==='warning'?'warning':'info';
+    const tagLabel=ex.sev==='critical'?'CRITICAL':ex.sev==='warning'?'WARNING':'INFO';
+    return `<div class="eq-item sev-${ex.sev}">
+      <div><span class="eq-tag ${tagClass}">${tagLabel}</span><div class="eq-no" style="margin-top:4px">No.${esc(ex.no)}</div></div>
+      <div class="eq-item-body"><strong>${esc(ex.label)}</strong><p>${esc(ex.title)} ─ ${esc(ex.detail)}</p></div>
+      <div><a class="btn small" href="#entryConsoleSection" onclick="selectRecordByNo('${esc(ex.no)}');return true;">確認する</a></div>
+    </div>`;
+  }).join('');
+}
+
+// =====================================================
+// MAIL TEMPLATE ロジック
+// =====================================================
+
+function renderMailRecordOptions(){
+  const sel=document.getElementById('mailRecordSelect');
+  if(!sel) return;
+  sel.innerHTML=['<option value="">Noを選択してください</option>'].concat(
+    dataRows.map(r=>`<option value="${esc(r[fullKeys.no]||'')}">No.${esc(r[fullKeys.no]||'')} / ${esc(r[fullKeys.date]||'-')} / ${esc(r[fullKeys.title]||'-')}</option>`)
+  ).join('');
+}
+
+function openMailTemplate(no, recipient, purpose){
+  const sel=document.getElementById('mailRecordSelect');
+  if(sel&&no){
+    sel.value=no;
+  }
+  const rSel=document.getElementById('mailRecipient');
+  if(rSel&&recipient) rSel.value=recipient;
+  const pSel=document.getElementById('mailPurpose');
+  if(pSel&&purpose) pSel.value=purpose;
+  generateMailTemplate();
+  const mailEl=document.getElementById('mailTemplateSection');
+  if(mailEl) mailEl.scrollIntoView({behavior:'smooth',block:'start'});
+}
+window.openMailTemplate=openMailTemplate;
+
+function tcCheckDone(cardId, checked){
+  const card=document.getElementById(cardId);
+  if(!card) return;
+  if(checked){
+    card.classList.add('done');
+    const hint=card.querySelector('.tc-expand-hint');
+    if(hint) hint.textContent='▼ 展開';
+  } else {
+    card.classList.remove('done');
+  }
+}
+function tcToggleExpand(cardId){
+  const card=document.getElementById(cardId);
+  if(!card) return;
+  if(!card.classList.contains('done')) return; // 未完了時は無効
+  // done状態でクリック→一時展開トグル
+  const isExpanded=card.classList.contains('tc-temp-expand');
+  card.classList.toggle('tc-temp-expand', !isExpanded);
+  const els=card.querySelectorAll('.tc-action,.tc-reason,.tc-btns');
+  els.forEach(el=>{
+    el.style.display=isExpanded?'':'flex';
+    if(el.classList.contains('tc-action')) el.style.display=isExpanded?'none':'flex';
+    if(el.classList.contains('tc-reason')) el.style.display=isExpanded?'none':'block';
+    if(el.classList.contains('tc-btns'))   el.style.display=isExpanded?'none':'flex';
+  });
+  const hint=card.querySelector('.tc-expand-hint');
+  if(hint) hint.textContent=isExpanded?'▼ 展開':'▲ 折畳む';
+}
+window.tcCheckDone=tcCheckDone;
+
+function alertCheckDone(aid, checked){
+  const item=document.getElementById(aid);
+  if(!item) return;
+  if(checked){
+    item.classList.add('done');
+    item.title='クリックで展開';
+    item.onclick=function(){ alertToggleExpand(aid); };
+  } else {
+    item.classList.remove('done');
+    item.onclick=null;
+    item.title='';
+  }
+}
+function alertToggleExpand(aid){
+  const item=document.getElementById(aid);
+  if(!item || !item.classList.contains('done')) return;
+  const body=item.querySelector('.alert-body');
+  const meta=item.querySelector('.alert-meta');
+  const isHidden=body&&body.style.display==='none';
+  if(body) body.style.display=isHidden?'':'none';
+  if(meta) meta.style.display=isHidden?'':'none';
+}
+window.alertCheckDone=alertCheckDone;
+
+// Mail Template タブ切替
+function mailTabClick(btn){
+  document.querySelectorAll('.mail-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const purpose=btn.dataset.purpose;
+  const recip=btn.dataset.recip||'speaker';
+  const pSel=document.getElementById('mailPurpose');
+  const rSel=document.getElementById('mailRecipient');
+  if(pSel) pSel.value=purpose;
+  if(rSel) rSel.value=recip;
+  if(document.getElementById('mailRecordSelect').value) generateMailTemplate();
+}
+window.mailTabClick=mailTabClick;
+
+// openMailTemplate 拡張 — タブも連動
+const _origOpenMail=openMailTemplate;
+openMailTemplate=function(no,recipient,purpose){
+  _origOpenMail(no,recipient,purpose);
+  // タブ同期
+  if(purpose){
+    document.querySelectorAll('.mail-tab').forEach(b=>{
+      b.classList.toggle('active', b.dataset.purpose===purpose);
+    });
+  }
+};
+
+// mailRecordSelect 変更時もタブ同期
+document.addEventListener('DOMContentLoaded',function(){
+  const rSel=document.getElementById('mailRecordSelect');
+  if(rSel) rSel.addEventListener('change',function(){
+    if(this.value) generateMailTemplate();
+  });
+  // ブラッシュアップボタン制御: メール生成後に表示
+  const origGenBtn=document.getElementById('mailGenerateBtn');
+  if(origGenBtn){
+    origGenBtn.addEventListener('click',function(){
+      setTimeout(()=>{
+        const brushBtn=document.getElementById('mailBrushupBtn');
+        const preview=document.getElementById('mailPreviewWrap');
+        if(brushBtn&&preview&&preview.style.display!=='none') brushBtn.style.display='';
+      },100);
+    });
+  }
+
+  // ブラッシュアップボタン
+  const brushBtn=document.getElementById('mailBrushupBtn');
+  if(brushBtn) brushBtn.addEventListener('click',runGasBrushup);
+
+  // brushupCopyBtn
+  const brushCopy=document.getElementById('brushupCopyBtn');
+  if(brushCopy) brushCopy.addEventListener('click',function(){
+    const t=document.getElementById('gasBrushupResult');
+    if(t) navigator.clipboard.writeText(t.value).then(()=>{
+      const orig=brushCopy.textContent; brushCopy.textContent='コピー完了';
+      setTimeout(()=>{ brushCopy.textContent=orig; },1600);
+    });
+  });
+
+  // brushupApplyBtn — ブラッシュアップ結果を本文エリアに反映
+  const applyBtn=document.getElementById('brushupApplyBtn');
+  if(applyBtn) applyBtn.addEventListener('click',function(){
+    const src=document.getElementById('gasBrushupResult');
+    const dst=document.getElementById('mailBodyDisplay');
+    if(src&&dst){ dst.value=src.value; dst.removeAttribute('readonly'); }
+  });
+});
+
+// GAS ブラッシュアップ実行
+const GAS_BRUSHUP_URL='https://script.google.com/macros/s/AKfycbwFGWXonRPSDqhToxurlrxmvb0oMydOdM18_2Jy5aQWDXP60o6bKjkjYYfu741dgkqB/exec';
+
+async function runGasBrushup(){
+  const subjectEl=document.getElementById('mailSubjectDisplay');
+  const bodyEl=document.getElementById('mailBodyDisplay');
+  const statusEl=document.getElementById('gasBrushupStatus');
+  function setBrushupStatus(msg,color){
+    if(!statusEl) return;
+    statusEl.textContent=msg;
+    statusEl.style.display=msg?'block':'none';
+    statusEl.style.color=color||'';
+  }
+  if(!bodyEl||!bodyEl.value.trim()){
+    setBrushupStatus('メールを先に生成してください。','var(--warn)'); return;
+  }
+  const brushBtn=document.getElementById('mailBrushupBtn');
+  if(brushBtn){ brushBtn.disabled=true; brushBtn.textContent='処理中...'; }
+  setBrushupStatus('AI ブラッシュアップ中... しばらくお待ちください。');
+
+  const subject=(subjectEl?subjectEl.value||subjectEl.textContent:'') || '（件名なし）';
+  const mailBody=bodyEl.value;
+
+  // GASの doPost は受取ったJSONをそのままGemini APIに投げるプロキシ構造のため
+  // Gemini API形式の payload をダッシュボード側で組み立てる
+  const prompt=`以下のメール本文を、より丁寧で読みやすい文章にブラッシュアップしてください。
+「件名：${subject}」
+
+「本文：
+${mailBody}」
+
+【出力形式】ブラッシュアップ後の本文のみを返してください。説明文や先頭コメントは不要です。`;
+
+  const geminiPayload={
+    contents:[{ parts:[{ text: prompt }] }],
+    generationConfig:{ temperature:0.7, maxOutputTokens:2048 }
+  };
+
+  try{
+    // Content-Type: text/plain → CORSプリフライトなし（GASは e.postData.contents で受取）
+    const res=await fetch(GAS_BRUSHUP_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify(geminiPayload)
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const raw=await res.text();
+    console.log('[GAS brushup raw response]', raw);
+    let data={};
+    try{ data=JSON.parse(raw); }catch(pe){ throw new Error('JSONパース失敗: '+raw.slice(0,120)); }
+
+    // Gemini API レスポンス構造: candidates[0].content.parts[0].text
+    const brushed=
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      null;
+    if(!brushed){
+      // エラーレスポンスの場合は error.message を表示
+      const errMsg=data?.error?.message||data?.error?.status||JSON.stringify(data).slice(0,120);
+      throw new Error('Geminiエラー: '+errMsg);
+    }
+    if(bodyEl){ bodyEl.value=brushed.trim(); bodyEl.removeAttribute('readonly'); }
+    setBrushupStatus('✓ AIブラッシュアップ完了。本文を更新しました。','var(--green)');
+    setTimeout(()=>setBrushupStatus(''),6000);
+  }catch(e){
+    setBrushupStatus('GAS接続エラー: '+e.message,'var(--danger)');
+    console.error('runGasBrushup error:', e);
+  }finally{
+    if(brushBtn){ brushBtn.disabled=false; brushBtn.textContent='AIブラッシュアップ実行'; }
+  }
+}
+window.runGasBrushup=runGasBrushup;
+
+window.alertToggleExpand=alertToggleExpand;
+
+window.tcToggleExpand=tcToggleExpand;
+
+
+function selectRecordByNo(no){
+  const sel=document.getElementById('recordSelect');
+  if(sel) sel.value=no;
+  const row=dataRows.find(r=>String(r[fullKeys.no]||'').trim()===String(no||'').trim())||null;
+  if(row){ selectedRow=row; }
+}
+window.selectRecordByNo=selectRecordByNo;
+
+function generateMailTemplate(){
+  const no=document.getElementById('mailRecordSelect').value;
+  const recipient=document.getElementById('mailRecipient').value;
+  const purpose=document.getElementById('mailPurpose').value;
+  const row=dataRows.find(r=>String(r[fullKeys.no]||'').trim()===String(no||'').trim())||null;
+
+  const preview=document.getElementById('mailPreviewWrap');
+  const warn=document.getElementById('mailMissingWarn');
+  const missingList=document.getElementById('mailMissingList');
+
+  if(!row){
+    if(preview) preview.style.display='none';
+    if(warn){ warn.style.display='none'; }
+    return;
+  }
+
+  // 差出人情報取得
+  const senderOrg=(document.getElementById('senderOrg')||{value:''}).value.trim()||'○○';
+  const senderName=(document.getElementById('senderName')||{value:''}).value.trim()||'○○';
+  const senderSig=(document.getElementById('senderSignature')||{value:''}).value.trim()||'シグネチャー';
+
+  const sigBlock=`\n研修会担当　${senderName}\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊\n${senderSig}\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊`;
+
+  // フィールド取得ヘルパー
+  const fv=k=>String(row[fullKeys[k]]||'').trim();
+
+  // 必須チェック
+  const missing=[];
+  if(!fv('title')) missing.push('タイトル');
+  if(!fv('date')) missing.push('開催日');
+  const isZoomNeeded=['denshi_post_req','denshi_replace_req','honban_reminder_speaker'].includes(purpose);
+  const zUrl=fv('zoomUrl');
+  if(isZoomNeeded&&(!zUrl||zUrl==='https://zoom.us/')) missing.push('Zoom URL');
+  if(missing.length){
+    if(warn){ warn.style.display=''; missingList.textContent=missing.join('、')+'が不足しています。'; }
+  } else {
+    if(warn) warn.style.display='none';
+  }
+
+  // 変数収集
+  const title=fv('title')||'（研修会タイトル）';
+  const year=fv('year')||'2026年';
+  const yearNum=String(year).match(/(\d{4})/)?.[1]||'2026';
+  const dateStr=fv('date')||'（開催日）';
+  const day=fv('day')||'（曜）';
+  const start=fv('start')||'17:30';
+  const end=fv('end')||'19:00';
+  const speaker=fv('speaker')||'（講師名）';
+  const zoomUrl=fv('zoomUrl')||'（Zoom URL）';
+  const zoomId=fv('zoomId')||'（Zoom ID）';
+  const passcode=fv('passcode')||'（パスコード）';
+  const hpUrl=fv('hpUrl')||'（HP URL）';
+  const deadline2=fv('deadline2')||'（当日申込締切時刻）';
+  const dataDeadline=fv('dataDeadline')||'（資料提出締切）';
+  const date2=fv('date2')||dateStr;
+  const head1=`${yearNum}年度　臨床研究研修会`;
+  // PRE_MEETING（開始30分前）
+  function subtractMin(timeStr, mins){
+    const m=timeStr.match(/^(\d{1,2}):(\d{2})$/);
+    if(!m) return timeStr;
+    let total=parseInt(m[1])*60+parseInt(m[2])-mins;
+    if(total<0) total+=1440;
+    return String(Math.floor(total/60)).padStart(2,'0')+':'+String(total%60).padStart(2,'0');
+  }
+  const preMeeting=subtractMin(start,30);
+  // 講義開始・QA時刻はEntry Consoleに該当フィールドがない場合は計算値を使う
+  const lectureStart=fv('lectureStart')||subtractMin(end,50)||start;
+  const qaTime=subtractMin(end,15)||end;
+
+  let subj='',body='';
+
+  // ============================================================
+  // 講師向け
+  // ============================================================
+  if(purpose==='ishi_req'){
+    // 11: 開催日の5週間前 依頼状送付
+    subj=`【静岡がんセンター】臨床研究研修会${dateStr}_ご依頼状提出について`;
+    body=`${speaker} 先生\n\n平素より大変お世話になっております。${senderOrg}の${senderName}でございます。ご多忙のところ研修会の準備にご協力くださり、誠にありがとうございます。\n\nさて、ご講演のご依頼状につきまして、当院内の手続きが完了いたしましたので、PDFを添付のうえ送付申し上げます。ご査収のほどよろしくお願いいたします。\n\n当院のホームページにてご講演の案内を公開しましたら、改めてご報告させていただきます。\n\n引き続き、どうぞよろしくお願い申し上げます。${sigBlock}`;
+  }
+  else if(purpose==='hp_report_speaker'){
+    // 3 or 6: HP掲載当日 講師への掲載報告+資料依頼
+    subj=`【静岡がんセンター】臨床研究研修会${dateStr}_ご案内開始についてご報告`;
+    body=`${speaker} 先生\n\n平素より大変お世話になっております。${senderOrg}　臨床研究研修会担当の${senderName}でございます。お忙しいところ、研修会準備にご協力くださり誠にありがとうございます。\n\n${dateStr}（${day}）開催の研修会のお知らせにつきまして、当センターのホームページにてご講演内容のご案内を開始させていただきましたので、ご連絡させていただきます。ホームページに掲載の研修会のご案内も本メールに添付させていただきました。\n\n静岡がんセンターホームページURL\n${hpUrl}\n\n講義資料について\n${dataDeadline}（講演日1週間前）までに、講演資料のご作成・ご提供をお願い致します。\n\n＜タイトル＞\n${head1}「${title}」\n\n今後とも、ご指導ご鞭撻の程よろしくお願いいたします。${sigBlock}`;
+  }
+  else if(purpose==='data_reminder_speaker'){
+    // 8: 開催2週間前 講師リマインド（資料提出依頼）
+    subj=`【静岡がんセンター】臨床研究研修会 ${dateStr}について`;
+    body=`${speaker} 先生\n\n平素より大変お世話になっております。${senderOrg}　研修会担当の${senderName}でございます。お忙しいところ、研修会準備にご協力くださり誠にありがとうございます。\n\n${dateStr}（${day}）に予定されている研修会が近づいておりますので、以下についてお知らせいたします。\n\n【講義資料について】\n${dataDeadline}（講演日1週間前）までに、講演資料のご作成・ご提供をお願い致します。\n\n＜タイトル＞\n${head1}「${title}」\n\n今後とも、ご指導ご鞭撻の程よろしくお願いいたします。${sigBlock}`;
+  }
+  else if(purpose==='honban_reminder_speaker'){
+    // 10: 開催1週間前 本番前リマインド
+    subj=`【静岡がんセンター】臨床研究研修会${dateStr}について`;
+    body=`${speaker} 先生\n\n平素より大変お世話になっております。\n${senderOrg}　臨床研究研修会担当の${senderName}でございます。\nお忙しい中、ご講演の準備にご協力いただき、誠にありがとうございます。\n\nご講演予定日が近づいてまいりましたので、改めてご案内申し上げます。\n当日の進行表およびウェビナー操作資料を添付いたしましたので、ご参照いただけますと幸いです。\n\n進行については、以下のスケジュールを予定しております。\n\n＜当日の進行＞\n${preMeeting}〜${start}（終了後、待機）　事前接続（練習セッション）\n${start}〜　司会挨拶\n${lectureStart}〜　講義\n${qaTime}〜　質疑応答\n〜${end}　司会挨拶\n\n＜先生ご招待URL＞\n${zoomUrl}\n\nご多忙のところ、大変恐縮ですが、よろしくお願い申し上げます。${sigBlock}`;
+  }
+  else if(purpose==='shakin_transfer'){
+    // 9: 開催7日以内 謝金振込通知
+    subj=`【静岡がんセンター】ご講演謝金の振り込みについて`;
+    body=`${speaker} 先生\n\n平素より大変お世話になっております。${senderOrg}の${senderName}でございます。先日はお忙しい中、当院の臨床研究研修会にてご講演くださり誠にありがとうございました。\n\nさて、お謝金につきましては、XX月XX日（X）にご指定の口座へお振込みさせていただく予定でございます。お手すきの際にご確認いただけますと幸いです。\n\nなお、万が一お振込みが確認できない場合には、誠に恐れ入りますがご一報いただけますようお願い申し上げます。\n\n今後とも何卒よろしくお願い申し上げます。${sigBlock}`;
+  }
+
+  // ============================================================
+  // 関係者向け
+  // ============================================================
+  else if(purpose==='hp_upload_req'){
+    // 1: HP掲載1週間前 予約投稿依頼
+    subj=`【研修会】アップロード設定（予約投稿）のお願い`;
+    body=`マネジメントセンター○○ 様\n\nいつも大変お世話になっております。${senderOrg}　研修会担当の${senderName}でございます。以下について予約投稿設定をお願いいたします。\n\n＜予約投稿日＞\nXX月XX日（XX）13時〜\n\n＜タイトル＞\n＜研修会＞臨床研究研修会「${title}」${dateStr}（${day}）${start}〜開催のお知らせ\n\n＜研修会ページ＞\n${hpUrl}\n\nよろしくお願いいたします。${sigBlock}`;
+  }
+  else if(purpose==='hp_done_report'){
+    // 2: HP掲載1週間前 掲載完了報告（関係者）
+    subj=`【静岡がんセンター】臨床研究研修会${dateStr}_ご案内開始についてご報告`;
+    body=`皆様\n\nお忙しいところ失礼いたします。\n${senderOrg}　研修会担当の${senderName}でございます。\n\n以下の研修会案内がホームページにアップロードされましたので、ご報告させていただきます。\n講師の${speaker}にもご報告させていただきます。\n\n＜研修会＞\n日　時：${year}${dateStr}（${day}）${start}〜${end}\n演　題：「${title}」\n講　師：${speaker}\n\n${hpUrl}\n\nよろしくお願いいたします。${sigBlock}`;
+  }
+  else if(purpose==='hp_done_report_day'){
+    // 4: HP掲載当日 掲載完了報告（関係者）
+    subj=`【研修会】${dateStr}_ご案内開始についてご報告`;
+    body=`皆様\n\nお忙しいところ失礼いたします。研修会担当の${senderName}です。\n\n以下の研修会案内がホームページにアップロードされましたので、ご報告させていただきます。講師の${speaker}にもご報告させていただきます。\n\n＜研修会＞\n日　時：${year}${dateStr}（${day}）${start}〜${end}\n演　題：${title}\n講　師：${speaker}\n\n${hpUrl}\n\nよろしくお願いいたします。${sigBlock}`;
+  }
+  else if(purpose==='denshi_post_req'){
+    // 5: HP掲載当日 電子カルテ掲載依頼
+    subj=`【掲載依頼】(${date2}開催)臨床研究研修会開催のお知らせ`;
+    body=`情報システム課　御中\n\nお世話になっております。${senderOrg}の${senderName}と申します。お手数をおかけいたしますが、${dateStr}（${day}）まで、電子カルテの重要なお知らせ欄へ、以下のとおり掲載をお願いいたします。臨床研究研修会の開催は、特定臨床研究管理委員会やワーキングに諮っており、幹部の承諾を得ております。\n\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊\n${senderSig}\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊\n\n（標　題）\n（${date2}開催）　臨床研究研修会開催のお知らせ　${start}から\n\n----------------------------------------------------------\n（本文）\n\n日　時：${year}${dateStr}（${day}）${start}〜${end}\n演　題：「${title}」\n講　師：${speaker}\n\n場所：オンライン研修会\n受講方法：当日オンライン受講（ZOOMウェビナー）\n\n添付ファイルのQRコードを読み取るか、以下URLからお申込みください。\n${zoomUrl}\n\n申込み〆切：${dateStr}（${day}）${deadline2}まで\n\n※本講義はオンラインでの聴講になります。\n別添のファイルにつきまして、お知らせへ添付いただきますようお願いいたします。\n\nお忙しいところ大変恐縮ですが、よろしくお願いいたします。\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊\n${senderSig}\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊`;
+    // この用途は件名を本文の冒頭に含めないスタイルのため subj のみ
+  }
+  else if(purpose==='denshi_replace_req'){
+    // 7: 開催1週間前 電子カルテ差替依頼
+    subj=`【差替え掲載依頼】(${date2}開催)臨床研究研修会開催のお知らせ`;
+    body=`情報システム課　御中\n\nお世話になっております。${senderOrg}の${senderName}と申します。\n\nXX月XX日に掲載をお願いさせていただきました研修会開催のお知らせですが、${dateStr}開催分につきまして、別添のファイルへの差し替えをお願いできますでしょうか。\n\nお手数をおかけいたしますが、${dateStr}（${day}）まで、電子カルテの重要なお知らせ欄へ、以下のとおり掲載をお願いいたします。臨床研究研修会の開催は、特定臨床研究管理委員会やワーキングに諮っており、幹部の承諾を得ております。\n\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊\n${senderSig}\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊\n\n（標　題）\n（${date2}開催間近）　臨床研究研修会開催のお知らせ　${start}から\n\n----------------------------------------------------------\n（本文）\n\n日　時：${year}${dateStr}（${day}）${start}〜${end}\n演　題：「${title}」\n講　師：${speaker}\n\n場所：オンライン研修会\n受講方法：当日オンライン受講（ZOOMウェビナー）\n\n添付ファイルのQRコードを読み取るか、以下URLからお申込みください。\n${zoomUrl}\n\n申込み〆切：${dateStr}（${day}）${deadline2}まで\n\n※本講義はオンラインでの聴講になります。\n別添のファイルにつきまして、お知らせへ添付いただきますようお願いいたします。\n\nお忙しいところ大変恐縮ですが、よろしくお願いいたします。\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊\n${senderSig}\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊`;
+  }
+  else if(purpose==='shakin_proc_req'){
+    // 12: 開催翌日〜3日 謝金支払い手続き依頼（関係者）
+    subj=`【研修会】${dateStr}_謝金支払い手続きについて`;
+    body=`○○様\n\nお忙しいところ失礼いたします。研修会担当の${senderName}でございます。下段、研修会の謝金お支払い手続きについて、ご対応いただきたくお願いいたします。\n\n＜研修会＞\n日　時：${year}${dateStr}（${day}）${start}〜${end}\n演　題：「${title}」\n講　師：${speaker}\n\n今後とも、よろしくお願いいたします。${sigBlock}`;
+  }
+  else if(purpose==='seminar_prep'){
+    // 13: 当日 研修会準備依頼
+    subj=`【研修会準備】${dateStr}研修会準備について`;
+    body=`皆様\n\nお忙しい中、失礼いたします。研修会担当の${senderName}です。\n\n本日${dateStr}の研修会準備につきまして、下記のとおりご協力をお願い申し上げます。\n\n■ 準備開始　XX:XX頃から\n■ 事前打合せ　14:30\n■ 会場　管理棟4階　XXXXXXX\n\n■ 皆様ご都合がつきましたら、XX:XX頃よりご自席にて、音声および画像のモニタリングにご協力いただけますと幸いです。\n\n何卒よろしくお願いいたします。${sigBlock}`;
+  }
+  else if(purpose==='jikan_gaizangyo'){
+    // 14: 当日 時間外勤務前申請
+    subj=`【時間外勤務_前申請】${dateStr}○○`;
+    body=`□□様　△△様\n\nお忙しいところ失礼いたします。研修会担当の${senderName}です。\n\n本日の研修会運営について、以下の通り、時間外勤務の前申請をお願いいたします。\n\n【時間外勤務 前申請】\n■ ${dateStr}（${day}）${end}まで\n■ 研修会運営対応のため\n\n何卒よろしくお願いいたします。\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊\n${senderSig}\n＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊＊`;
+  }
+  else {
+    subj=`【研修会ご連絡】${dateStr} 「${title}」`;
+    body=`関係者各位\n\nお世話になっております。${senderOrg}の${senderName}でございます。\n\n${dateStr}（${day}）${start}〜${end}開催の研修会「${title}」についてご連絡いたします。\n\nよろしくお願いいたします。${sigBlock}`;
+  }
+
+  const subjectEl=document.getElementById('mailSubjectDisplay');
+  const bodyEl=document.getElementById('mailBodyDisplay');
+  if(subjectEl) subjectEl.value=subj;
+  if(bodyEl){ bodyEl.value=body; bodyEl.removeAttribute('readonly'); }
+  if(preview) preview.style.display='';
+}
+
+document.addEventListener('DOMContentLoaded',function(){
+  const genBtn=document.getElementById('mailGenerateBtn');
+  if(genBtn) genBtn.addEventListener('click',generateMailTemplate);
+
+  const copySubjectBtn=document.getElementById('mailCopySubjectBtn');
+  if(copySubjectBtn) copySubjectBtn.addEventListener('click',function(){
+    const t=document.getElementById('mailSubjectDisplay');
+    if(t) navigator.clipboard.writeText(t.value||t.textContent||'').then(()=>{
+      const orig=copySubjectBtn.textContent; copySubjectBtn.textContent='コピー完了';
+      setTimeout(()=>{ copySubjectBtn.textContent=orig; },1600);
+    });
+  });
+
+  const copyAllBtn=document.getElementById('mailCopyAllBtn');
+  if(copyAllBtn) copyAllBtn.addEventListener('click',function(){
+    const s=document.getElementById('mailSubjectDisplay');
+    const b=document.getElementById('mailBodyDisplay');
+    if(s&&b){
+      const text=`件名: ${s.value||s.textContent||''}\n\n${b.value}`;
+      navigator.clipboard.writeText(text).then(()=>{
+        const orig=copyAllBtn.textContent; copyAllBtn.textContent='コピー完了';
+        setTimeout(()=>{ copyAllBtn.textContent=orig; },1600);
+      });
+    }
+  });
+
+  const copyBtn2=document.getElementById('mailCopyBtn2');
+  if(copyBtn2) copyBtn2.addEventListener('click',function(){
+    const b=document.getElementById('mailBodyDisplay');
+    if(b) navigator.clipboard.writeText(b.value).then(()=>{
+      const orig=copyBtn2.textContent; copyBtn2.textContent='コピー完了';
+      setTimeout(()=>{ copyBtn2.textContent=orig; },1600);
+    });
+  });
+
+  // mailRecordSelect change -> auto generate if already selected
+  const mailSel=document.getElementById('mailRecordSelect');
+  if(mailSel) mailSel.addEventListener('change',function(){
+    if(this.value) generateMailTemplate();
+  });
+  const recipientSel=document.getElementById('mailRecipient');
+  if(recipientSel) recipientSel.addEventListener('change',function(){ if(document.getElementById('mailRecordSelect').value) generateMailTemplate(); });
+  const purposeSel=document.getElementById('mailPurpose');
+  if(purposeSel) purposeSel.addEventListener('change',function(){ if(document.getElementById('mailRecordSelect').value) generateMailTemplate(); });
+});
+
+// renderAlerts / renderStats: Today Command・ExceptionQueue・mailRecordSelect は各関数本体に統合済み
+
+// ダミーデータ挿入
+function loadDummyData(){
+  const today=new Date();
+  function addD(n){const d=new Date(today);d.setDate(d.getDate()+n);return d;}
+  function fmt1(d){return `${d.getMonth()+1}月${d.getDate()}日`;}
+  function fmtDeadline1(isoDate){const base=new Date(isoDate+'T00:00:00');base.setDate(base.getDate()-8);const w=['日','月','火','水','木','金','土'][base.getDay()];return `${base.getMonth()+1}月${base.getDate()}日（${w}）12:00`;}
+  function toISO(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+  const day5=addD(5); const day14=addD(14); const day45=addD(45); const dayM7=addD(-7);
+
+  const makeRow=(no,dateD,title,speaker,zoomUrl,passcode,zoomId,extraChecks={})=>{
+    const iso=toISO(dateD);
+    const row={};
+    currentHeaders.forEach(h=>row[h]='');
+    row[fullKeys.no]=String(no);
+    row[fullKeys.year]='2026年';
+    row[fullKeys.date]=fmt1(dateD);
+    row[fullKeys.day]=['日','月','火','水','木','金','土'][dateD.getDay()];
+    row[fullKeys.title]=title;
+    row[fullKeys.speaker]=speaker;
+    row[fullKeys.start]='17:30'; row[fullKeys.end]='19:00';
+    row[fullKeys.lectureStart]='17:30';
+    row[fullKeys.zoomUrl]=zoomUrl; row[fullKeys.passcode]=passcode; row[fullKeys.zoomId]=zoomId;
+    row[fullKeys.deadline1]=fmtDeadline1(iso);
+    row[fullKeys.subject]='研究者'; row[fullKeys.subject2]='（医師・歯科医師等）';
+    row[fullKeys.site]='Web会議室'; row[fullKeys.cohost]='なし';
+    row[fullKeys.purpose]='本研修会では、臨床研究に必要な実務の基本をわかりやすく学びます。';
+    row[fullKeys.intro1]='本日は臨床研究研修会にご参加いただきありがとうございます。';
+    row[fullKeys.intro2]='本研修会では、臨床研究を進めるうえで必要となる基本事項と実務上のポイントを共有します。';
+    row[fullKeys.intro3]='本日の講師は、臨床研究支援に関する実務経験を有する専門家です。';
+    row[fullKeys.date2]=`${dateD.getMonth()+1}/${dateD.getDate()}`;
+    row[fullKeys.name]='森川 担当者';
+    row[fullKeys.hpUrl]='https://www.scchr.jp/clinicaltrial/cscc_seminar/index.html';
+    row[fullKeys.dataDeadline]=fmt1(addD(-7+Math.round((dateD-today)/86400000)));
+    Object.assign(row, extraChecks);
+    return row;
+  };
+
+  const dummy1=makeRow(1,day5,'臨床試験の倫理審査と研究計画書作成実務','田中 研一','','',''); // ZoomURL未設定
+  const dummy2=makeRow(2,day14,'臨床研究データ管理実務','佐藤 美咲','https://zoom.us/j/99999999999','12345','999 9999 9999',{[fullKeys.checkK1]:'1',[fullKeys.checkHp]:'1'});
+  const dummy3=makeRow(3,dayM7,'研究倫理・インフォームドコンセント','鈴木 倫理','https://zoom.us/j/88888888888','67890','888 8888 8888',{[fullKeys.checkK1]:'1',[fullKeys.checkHp]:'1',[fullKeys.checkK2]:'1',[fullKeys.task25]:'1'}); // 開催済みzoom済み、事後処理一部残
+  const dummy4=makeRow(4,day45,'統計解析の基礎と実践（演習付き）','山田 統計子','','',''); // 遠い将来
+
+  currentHeaders=[...DEFAULT_HEADERS];
+  ensureAdditionalHeaders();
+  rawRows=[dummy1,dummy2,dummy3,dummy4].map(r=>normalizeRowShape(r));
+  dataRows=buildDisplayRowsFromRaw(rawRows);
+  renderRecordOptions();
+  renderTable();
+  setNextNo();
+  renderStats();
+  renderAlerts();
+  renderMergeOptions();
+  els.appendBtn.disabled=false;
+  els.openConfirmBtn.disabled=false;
+  els.confirmAppendBtn.disabled=false;
+  els.downloadBtn.disabled=false;
+  els.prefillBtn.disabled=false;
+  els.loadSelectedBtn.disabled=false;
+  els.recordSelect.disabled=false;
+  els.miniDbState.textContent='ダミーDB読込済';
+  els.miniDbText.textContent='4件のダミーデータを読み込みました。';
+  setStatus('ダミーデータを4件読み込みました。Today Command / Exception Queueを確認してください。');
+}
+window.loadDummyData=loadDummyData;
+
+
 </script>
-</body>
+<script data-pplx-inline-edit>
+(function () {
+  if (window === window.top) return;
+
+  const allowedParentOrigins = ["https://www.perplexity.ai","https://perplexity.ai","https://testing.perplexity.ai","https://staging.perplexity.ai","https://*.preview.i.perplexity.ai","http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173","http://127.0.0.1:5173"];
+  const MAX_FONT_BYTES = 500 * 1024;
+  const MAX_TOTAL_FONT_BYTES = 2 * 1024 * 1024;
+  let scrollForwarding = false;
+  let scrollRaf = 0;
+  let trustedTopOrigin = null;
+
+  // Allow entries like "https://*.preview.i.perplexity.ai" — the wildcard
+  // matches a single DNS label (no dots), so "https://*.foo" cannot stretch
+  // across multiple labels.
+  function matchesAllowedOrigin(origin) {
+    if (!origin) return false;
+    for (const entry of allowedParentOrigins) {
+      if (!entry.includes("*")) {
+        if (entry === origin) return true;
+        continue;
+      }
+      const pattern = new RegExp(
+        "^" +
+          entry.replace(/[.+?^${}()|[\]\\]/g, "\\$&").replace(/\*/g, "[^.]+") +
+          "$",
+      );
+      if (pattern.test(origin)) return true;
+    }
+    return false;
+  }
+
+  // Trust decision: when the sender is same-origin-visible (event.origin is a
+  // real origin like https://www.perplexity.ai) we trust event.origin directly.
+  // When event.origin is "null" (opaque broker srcdoc), we fall back to the
+  // broker's stamped `parentOrigin` to identify the top window. The fallback
+  // is claim-only — we rely on the browser's native `targetOrigin` enforcement
+  // on the response path (see postToTrustedTop) to ensure replies can't be
+  // delivered to anyone but the actual top window of that claimed origin.
+  function getTrustedParentOrigin(event) {
+    const forwardedParentOrigin =
+      typeof event.data.parentOrigin === "string" ? event.data.parentOrigin : null;
+    const parentOrigin = event.origin === "null" ? forwardedParentOrigin : event.origin;
+    return matchesAllowedOrigin(parentOrigin) ? parentOrigin : null;
+  }
+
+  // All responses go to window.top with targetOrigin = the allowlisted origin.
+  // An attacker that iframes us inside their own null-origin broker can claim
+  // any parentOrigin they like, but the browser will drop the reply whenever
+  // the real top's origin doesn't match — so the screenshot never leaves.
+  function postToTrustedTop(message) {
+    if (!trustedTopOrigin) return;
+    try {
+      window.top.postMessage(message, trustedTopOrigin);
+    } catch (_error) {}
+  }
+
+  function inlineAll(original, clone) {
+    if (original.nodeType !== 1 || clone.nodeType !== 1) return;
+
+    try {
+      const computedStyle = getComputedStyle(original);
+      // cssText on a computed style is the serialized declaration in modern
+      // Chromium/Safari — a single read beats enumerating ~400 longhand
+      // properties. Firefox returns "" here, so we fall back on empty.
+      const serialized = computedStyle.cssText;
+      if (serialized) {
+        clone.style.cssText = serialized;
+      } else {
+        const parts = new Array(computedStyle.length);
+        for (let index = 0; index < computedStyle.length; index += 1) {
+          const property = computedStyle[index];
+          parts[index] = `${property}:${computedStyle.getPropertyValue(property)};`;
+        }
+        clone.style.cssText = parts.join("");
+      }
+    } catch (_error) {}
+
+    const originalChildren = original.children;
+    const clonedChildren = clone.children;
+    for (
+      let index = 0;
+      index < originalChildren.length && index < clonedChildren.length;
+      index += 1
+    ) {
+      inlineAll(originalChildren[index], clonedChildren[index]);
+    }
+  }
+
+  function extractFontUrl(srcValue) {
+    const matches = [
+      ...srcValue.matchAll(
+        /url\(["']?([^"')]+)["']?\)(?:\s*format\(["']?([^"')]+)["']?\))?/gi,
+      ),
+    ];
+    if (matches.length === 0) return null;
+    const woff2 = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff2"));
+    if (woff2) return woff2[1];
+    const woff = matches.find((m) => m[2] && m[2].toLowerCase().includes("woff"));
+    if (woff) return woff[1];
+    return matches[0][1];
+  }
+
+  // Cache resolved font URL -> data URI across captures. Fonts on a page
+  // essentially never change, and a batch run emits multiple captures back to
+  // back — without this we'd refetch + re-base64 every time.
+  const fontDataUriCache = new Map();
+  const SRC_DECLARATION_RE = /src\s*:\s*[^;}]+/i;
+
+  async function fetchAsDataUri(url) {
+    if (fontDataUriCache.has(url)) return fontDataUriCache.get(url);
+    let dataUri = null;
+    try {
+      const response = await fetch(url, { mode: "cors", credentials: "omit" });
+      if (response.ok) {
+        const blob = await response.blob();
+        if (blob.size <= MAX_FONT_BYTES) {
+          dataUri = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () =>
+              resolve(typeof reader.result === "string" ? reader.result : null);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        }
+      }
+    } catch (_error) {
+      dataUri = null;
+    }
+    fontDataUriCache.set(url, dataUri);
+    return dataUri;
+  }
+
+  function collectFontFaceRuleTexts() {
+    const rules = [];
+    for (const sheet of document.styleSheets) {
+      let cssRules;
+      try {
+        cssRules = sheet.cssRules;
+      } catch (_error) {
+        continue;
+      }
+      if (!cssRules) continue;
+      for (const rule of cssRules) {
+        const cssText = rule.cssText || "";
+        if (cssText.startsWith("@font-face")) rules.push(cssText);
+      }
+    }
+    return rules;
+  }
+
+  async function buildInlinedFontCss() {
+    const ruleTexts = collectFontFaceRuleTexts();
+    if (ruleTexts.length === 0) return null;
+
+    const resolved = ruleTexts.map((cssText) => {
+      if (!SRC_DECLARATION_RE.test(cssText)) return null;
+      const srcMatch = cssText.match(/src\s*:\s*([^;}]+)[;}]/i);
+      if (!srcMatch) return null;
+      const url = extractFontUrl(srcMatch[1]);
+      if (!url) return null;
+      try {
+        return { cssText, url: new URL(url, document.baseURI).href };
+      } catch (_error) {
+        return null;
+      }
+    });
+
+    const dataUris = await Promise.all(
+      resolved.map((entry) => (entry ? fetchAsDataUri(entry.url) : Promise.resolve(null))),
+    );
+
+    const inlined = [];
+    let totalBytes = 0;
+    for (let index = 0; index < resolved.length; index += 1) {
+      const entry = resolved[index];
+      const dataUri = dataUris[index];
+      if (!entry || !dataUri) continue;
+      const approxBytes = dataUri.length * 0.75;
+      if (totalBytes + approxBytes > MAX_TOTAL_FONT_BYTES) break;
+      totalBytes += approxBytes;
+      inlined.push(entry.cssText.replace(SRC_DECLARATION_RE, `src: url("${dataUri}")`));
+    }
+    return inlined.length > 0 ? inlined.join("\n") : null;
+  }
+
+  function stripExternal(clone) {
+    const images = clone.querySelectorAll("img");
+    for (let index = 0; index < images.length; index += 1) {
+      const src = images[index].getAttribute("src");
+      if (src && !src.startsWith("data:")) images[index].removeAttribute("src");
+    }
+
+    const elements = clone.querySelectorAll("*");
+    for (let index = 0; index < elements.length; index += 1) {
+      const style = elements[index].style.cssText;
+      if (style && style.includes("url(")) {
+        elements[index].style.cssText = style.replace(
+          /url\(["']?(?!data:)[^)"']*["']?\)/gi,
+          "none",
+        );
+      }
+    }
+  }
+
+  function emitScroll() {
+    scrollRaf = 0;
+    if (!scrollForwarding) return;
+    postToTrustedTop({
+      type: "INLINE_EDIT_SCROLL",
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    });
+  }
+
+  window.addEventListener(
+    "scroll",
+    function () {
+      if (!scrollForwarding || scrollRaf) return;
+      scrollRaf = requestAnimationFrame(emitScroll);
+    },
+    { passive: true, capture: true },
+  );
+
+  async function handleCaptureRequest(event) {
+    const requestId = event.data.requestId;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    function postResult(dataUrl) {
+      postToTrustedTop({
+        type: "INLINE_EDIT_SCREENSHOT_RESULT",
+        requestId,
+        dataUrl,
+        scrollX,
+        scrollY,
+      });
+    }
+
+    try {
+      // Wait for any pending web fonts to resolve so both inline metrics and
+      // the @font-face inlining below see the same loaded faces.
+      if (document.fonts && document.fonts.ready) {
+        try {
+          await document.fonts.ready;
+        } catch (_error) {}
+      }
+
+      const clone = document.documentElement.cloneNode(true);
+      inlineAll(document.documentElement, clone);
+
+      const removedNodes = clone.querySelectorAll("script,link[rel=\"stylesheet\"],style");
+      for (let index = 0; index < removedNodes.length; index += 1) {
+        removedNodes[index].remove();
+      }
+
+      stripExternal(clone);
+
+      // Re-embed web fonts as data-URI @font-face rules so the SVG rasterizer
+      // can resolve them — external font URLs aren't fetched during
+      // foreignObject rendering, which would otherwise force a fallback face
+      // and change text metrics.
+      const inlinedFontCss = await buildInlinedFontCss();
+      if (inlinedFontCss) {
+        const styleEl = document.createElement("style");
+        styleEl.textContent = inlinedFontCss;
+        const head = clone.querySelector("head");
+        if (head) head.appendChild(styleEl);
+        else clone.insertBefore(styleEl, clone.firstChild);
+      }
+
+      const html = new XMLSerializer().serializeToString(clone);
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+        '<foreignObject width="100%" height="100%">' +
+        `<div xmlns="http://www.w3.org/1999/xhtml" style="width:${width}px;height:${height}px;overflow:hidden">` +
+        `<div style="position:relative;left:-${scrollX}px;top:-${scrollY}px">` +
+        html +
+        "</div></div></foreignObject></svg>";
+      const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+      const image = new Image();
+      image.onload = function () {
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext("2d").drawImage(image, 0, 0);
+        postResult(canvas.toDataURL("image/png"));
+      };
+      image.onerror = function () {
+        postResult(null);
+      };
+      image.src = svgUrl;
+    } catch (_error) {
+      postResult(null);
+    }
+  }
+
+  window.addEventListener("message", function (event) {
+    if (!event.data) return;
+    // Only accept messages from the direct parent frame. Blocks sibling /
+    // unrelated-window postMessage senders that could otherwise reach us.
+    if (event.source !== window.parent) return;
+
+    const trustedParentOrigin = getTrustedParentOrigin(event);
+    if (!trustedParentOrigin) return;
+    trustedTopOrigin = trustedParentOrigin;
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_START") {
+      scrollForwarding = true;
+      emitScroll();
+      return;
+    }
+
+    if (event.data.type === "INLINE_EDIT_SCROLL_STOP") {
+      scrollForwarding = false;
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      scrollRaf = 0;
+      return;
+    }
+
+    if (event.data.type !== "INLINE_EDIT_CAPTURE_REQUEST") return;
+
+    handleCaptureRequest(event);
+  });
+})();
+
+
+</script></body>
 </html>

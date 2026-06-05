@@ -4532,7 +4532,7 @@ async function runGasBrushup(){
 
   // GASの doPost は受取ったJSONをそのままGemini APIに投げるプロキシ構造のため
   // Gemini API形式の payload をダッシュボード側で組み立てる
-  const prompt=`以下のメール本文を、より丁寧で読みやすい文章にブラッシュアップしてください。
+  const prompt=`以下のメール本文の宛名を適切な位置で改行してください。メール文は極力変更せず、誤字脱字のみ修正し、文体を整えてください。
 「件名：${subject}」
 
 「本文：

@@ -1643,15 +1643,15 @@ label[for="templateFiles"] {
       <div class="sender-info-grid">
         <div class="field">
           <label>所属・部署名</label>
-          <input type="text" id="senderOrg" placeholder="例：静岡がんセンター 臨床研究支援センター" />
+          <input type="text" id="senderOrg" placeholder="例：XXがんセンター 臨床研究支援センター" />
         </div>
         <div class="field">
           <label>担当者名</label>
-          <input type="text" id="senderName" placeholder="例：森川 太郎" />
+          <input type="text" id="senderName" placeholder="例：山田 太郎" />
         </div>
         <div class="field" style="grid-column:1/-1">
           <label>シグネチャー（＊＊＊に挟まれた部分のみ入力）</label>
-          <textarea id="senderSignature" rows="5" style="min-height:100px" placeholder="例：静岡がんセンター 臨床研究支援センター&#10;臨床研究管理・調整室&#10;森川 太郎&#10;TEL: 055-989-XXXX&#10;Email: t.morikawa@scchr.jp"></textarea>
+          <textarea id="senderSignature" rows="5" style="min-height:100px" placeholder="例：XXがんセンター 臨床研究支援センター&#10;臨床研究管理・調整室&#10;山田 太郎&#10;TEL: 055-989-XXXX&#10;Email: t.morikawa@XXX.jp"></textarea>
         </div>
       </div>
     </section>
@@ -4552,7 +4552,7 @@ async function runGasBrushup(){
   const prompt=`以下のメール本文を詳細に校間してください。主な修正内容は以下の3点のみです。
 
 修正内容：
-1. 宛名・対象者の後に空行を入れ、段落間に適切な空行を追加して可読性を高める
+1. 宛名は所属施設や所属部署、役職や氏名の適切な箇所で改行すること、段落間に適切な空行を追加して可読性を高める
 2. 誤字・脱字・内容の矛盾を修正する
 3. 文字表記の統一（半角/全角字の混在など）
 

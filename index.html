@@ -3209,10 +3209,10 @@ function resetScheduleChecks(){
   updateTaskProgress();
 }
 function applyScheduleChecksFromRow(row){
-  els.ckK1.checked=isCheckedValue(row?.[fullKeys.checkK1]);
-  els.ckHp.checked=isCheckedValue(row?.[fullKeys.checkHp]);
-  els.ckK2.checked=isCheckedValue(row?.[fullKeys.checkK2]);
-  els.ckK3.checked=isCheckedValue(row?.[fullKeys.checkK3]);
+  els.ckK1.checked = isCheckedValue(row?.[fullKeys.checkK1]) || String(row?.['STATUS_K1'] || '').trim().toUpperCase() === 'DONE';
+  els.ckHp.checked = isCheckedValue(row?.[fullKeys.checkHp]) || String(row?.['STATUS_HP'] || '').trim().toUpperCase() === 'DONE';
+  els.ckK2.checked = isCheckedValue(row?.[fullKeys.checkK2]) || String(row?.['STATUS_K2'] || '').trim().toUpperCase() === 'DONE';
+  els.ckK3.checked = isCheckedValue(row?.[fullKeys.checkK3]) || String(row?.['STATUS_K3'] || '').trim().toUpperCase() === 'DONE';
   const _el_task01=document.getElementById('ck_task01');if(_el_task01)_el_task01.checked=isCheckedValue(row?.[fullKeys.task01]);
   const _el_task02=document.getElementById('ck_task02');if(_el_task02)_el_task02.checked=isCheckedValue(row?.[fullKeys.task02]);
   const _el_task03=document.getElementById('ck_task03');if(_el_task03)_el_task03.checked=isCheckedValue(row?.[fullKeys.task03]);
@@ -3250,7 +3250,7 @@ function applyScheduleChecksFromRow(row){
 }
 function isCheckedValue(v){
   const s=String(v??'').trim().toLowerCase();
-  return ['1','true','yes','y','on','checked','済','済み'].includes(s);
+  return ['1','true','yes','y','on','checked','済','済み','done'].includes(s);
 }
 function boolToCsv(v){return v?'1':'0'}
 
@@ -3477,6 +3477,10 @@ function buildRow(){
   row[fullKeys.checkHp]=boolToCsv(els.ckHp.checked);
   row[fullKeys.checkK2]=boolToCsv(els.ckK2.checked);
   row[fullKeys.checkK3]=boolToCsv(els.ckK3.checked);
+  row['STATUS_K1'] = els.ckK1.checked ? 'DONE' : '';
+  row['STATUS_HP'] = els.ckHp.checked ? 'DONE' : '';
+  row['STATUS_K2'] = els.ckK2.checked ? 'DONE' : '';
+  row['STATUS_K3'] = els.ckK3.checked ? 'DONE' : '';
   row[fullKeys.task01]=boolToCsv(document.getElementById('ck_task01')?.checked||false);
   row[fullKeys.task02]=boolToCsv(document.getElementById('ck_task02')?.checked||false);
   row[fullKeys.task03]=boolToCsv(document.getElementById('ck_task03')?.checked||false);

@@ -4525,8 +4525,8 @@ function tcCheckDone(cardId, checked){
     card.classList.remove('done');
   }
 
-  const no=card.dataset.no||'';
-  const csvKeyName=card.dataset.csvkey||'checkK1';
+  const no=card.dataset.no || '';
+  const csvKeyName=card.dataset.csvkey || 'checkK1';
 
   if(no && csvKeyName){
     writeCheckToRaw(no, csvKeyName, checked);
@@ -4663,8 +4663,8 @@ function alertCheckDone(aid, checked){
     if(meta) meta.style.display='';
   }
 
-  const no=item.dataset.no||'';
-  const csvKeyName=item.dataset.csvkey||'checkK1';
+  const no=item.dataset.no || '';
+  const csvKeyName=item.dataset.csvkey || 'checkK1';
 
   if(no && csvKeyName){
     writeCheckToRaw(no, csvKeyName, checked);

@@ -1494,10 +1494,30 @@ label[for="templateFiles"] {
 .tc-expand-hint{font-size:.74rem;color:var(--cyan);cursor:pointer;display:none;margin-left:auto}
 .tc-card.done .tc-expand-hint{display:inline}
 
-/* Deadline Alert チェック付き折りたたみ */
-.alert-item.done{opacity:.5;cursor:pointer}
-.alert-item.done .alert-body{display:none}
-.alert-item.done .alert-meta{display:none}
+/* Deadline Alert チェック付き表示 */
+.alert-item.done{
+  opacity:.72;
+  cursor:pointer;
+  background: color-mix(in srgb, var(--panel2) 80%, transparent);
+}
+
+.alert-item.done .alert-body,
+.alert-item.done .alert-meta{
+  display:block;
+  opacity:.55;
+}
+
+.alert-item.done strong,
+.alert-item.done p,
+.alert-item.done .mono{
+  color: var(--muted);
+}
+
+.alert-item.done .alert-tag{
+  border-color: var(--line2);
+  color: var(--muted);
+}
+
 .alert-check{
   width:16px;height:16px;border-radius:3px;
   border:2px solid var(--line2);
@@ -1506,7 +1526,9 @@ label[for="templateFiles"] {
   accent-color:var(--green);
   flex-shrink:0;
 }
+
 .alert-check:checked{accent-color:var(--green)}
+
 .alert-item-tag-wrap{display:flex;align-items:center;gap:6px}
 
 /* Mail Template: タブ型用途選択 */
@@ -3756,8 +3778,8 @@ function renderAlerts(){
       const isDone = row ? isCheckedValue(row[checkHeader]) : false;
       const doneClass = isDone ? ' done' : '';
       const checkedAttr = isDone ? ' checked' : '';
-      const bodyStyle = isDone ? ' style="display:none"' : '';
-      const metaStyle = isDone ? ' style="display:none"' : '';
+      const bodyStyle = '';
+      const metaStyle = '';
       const clickAttr = isDone ? ` onclick="alertToggleExpand('${aid}')" title="クリックで展開/折りたたみ"` : '';
 
       return `

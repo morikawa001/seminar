@@ -3746,39 +3746,37 @@ function renderAlerts(){
         <div class="mono">Stable</div>
       </div>
     `;
-    return;
+  } else {
+    els.alertList.innerHTML = alerts.map((a,i)=>{
+      const aid = `alert-item-${i}`;
+      const tag = a.diff <= 0 ? 'TODAY' : a.diff === 1 ? 'TOMORROW' : `${a.diff}D`;
+
+      const row = dataRows.find(r => String(r[fullKeys.no] || '').trim() === String(a.no || '').trim());
+      const checkHeader = fullKeys[a.csvKey] || fullKeys.checkK1;
+      const isDone = row ? isCheckedValue(row[checkHeader]) : false;
+      const doneClass = isDone ? ' done' : '';
+      const checkedAttr = isDone ? ' checked' : '';
+      const bodyStyle = isDone ? ' style="display:none"' : '';
+      const metaStyle = isDone ? ' style="display:none"' : '';
+      const clickAttr = isDone ? ` onclick="alertToggleExpand('${aid}')" title="クリックで展開/折りたたみ"` : '';
+
+      return `
+        <div class="alert-item${doneClass}" id="${aid}" data-no="${esc(a.no)}" data-csvkey="${esc(a.csvKey || 'checkK1')}"${clickAttr}>
+          <div class="alert-item-tag-wrap">
+            <input type="checkbox" class="alert-check"${checkedAttr}
+              onclick="event.stopPropagation();alertCheckDone('${aid}',this.checked)" title="完了">
+            <span class="alert-tag">${tag}</span>
+          </div>
+          <div class="alert-body"${bodyStyle}>
+            <strong>No.${esc(a.no)} ${esc(a.title)}</strong>
+            <p>${esc(a.label)} : ${esc(a.raw || '-')}</p>
+          </div>
+          <div class="alert-meta mono"${metaStyle}>Task alert</div>
+        </div>
+      `;
+    }).join('');
   }
 
-  els.alertList.innerHTML = alerts.map((a,i)=>{
-    const aid = `alert-item-${i}`;
-    const tag = a.diff <= 0 ? 'TODAY' : a.diff === 1 ? 'TOMORROW' : `${a.diff}D`;
-
-    const row = dataRows.find(r => String(r[fullKeys.no] || '').trim() === String(a.no || '').trim());
-    const checkHeader = fullKeys[a.csvKey] || fullKeys.checkK1;
-    const isDone = row ? isCheckedValue(row[checkHeader]) : false;
-    const doneClass = isDone ? ' done' : '';
-    const checkedAttr = isDone ? ' checked' : '';
-    const bodyStyle = isDone ? ' style="display:none"' : '';
-    const metaStyle = isDone ? ' style="display:none"' : '';
-    const clickAttr = isDone ? ` onclick="alertToggleExpand('${aid}')" title="クリックで展開/折りたたみ"` : '';
-
-    return `
-      <div class="alert-item${doneClass}" id="${aid}" data-no="${esc(a.no)}" data-csvkey="${esc(a.csvKey || 'checkK1')}"${clickAttr}>
-        <div class="alert-item-tag-wrap">
-          <input type="checkbox" class="alert-check"${checkedAttr}
-            onclick="event.stopPropagation();alertCheckDone('${aid}',this.checked)" title="完了">
-          <span class="alert-tag">${tag}</span>
-        </div>
-        <div class="alert-body"${bodyStyle}>
-          <strong>No.${esc(a.no)} ${esc(a.title)}</strong>
-          <p>${esc(a.label)} : ${esc(a.raw || '-')}</p>
-        </div>
-        <div class="alert-meta mono"${metaStyle}>Task alert</div>
-      </div>
-    `;
-  }).join('');
-}
-  // Today Command / Exception Queue を常に同期
   renderTodayCommand();
   renderExceptionQueue();
 }

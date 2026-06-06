@@ -2815,24 +2815,77 @@ function getRowByNo(no){return dataRows.find(r=>String(r[fullKeys.no]||'').trim(
 
 function ensureAdditionalHeaders(headers){
   const extraHeaders = [
+    fullKeys.lectureStart,
+    fullKeys.qaDeadline,
+    fullKeys.qaTime,
+    fullKeys.preMeeting,
+    fullKeys.deadline3,
+    fullKeys.cost,
+    fullKeys.dataDeadline,
+    fullKeys.date2,
+    fullKeys.subject2,
+    fullKeys.name,
+    fullKeys.cohost3,
+    fullKeys.head1,
+    fullKeys.closing1,
     fullKeys.checkK1,
     fullKeys.checkHp,
     fullKeys.checkK2,
     fullKeys.checkK3,
+    fullKeys.task01,
+    fullKeys.task02,
+    fullKeys.task03,
+    fullKeys.task04,
+    fullKeys.task05,
+    fullKeys.task06,
+    fullKeys.task07,
+    fullKeys.task08,
+    fullKeys.task09,
+    fullKeys.task10,
+    fullKeys.task11,
+    fullKeys.task12,
+    fullKeys.task13,
+    fullKeys.task14,
+    fullKeys.task15,
+    fullKeys.task16,
+    fullKeys.task17,
+    fullKeys.task18,
+    fullKeys.task19,
+    fullKeys.task20,
+    fullKeys.task21,
+    fullKeys.task22,
+    fullKeys.task23,
+    fullKeys.task24,
+    fullKeys.task25,
+    fullKeys.task26,
+    fullKeys.task27,
+    fullKeys.task28,
+    fullKeys.task29,
+    fullKeys.task30,
+    fullKeys.task31,
+    fullKeys.task32,
+    fullKeys.task33,
     'STATUS_K1',
     'STATUS_HP',
     'STATUS_K2',
     'STATUS_K3',
-    fullKeys.task01, fullKeys.task02, fullKeys.task03, fullKeys.task04, fullKeys.task05,
-    fullKeys.task06, fullKeys.task07, fullKeys.task08, fullKeys.task09, fullKeys.task10,
-    fullKeys.task11, fullKeys.task12, fullKeys.task13, fullKeys.task14, fullKeys.task15,
-    fullKeys.task16, fullKeys.task17, fullKeys.task18, fullKeys.task19, fullKeys.task20,
-    fullKeys.task21, fullKeys.task22, fullKeys.task23, fullKeys.task24, fullKeys.task25,
-    fullKeys.task26, fullKeys.task27, fullKeys.task28, fullKeys.task29, fullKeys.task30,
-    fullKeys.task31, fullKeys.task32, fullKeys.task33
+    'DONEAT_K1',
+    'DONEAT_HP',
+    'DONEAT_K2',
+    'DONEAT_K3',
+    'UPDATEDAT_K1',
+    'UPDATEDAT_HP',
+    'UPDATEDAT_K2',
+    'UPDATEDAT_K3',
+    'HISTORY_K1',
+    'HISTORY_HP',
+    'HISTORY_K2',
+    'HISTORY_K3'
   ];
 
-  const set = new Set((headers || []).map(h => String(h || '').trim()).filter(Boolean));
+  const set = new Set(
+    headers.map(h => String(h).trim()).filter(Boolean)
+  );
   extraHeaders.forEach(h => set.add(h));
   return Array.from(set);
 }
@@ -4463,6 +4516,7 @@ window.openMailTemplate=openMailTemplate;
 function tcCheckDone(cardId, checked){
   const card=document.getElementById(cardId);
   if(!card) return;
+
   if(checked){
     card.classList.add('done');
     const hint=card.querySelector('.tc-expand-hint');
@@ -4470,11 +4524,18 @@ function tcCheckDone(cardId, checked){
   } else {
     card.classList.remove('done');
   }
-  // 即座に rawRows を更新し dataRows と画面も同期
+
   const no=card.dataset.no||'';
   const csvKeyName=card.dataset.csvkey||'checkK1';
+
   if(no && csvKeyName){
     writeCheckToRaw(no, csvKeyName, checked);
+    dataRows = buildDisplayRowsFromRaw(rawRows);
+    renderTodayCommand();
+    renderExceptionQueue();
+    renderAlerts();
+    renderTable();
+    renderStats();
     showCsvSavedToast();
   }
 }
@@ -4502,10 +4563,10 @@ function writeCheckToRaw(no, csvKeyName, checked){
 
   ensureHeader(flagKey);
   if(phase){
-    ensureHeader(`STATUS_${phase}`);
-    ensureHeader(`DONEAT_${phase}`);
-    ensureHeader(`UPDATEDAT_${phase}`);
-    ensureHeader(`HISTORY_${phase}`);
+    ensureHeader(`STATUS${phase}`);
+    ensureHeader(`DONEAT${phase}`);
+    ensureHeader(`UPDATEDAT${phase}`);
+    ensureHeader(`HISTORY${phase}`);
   }
 
   const row = rawRows.find(r =>
@@ -4526,18 +4587,18 @@ function writeCheckToRaw(no, csvKeyName, checked){
   row[flagKey] = boolToCsv(checked);
 
   if(phase){
-    row[`STATUS_${phase}`] = checked ? 'DONE' : 'PENDING';
-    row[`UPDATEDAT_${phase}`] = timestamp;
+    row[`STATUS${phase}`] = checked ? 'DONE' : 'PENDING';
+    row[`UPDATEDAT${phase}`] = timestamp;
 
     if(checked){
-      row[`DONEAT_${phase}`] = timestamp;
-      const prev = String(row[`HISTORY_${phase}`] || '').trim();
-      row[`HISTORY_${phase}`] = prev
+      row[`DONEAT${phase}`] = timestamp;
+      const prev = String(row[`HISTORY${phase}`] || '').trim();
+      row[`HISTORY${phase}`] = prev
         ? `${prev} | DONE:${timestamp}`
         : `DONE:${timestamp}`;
     }else{
-      const prev = String(row[`HISTORY_${phase}`] || '').trim();
-      row[`HISTORY_${phase}`] = prev
+      const prev = String(row[`HISTORY${phase}`] || '').trim();
+      row[`HISTORY${phase}`] = prev
         ? `${prev} | UNCHECK:${timestamp}`
         : `UNCHECK:${timestamp}`;
     }
@@ -4580,15 +4641,14 @@ window.tcCheckDone=tcCheckDone;
 function alertCheckDone(aid, checked){
   const item=document.getElementById(aid);
   if(!item) return;
+
   if(checked){
     item.classList.add('done');
     item.title='クリックで展開／折りたたみ';
     item.onclick=function(e){
-      // チェックボックス自体のクリックは無視
-      if(e&&e.target&&e.target.type==='checkbox') return;
+      if(e && e.target && e.target.type==='checkbox') return;
       alertToggleExpand(aid);
     };
-    // 展開・折りたたみの初期状態: 山たたみ
     const body=item.querySelector('.alert-body');
     const meta=item.querySelector('.alert-meta');
     if(body) body.style.display='none';
@@ -4597,17 +4657,23 @@ function alertCheckDone(aid, checked){
     item.classList.remove('done');
     item.onclick=null;
     item.title='';
-    // 展開復帰
     const body=item.querySelector('.alert-body');
     const meta=item.querySelector('.alert-meta');
     if(body) body.style.display='';
     if(meta) meta.style.display='';
   }
-  // 即座に rawRows を更新し dataRows と画面も同期
+
   const no=item.dataset.no||'';
   const csvKeyName=item.dataset.csvkey||'checkK1';
+
   if(no && csvKeyName){
     writeCheckToRaw(no, csvKeyName, checked);
+    dataRows = buildDisplayRowsFromRaw(rawRows);
+    renderTodayCommand();
+    renderExceptionQueue();
+    renderAlerts();
+    renderTable();
+    renderStats();
     showCsvSavedToast();
   }
 }

@@ -3136,7 +3136,18 @@ function ensureAdditionalHeaders(){
     fullKeys.deadline3,fullKeys.cost,fullKeys.dataDeadline,fullKeys.date2,fullKeys.subject2,
     fullKeys.name,fullKeys.cohost3,fullKeys.head1,fullKeys.closing1,
     fullKeys.checkK1,fullKeys.checkHp,fullKeys.checkK2,fullKeys.checkK3,
-    fullKeys.task01,fullKeys.task02,fullKeys.task03,fullKeys.task04,fullKeys.task05,fullKeys.task06,fullKeys.task07,fullKeys.task08,fullKeys.task09,fullKeys.task10,fullKeys.task11,fullKeys.task12,fullKeys.task13,fullKeys.task14,fullKeys.task15,fullKeys.task16,fullKeys.task17,fullKeys.task18,fullKeys.task19,fullKeys.task20,fullKeys.task21,fullKeys.task22,fullKeys.task23,fullKeys.task24,fullKeys.task25,fullKeys.task26,fullKeys.task27,fullKeys.task28,fullKeys.task29,fullKeys.task30,fullKeys.task31,fullKeys.task32,fullKeys.task33
+    fullKeys.task01,fullKeys.task02,fullKeys.task03,fullKeys.task04,fullKeys.task05,
+    fullKeys.task06,fullKeys.task07,fullKeys.task08,fullKeys.task09,fullKeys.task10,
+    fullKeys.task11,fullKeys.task12,fullKeys.task13,fullKeys.task14,fullKeys.task15,
+    fullKeys.task16,fullKeys.task17,fullKeys.task18,fullKeys.task19,fullKeys.task20,
+    fullKeys.task21,fullKeys.task22,fullKeys.task23,fullKeys.task24,fullKeys.task25,
+    fullKeys.task26,fullKeys.task27,fullKeys.task28,fullKeys.task29,fullKeys.task30,
+    fullKeys.task31,fullKeys.task32,fullKeys.task33,
+
+    'STATUS_K1','STATUS_HP','STATUS_K2','STATUS_K3',
+    'DONEAT_K1','DONEAT_HP','DONEAT_K2','DONEAT_K3',
+    'UPDATEDAT_K1','UPDATEDAT_HP','UPDATEDAT_K2','UPDATEDAT_K3',
+    'HISTORY_K1','HISTORY_HP','HISTORY_K2','HISTORY_K3'
   ].forEach(ensureHeader);
 }
 
@@ -4436,15 +4447,70 @@ function tcCheckDone(cardId, checked){
 }
 // rawRowsの該当行にCHECK値を書き込む（画面再描画なし）
 function writeCheckToRaw(no, csvKeyName, checked){
-  if(!no || !csvKeyName){ console.warn('[CHECK] no or csvKeyName empty',no,csvKeyName); return; }
-  const flagKey=fullKeys[csvKeyName];
-  if(!flagKey){ console.warn('[CHECK] flagKey not found for',csvKeyName); return; }
+  if(!no || !csvKeyName){
+    console.warn('[CHECK] no or csvKeyName empty', no, csvKeyName);
+    return;
+  }
+
+  const flagKey = fullKeys[csvKeyName];
+  if(!flagKey){
+    console.warn('[CHECK] flagKey not found for', csvKeyName);
+    return;
+  }
+
+  const phaseMap = {
+    checkK1: 'K1',
+    checkHp: 'HP',
+    checkK2: 'K2',
+    checkK3: 'K3'
+  };
+
+  const phase = phaseMap[csvKeyName] || null;
+
   ensureHeader(flagKey);
-  const row=rawRows.find(r=>String(r[fullKeys.no]||'').trim()===String(no).trim());
-  if(!row){ console.warn('[CHECK] row not found for no=',no,'rawRows=',rawRows.map(r=>r[fullKeys.no])); return; }
-  const before=row[flagKey];
-  row[flagKey]=boolToCsv(checked);
-  console.log('[CHECK] written: No='+no+' '+flagKey+' '+before+'→'+row[flagKey]);
+  if(phase){
+    ensureHeader(`STATUS_${phase}`);
+    ensureHeader(`DONEAT_${phase}`);
+    ensureHeader(`UPDATEDAT_${phase}`);
+    ensureHeader(`HISTORY_${phase}`);
+  }
+
+  const row = rawRows.find(r =>
+    String(r[fullKeys.no] || '').trim() === String(no).trim()
+  );
+  if(!row){
+    console.warn('[CHECK] row not found for no=', no, 'rawRows=', rawRows.map(r => r[fullKeys.no]));
+    return;
+  }
+
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const timestamp =
+    `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ` +
+    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+  const before = row[flagKey];
+  row[flagKey] = boolToCsv(checked);
+
+  if(phase){
+    row[`STATUS_${phase}`] = checked ? 'DONE' : 'PENDING';
+    row[`UPDATEDAT_${phase}`] = timestamp;
+
+    if(checked){
+      row[`DONEAT_${phase}`] = timestamp;
+      const prev = String(row[`HISTORY_${phase}`] || '').trim();
+      row[`HISTORY_${phase}`] = prev
+        ? `${prev} | DONE:${timestamp}`
+        : `DONE:${timestamp}`;
+    }else{
+      const prev = String(row[`HISTORY_${phase}`] || '').trim();
+      row[`HISTORY_${phase}`] = prev
+        ? `${prev} | UNCHECK:${timestamp}`
+        : `UNCHECK:${timestamp}`;
+    }
+  }
+
+  console.log('[CHECK] written: No=' + no + ' ' + flagKey + ' ' + before + '→' + row[flagKey]);
 }
 function showCsvSavedToast(){
   let t=document.getElementById('csvUpdateToast');

@@ -3068,10 +3068,11 @@ function autoFillPreMeeting(){
 window.autoFillPreMeeting=autoFillPreMeeting;
 
 function createNewDatabase(){
-  currentHeaders = ensureAdditionalHeaders([...DEFAULT_HEADERS]);
+  currentHeaders=[...DEFAULT_HEADERS];
   rawRows=[];
   dataRows=[];
   selectedRow=null;
+  els.recordSelect.value='';
   stagedRow=null;
   lastSaveMode='';
   ensureAdditionalHeaders();
@@ -3094,6 +3095,8 @@ function createNewDatabase(){
   renderStats();
   recalcDraft();
   renderAlerts();
+  renderTodayCommand();
+  renderExceptionQueue();
   renderMergeOptions();
   setStatus('空のマスターCSVを新規作成しました。');
 }
@@ -3118,6 +3121,8 @@ function loadCsv(e){
   );
   rawRows = Array.isArray(data) ? compactRawRows(data.map(r => normalizeRowShape(r))) : [];
       dataRows=buildDisplayRowsFromRaw(rawRows);
+      selectedRow = null;
+      els.recordSelect.value = '';
       els.appendBtn.disabled=false;
       els.openConfirmBtn.disabled=false;
       els.confirmAppendBtn.disabled=false;
@@ -3135,19 +3140,16 @@ function loadCsv(e){
         resetScheduleChecks();
       }
       renderTable();
-      renderStats();
-      recalcDraft();
-      renderAlerts();
-      els.miniDbState.textContent='CSV読込済';
-      els.miniDbText.textContent=dataRows.length?`${dataRows.length}件のCSVを読込済み`:'CSVに有効データがありません';
-      renderMergeOptions();
-      setStatus(dataRows.length?`CSVを読み込みました。${dataRows.length}件です。`:'CSVを読み込みましたが有効行はありません。');
-      e.target.value='';
-    },
-    error:(err)=>{
-      els.csvFileName.value='ファイル未選択';
-      setStatus(`CSV読込エラー: ${err?.message||err}`);
-      e.target.value='';
+renderStats();
+recalcDraft();
+renderAlerts();
+renderTodayCommand();
+renderExceptionQueue();
+els.miniDbState.textContent='CSV読込済';
+els.miniDbText.textContent=dataRows.length?`${dataRows.length}件のCSVを読込済み`:'CSVに有効データがありません';
+renderMergeOptions();
+setStatus(dataRows.length?`CSVを読み込みました。${dataRows.length}件です。`:'CSVを読み込みましたが有効行はありません。');
+e.target.value='';
     }
   });
 }

@@ -2813,6 +2813,30 @@ function handleTemplateFiles(e){
 }
 function getRowByNo(no){return dataRows.find(r=>String(r[fullKeys.no]||'').trim()===String(no||'').trim())||null}
 
+function ensureAdditionalHeaders(headers){
+  const extraHeaders = [
+    fullKeys.checkK1,
+    fullKeys.checkHp,
+    fullKeys.checkK2,
+    fullKeys.checkK3,
+    'STATUS_K1',
+    'STATUS_HP',
+    'STATUS_K2',
+    'STATUS_K3',
+    fullKeys.task01, fullKeys.task02, fullKeys.task03, fullKeys.task04, fullKeys.task05,
+    fullKeys.task06, fullKeys.task07, fullKeys.task08, fullKeys.task09, fullKeys.task10,
+    fullKeys.task11, fullKeys.task12, fullKeys.task13, fullKeys.task14, fullKeys.task15,
+    fullKeys.task16, fullKeys.task17, fullKeys.task18, fullKeys.task19, fullKeys.task20,
+    fullKeys.task21, fullKeys.task22, fullKeys.task23, fullKeys.task24, fullKeys.task25,
+    fullKeys.task26, fullKeys.task27, fullKeys.task28, fullKeys.task29, fullKeys.task30,
+    fullKeys.task31, fullKeys.task32, fullKeys.task33
+  ];
+
+  const set = new Set((headers || []).map(h => String(h || '').trim()).filter(Boolean));
+  extraHeaders.forEach(h => set.add(h));
+  return Array.from(set);
+}
+  
 function buildTemplateData(row){
   const map={};
   currentHeaders.forEach(h=>map[h]=String(row?.[h]??''));
@@ -3044,7 +3068,7 @@ function autoFillPreMeeting(){
 window.autoFillPreMeeting=autoFillPreMeeting;
 
 function createNewDatabase(){
-  currentHeaders=[...DEFAULT_HEADERS];
+  currentHeaders = ensureAdditionalHeaders([...DEFAULT_HEADERS]);
   rawRows=[];
   dataRows=[];
   selectedRow=null;
@@ -3089,9 +3113,10 @@ function loadCsv(e){
     skipEmptyLines:false,
     encoding:'UTF-8',
     complete:({data,meta})=>{
-      currentHeaders=meta?.fields?.length?meta.fields:[...DEFAULT_HEADERS];
-      ensureAdditionalHeaders();
-      rawRows=Array.isArray(data)?compactRawRows(data.map(r=>normalizeRowShape(r))):[];
+  currentHeaders = ensureAdditionalHeaders(
+    meta?.fields?.length ? meta.fields : [...DEFAULT_HEADERS]
+  );
+  rawRows = Array.isArray(data) ? compactRawRows(data.map(r => normalizeRowShape(r))) : [];
       dataRows=buildDisplayRowsFromRaw(rawRows);
       els.appendBtn.disabled=false;
       els.openConfirmBtn.disabled=false;
@@ -3129,26 +3154,28 @@ function loadCsv(e){
 
 function ensureHeader(h){if(!currentHeaders.includes(h))currentHeaders.push(h)}
 function ensureCheckHeaders(){[fullKeys.checkK1,fullKeys.checkHp,fullKeys.checkK2,fullKeys.checkK3].forEach(ensureHeader)}
-function ensureAdditionalHeaders(){
-  ensureCheckHeaders();
-  [
-    fullKeys.lectureStart,fullKeys.qaDeadline,fullKeys.qaTime,fullKeys.preMeeting,
-    fullKeys.deadline3,fullKeys.cost,fullKeys.dataDeadline,fullKeys.date2,fullKeys.subject2,
-    fullKeys.name,fullKeys.cohost3,fullKeys.head1,fullKeys.closing1,
-    fullKeys.checkK1,fullKeys.checkHp,fullKeys.checkK2,fullKeys.checkK3,
-    fullKeys.task01,fullKeys.task02,fullKeys.task03,fullKeys.task04,fullKeys.task05,
-    fullKeys.task06,fullKeys.task07,fullKeys.task08,fullKeys.task09,fullKeys.task10,
-    fullKeys.task11,fullKeys.task12,fullKeys.task13,fullKeys.task14,fullKeys.task15,
-    fullKeys.task16,fullKeys.task17,fullKeys.task18,fullKeys.task19,fullKeys.task20,
-    fullKeys.task21,fullKeys.task22,fullKeys.task23,fullKeys.task24,fullKeys.task25,
-    fullKeys.task26,fullKeys.task27,fullKeys.task28,fullKeys.task29,fullKeys.task30,
-    fullKeys.task31,fullKeys.task32,fullKeys.task33,
-
+function ensureAdditionalHeaders(headers){
+  const extraHeaders = [
+    fullKeys.lectureStart, fullKeys.qaDeadline, fullKeys.qaTime, fullKeys.preMeeting,
+    fullKeys.deadline3, fullKeys.cost, fullKeys.dataDeadline, fullKeys.date2, fullKeys.subject2,
+    fullKeys.name, fullKeys.cohost3, fullKeys.head1, fullKeys.closing1,
+    fullKeys.checkK1, fullKeys.checkHp, fullKeys.checkK2, fullKeys.checkK3,
+    fullKeys.task01, fullKeys.task02, fullKeys.task03, fullKeys.task04, fullKeys.task05,
+    fullKeys.task06, fullKeys.task07, fullKeys.task08, fullKeys.task09, fullKeys.task10,
+    fullKeys.task11, fullKeys.task12, fullKeys.task13, fullKeys.task14, fullKeys.task15,
+    fullKeys.task16, fullKeys.task17, fullKeys.task18, fullKeys.task19, fullKeys.task20,
+    fullKeys.task21, fullKeys.task22, fullKeys.task23, fullKeys.task24, fullKeys.task25,
+    fullKeys.task26, fullKeys.task27, fullKeys.task28, fullKeys.task29, fullKeys.task30,
+    fullKeys.task31, fullKeys.task32, fullKeys.task33,
     'STATUS_K1','STATUS_HP','STATUS_K2','STATUS_K3',
     'DONEAT_K1','DONEAT_HP','DONEAT_K2','DONEAT_K3',
     'UPDATEDAT_K1','UPDATEDAT_HP','UPDATEDAT_K2','UPDATEDAT_K3',
     'HISTORY_K1','HISTORY_HP','HISTORY_K2','HISTORY_K3'
-  ].forEach(ensureHeader);
+  ];
+
+  const set = new Set((headers || []).map(h => String(h || '').trim()).filter(Boolean));
+  extraHeaders.forEach(h => set.add(h));
+  return Array.from(set);
 }
 
 function normalizeRowShape(row){const out={};currentHeaders.forEach(h=>out[h]=row?.[h]??'');return out}

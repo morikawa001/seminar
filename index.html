@@ -3724,28 +3724,60 @@ function collectDeadlineAlerts(){
 }
 function renderAlerts(){
   if(!currentHeaders.length){
-    els.alertList.innerHTML='<div class="alert-item"><div><span class="alert-tag">WAIT</span></div><div><strong>期限監視待機中</strong><p>CSVを読み込むと期限アラートがここに表示されます。</p></div><div class="mono">No data</div></div>';
+    els.alertList.innerHTML = `
+      <div class="alert-item">
+        <div><span class="alert-tag">WAIT</span></div>
+        <div><strong>未読み込み</strong><p>CSVを読み込んでください</p></div>
+        <div class="mono">No data</div>
+      </div>
+    `;
     renderTodayCommand();
     renderExceptionQueue();
     return;
   }
-  const alerts=collectDeadlineAlerts();
+
+  const alerts = collectDeadlineAlerts();
+
   if(!alerts.length){
-    els.alertList.innerHTML='<div class="alert-item"><div><span class="alert-tag">CLEAR</span></div><div><strong>期限逼迫タスクなし</strong><p>現在、7日以内に期限が迫っているタスクはありません。</p></div><div class="mono">Stable</div></div>';
-  } else {
-    els.alertList.innerHTML=alerts.map((a,i)=>{
-      const aid='alert-item-'+i;
-      const tag=a.diff===0?'TODAY':a.diff===1?'TOMORROW':`+${a.diff}D`;
-      return `<div class="alert-item" id="${aid}" data-no="${esc(a.no)}" data-csvkey="${esc(a.csvKey||'checkK1')}">
+    els.alertList.innerHTML = `
+      <div class="alert-item">
+        <div><span class="alert-tag">CLEAR</span></div>
+        <div><strong>期限アラートなし</strong><p>7日以内の対象はありません</p></div>
+        <div class="mono">Stable</div>
+      </div>
+    `;
+    return;
+  }
+
+  els.alertList.innerHTML = alerts.map((a,i)=>{
+    const aid = `alert-item-${i}`;
+    const tag = a.diff <= 0 ? 'TODAY' : a.diff === 1 ? 'TOMORROW' : `${a.diff}D`;
+
+    const row = dataRows.find(r => String(r[fullKeys.no] || '').trim() === String(a.no || '').trim());
+    const checkHeader = fullKeys[a.csvKey] || fullKeys.checkK1;
+    const isDone = row ? isCheckedValue(row[checkHeader]) : false;
+    const doneClass = isDone ? ' done' : '';
+    const checkedAttr = isDone ? ' checked' : '';
+    const bodyStyle = isDone ? ' style="display:none"' : '';
+    const metaStyle = isDone ? ' style="display:none"' : '';
+    const clickAttr = isDone ? ` onclick="alertToggleExpand('${aid}')" title="クリックで展開/折りたたみ"` : '';
+
+    return `
+      <div class="alert-item${doneClass}" id="${aid}" data-no="${esc(a.no)}" data-csvkey="${esc(a.csvKey || 'checkK1')}"${clickAttr}>
         <div class="alert-item-tag-wrap">
-          <input type="checkbox" class="alert-check" onclick="alertCheckDone('${aid}',this.checked)" title="実施済みにする" />
+          <input type="checkbox" class="alert-check"${checkedAttr}
+            onclick="event.stopPropagation();alertCheckDone('${aid}',this.checked)" title="完了">
           <span class="alert-tag">${tag}</span>
         </div>
-        <div class="alert-body"><strong>No.${esc(a.no)} / ${esc(a.title)}</strong><p>${esc(a.label)} : ${esc(a.raw||'-')}</p></div>
-        <div class="alert-meta mono">Task alert</div>
-      </div>`;
-    }).join('');
-  }
+        <div class="alert-body"${bodyStyle}>
+          <strong>No.${esc(a.no)} ${esc(a.title)}</strong>
+          <p>${esc(a.label)} : ${esc(a.raw || '-')}</p>
+        </div>
+        <div class="alert-meta mono"${metaStyle}>Task alert</div>
+      </div>
+    `;
+  }).join('');
+}
   // Today Command / Exception Queue を常に同期
   renderTodayCommand();
   renderExceptionQueue();

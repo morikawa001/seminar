@@ -4370,41 +4370,67 @@ function buildTodayCommands(rows){
 function renderTodayCommand(){
   const el=document.getElementById('todayCommandList');
   if(!el) return;
+
   if(!currentHeaders.length){
-    el.innerHTML='<div class="tc-empty"><i class="tc-empty-icon">&#9881;</i>CSVを読み込むか、新規DBを作成すると本日のアクション候補がここに表示されます。</div>';
+    el.innerHTML=`<div class="tc-empty"><i class="tc-empty-icon">⚡</i>CSVまたはDBを読み込んでください</div>`;
     return;
   }
+
   const cmds=buildTodayCommands(dataRows);
   if(!cmds.length){
-    el.innerHTML='<div class="tc-empty"><i class="tc-empty-icon">&#10003;</i>本日の優先アクションはありません。全て対応済みです。</div>';
+    el.innerHTML=`<div class="tc-empty"><i class="tc-empty-icon">✅</i>今日の指示はありません</div>`;
     return;
   }
+
   el.innerHTML=cmds.map((cmd,idx)=>{
-    const urgClass={'critical':'critical','high':'high','normal':'normal','info':'info'}[cmd.urgency]||'normal';
-    const urgLabel={'critical':'緊急','high':'要対応','normal':'確認','info':'情報'}[cmd.urgency]||'確認';
-    const btns=cmd.buttons.map(b=>{
+    const urgClass={
+      critical:'critical',
+      high:'high',
+      normal:'normal',
+      info:'info'
+    }[cmd.urgency] || 'normal';
+
+    const urgLabel={
+      critical:'CRITICAL',
+      high:'HIGH',
+      normal:'NORMAL',
+      info:'INFO'
+    }[cmd.urgency] || 'NORMAL';
+
+    const row = dataRows.find(r => String(r[fullKeys.no] || '').trim() === String(cmd.no || '').trim());
+    const checkHeader = fullKeys[cmd.csvKey] || fullKeys.checkK1;
+    const isDone = row ? isCheckedValue(row[checkHeader]) : false;
+    const doneClass = isDone ? ' done' : '';
+    const checkedAttr = isDone ? ' checked' : '';
+    const hintText = isDone ? '▼ 展開' : '';
+
+    const btns=(cmd.buttons||[]).map(b=>{
       if(b.href){
-        return `<a class="tc-btn" href="${esc(b.href)}" onclick="${b.no?`selectRecordByNo('${esc(b.no)}');`:''}return true;">${esc(b.label)}</a>`;
+        return `<a class="tc-btn" href="${esc(b.href)}" onclick="${b.no ? `selectRecordByNo('${esc(b.no)}');` : ''}return true;">${esc(b.label)}</a>`;
       }
-      return `<button class="tc-btn primary" onclick="openMailTemplate('${esc(b.no||'')}','${esc(b.recipient||'')}','${esc(b.purpose||'')}')">${esc(b.label)}</button>`;
+      return `<button class="tc-btn primary" onclick="openMailTemplate('${esc(b.no)}','${esc(b.recipient)}','${esc(b.purpose)}')">${esc(b.label)}</button>`;
     }).join('');
-    const cardId='tc-card-'+idx;
-    // data-no / data-csvkey を付与しCSV反映で利用
-    return `<div class="tc-card urgency-${urgClass}" id="${cardId}" data-no="${esc(cmd.no)}" data-csvkey="${esc(cmd.csvKey||'checkK1')}">
-      <div class="tc-card-head">
-        <div class="tc-card-check-row" onclick="tcToggleExpand('${cardId}')">
-          <input type="checkbox" class="tc-check" id="chk_${cardId}" onclick="event.stopPropagation();tcCheckDone('${cardId}',this.checked)" />
-          <span class="tc-no-badge">No.${esc(cmd.no)}</span>
-          <span class="tc-urgency-tag ${urgClass}">${urgLabel}</span>
-          <span class="tc-title">${esc(cmd.title)}</span>
-          <span class="tc-done-label">完了済み</span>
-          <span class="tc-expand-hint">▼ 展開</span>
+
+    const cardId=`tc-card-${idx}`;
+
+    return `
+      <div class="tc-card urgency-${urgClass}${doneClass}" id="${cardId}" data-no="${esc(cmd.no)}" data-csvkey="${esc(cmd.csvKey || 'checkK1')}">
+        <div class="tc-card-head">
+          <div class="tc-card-check-row" onclick="tcToggleExpand('${cardId}')">
+            <input type="checkbox" class="tc-check" id="chk${cardId}"${checkedAttr}
+              onclick="event.stopPropagation();tcCheckDone('${cardId}',this.checked)">
+            <span class="tc-no-badge">No.${esc(cmd.no)}</span>
+            <span class="tc-urgency-tag ${urgClass}">${urgLabel}</span>
+            <span class="tc-title">${esc(cmd.title)}</span>
+            <span class="tc-done-label">完了済み</span>
+            <span class="tc-expand-hint">${hintText}</span>
+          </div>
         </div>
+        <div class="tc-action"><i class="tc-action-icon">▴</i>${esc(cmd.action || '')}</div>
+        <div class="tc-reason">${esc(cmd.reason || '')}</div>
+        <div class="tc-btns">${btns}</div>
       </div>
-      <div class="tc-action"><i class="tc-action-icon">&#9654;</i>${esc(cmd.action)}</div>
-      <div class="tc-reason">${esc(cmd.reason)}</div>
-      <div class="tc-btns">${btns}</div>
-    </div>`;
+    `;
   }).join('');
 }
 
@@ -4644,7 +4670,7 @@ function alertCheckDone(aid, checked){
 
   if(checked){
     item.classList.add('done');
-    item.title='クリックで展開／折りたたみ';
+    item.title='クリックで展開/折りたたみ';
     item.onclick=function(e){
       if(e && e.target && e.target.type==='checkbox') return;
       alertToggleExpand(aid);

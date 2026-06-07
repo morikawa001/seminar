@@ -292,6 +292,23 @@ async function startProcess(){
   }
 }
     log(`聴講時間・判定算出完了`, 'ok'); setStep(5,'done');
+    const mailTotalMap = {};
+
+for(const row of dataRows){
+  const mail = String(row['メール'] ?? '').trim().toLowerCase();
+  if(!mail) continue;
+
+  const listenSec = hhmmssToSec(String(row['聴講時間'] || '')) || 0;
+  mailTotalMap[mail] = (mailTotalMap[mail] || 0) + listenSec;
+}
+
+for(const row of dataRows){
+  const mail = String(row['メール'] ?? '').trim().toLowerCase();
+  if(!mail) continue;
+
+  const totalSec = mailTotalMap[mail] || 0;
+  row['判定'] = totalSec >= certMin ? 'sum1' : 'sum0';
+}
     setStep(6,'active'); setProgress(90,'STEP 6: 列整列・CSV準備'); await sleep(200);
     const actualKeys = dataRows.length > 0 ? Object.keys(dataRows[0]) : [];
     const findCol = (...candidates) => { for(const c of candidates){ const found = actualKeys.find(k => k === c); if(found) return found; } return candidates[0]; };

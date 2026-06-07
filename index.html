@@ -3264,7 +3264,7 @@ function createNewDatabase(){
   renderTodayCommand();
   renderExceptionQueue();
   renderMergeOptions();
-  updateTrainingProgressFromRows(dataRows);  // ★ 追加
+  updateTrainingProgressFromRows(rawRows);  // ★ 追加
   setStatus('空のマスターCSVを新規作成しました。');
 }
 
@@ -3312,7 +3312,7 @@ recalcDraft();
 renderAlerts();
 renderTodayCommand();
 renderExceptionQueue();
-updateTrainingProgressFromRows(dataRows);
+updateTrainingProgressFromRows(rawRows); 
 els.miniDbState.textContent='CSV読込済';
 els.miniDbText.textContent=dataRows.length?`${dataRows.length}件のCSVを読込済み`:'CSVに有効データがありません';
 renderMergeOptions();
@@ -3405,6 +3405,43 @@ function resetScheduleChecks(){
   const _r_task33=document.getElementById('ck_task33');if(_r_task33)_r_task33.checked=false;
   updateTaskProgress();
 }
+
+// 研修会全体の進捗バーを更新（STATUSK1〜K3 / STATUS_K1〜K3 が DONE を終了とみなす）
+function updateTrainingProgressFromRows(rows) {
+  if (!Array.isArray(rows)) return;
+
+  const total = rows.length;
+
+  const done = rows.filter(r => {
+    // fullKeys から実際の列名を取得（なければ固定名で見る）
+    const k1Key = (typeof fullKeys !== 'undefined' && fullKeys.STATUSK1) || 'STATUSK1';
+    const k2Key = (typeof fullKeys !== 'undefined' && fullKeys.STATUSK2) || 'STATUSK2';
+    const k3Key = (typeof fullKeys !== 'undefined' && fullKeys.STATUSK3) || 'STATUSK3';
+
+    // アンダースコア付きのキー名もフォロー
+    const s1 = (r[k1Key] || r.STATUSK1 || r['STATUS_K1'] || '').toString().trim().toUpperCase();
+    const s2 = (r[k2Key] || r.STATUSK2 || r['STATUS_K2'] || '').toString().trim().toUpperCase();
+    const s3 = (r[k3Key] || r.STATUSK3 || r['STATUS_K3'] || '').toString().trim().toUpperCase();
+
+    return s1 === 'DONE' || s2 === 'DONE' || s3 === 'DONE';
+  }).length;
+
+  const remain = total - done;
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+
+  const totalEl = document.getElementById('trainingTotalCount');
+  const doneEl = document.getElementById('trainingDoneCount');
+  const remainEl = document.getElementById('trainingRemainCount');
+  const pctEl = document.getElementById('trainingProgressPct');
+  const barEl = document.getElementById('trainingProgressBar');
+
+  if (totalEl) totalEl.textContent = String(total);
+  if (doneEl) doneEl.textContent = String(done);
+  if (remainEl) remainEl.textContent = String(remain);
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (barEl) barEl.style.width = pct + '%';
+}
+  
 function applyScheduleChecksFromRow(row){
   els.ckK1.checked = isCheckedValue(row?.[fullKeys.checkK1]) || String(row?.['STATUS_K1'] || '').trim().toUpperCase() === 'DONE';
   els.ckHp.checked = isCheckedValue(row?.[fullKeys.checkHp]) || String(row?.['STATUS_HP'] || '').trim().toUpperCase() === 'DONE';

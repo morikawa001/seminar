@@ -307,7 +307,7 @@ for(const row of dataRows){
   if(!mail) continue;
 
   const totalSec = mailTotalMap[mail] || 0;
-  row['判定'] = totalSec >= certMin ? 'sum1' : 'sum0';
+  row['判定'] = totalSec >= certMin ? 1 : 0;
 }
     setStep(6,'active'); setProgress(90,'STEP 6: 列整列・CSV準備'); await sleep(200);
     const actualKeys = dataRows.length > 0 ? Object.keys(dataRows[0]) : [];

@@ -107,14 +107,27 @@ td.ok{color:var(--accent);}
     </div>
   </div>
 
-  <div class="grid-2" style="margin-top:12px;">
-    <button class="btn btn-primary" id="btnProcess" disabled>▶ 出席者データを処理</button>
-    <button class="btn btn-success" id="btnProcessExport" disabled>💾 処理済み出席者CSVをダウンロード</button>
+<div class="grid-2" style="margin-top:12px;">
+  <div>
+    <button class="btn btn-primary" id="btnProcess" disabled>
+      ▶ 出席者データを処理
+    </button>
   </div>
-  <div class="grid-2" style="margin-top:10px;">
-    <div></div>
-    <button class="btn btn-success" id="btnMergeExport" disabled>💾 アンケート結合CSVをダウンロード</button>
+  <div></div>
+</div>
+
+<div class="grid-2" style="margin-top:8px;">
+  <div>
+    <button class="btn btn-success" id="btnProcessExport" disabled>
+      💾 処理済み出席者CSVをダウンロード
+    </button>
   </div>
+  <div>
+    <button class="btn btn-success" id="btnMergeExport" disabled>
+      💾 アンケート結合CSVをダウンロード
+    </button>
+  </div>
+</div>
 
   <div class="note">
     処理順: <span class="kbd">1</span> 出席者レポート読込 →

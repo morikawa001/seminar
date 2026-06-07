@@ -1764,6 +1764,46 @@ label[for="templateFiles"] {
     </div>
   </div>
 
+    <!-- Training Progress Panel: 研修会全体の進捗 -->
+  <section id="trainingProgressPanel" class="panel">
+    <div class="corner-label">Training Progress</div>
+    <div class="panel-head">
+      <div>
+        <h2>研修会全体の進捗</h2>
+        <p>登録済み研修会の終了状況</p>
+      </div>
+    </div>
+
+    <div class="progress-summary">
+      <div class="progress-summary-item">
+        <span class="label">登録件数</span>
+        <strong id="trainingTotalCount">0</strong>
+      </div>
+      <div class="progress-summary-item">
+        <span class="label">終了件数</span>
+        <strong id="trainingDoneCount">0</strong>
+      </div>
+      <div class="progress-summary-item">
+        <span class="label">残り</span>
+        <strong id="trainingRemainCount">0</strong>
+      </div>
+      <div class="progress-summary-item">
+        <span class="label">進捗率</span>
+        <strong id="trainingProgressPct">0%</strong>
+      </div>
+    </div>
+
+    <div class="progress-bar-wrapper">
+      <div class="progress-bar-track">
+        <div id="trainingProgressBar" class="progress-bar-fill"></div>
+      </div>
+    </div>
+
+    <div class="hint-box small">
+      研修会CSVの「終了」フラグから自動計算されます。
+    </div>
+  </section>
+
   <!-- ===== ROW 2: Today Command (全幅) ===== -->
   <section class="panel" id="todayCommandSection">
     <div class="corner-label">Today Command</div>
@@ -3224,6 +3264,7 @@ function createNewDatabase(){
   renderTodayCommand();
   renderExceptionQueue();
   renderMergeOptions();
+  updateTrainingProgressFromRows(dataRows);  // ★ 追加
   setStatus('空のマスターCSVを新規作成しました。');
 }
 
@@ -3271,6 +3312,7 @@ recalcDraft();
 renderAlerts();
 renderTodayCommand();
 renderExceptionQueue();
+updateTrainingProgressFromRows(dataRows);
 els.miniDbState.textContent='CSV読込済';
 els.miniDbText.textContent=dataRows.length?`${dataRows.length}件のCSVを読込済み`:'CSVに有効データがありません';
 renderMergeOptions();

@@ -1,4 +1,5 @@
 
+
 <!doctype html>
 <html lang="ja" data-theme="dark">
 <head>
@@ -243,6 +244,10 @@ html,body{
   text-rendering:optimizeLegibility;
 }
 body{line-height:1.55}
+
+html{scroll-behavior:smooth;}
+#topControlPanel{scroll-margin-top:14px;}
+
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;border:none;background:none}
 input,select,textarea{
@@ -315,15 +320,23 @@ input[readonly],textarea[readonly]{
 /* 横長モード: Today Commandの下に全幅で展開 */
 .hero-panel.wide .hero-head{
   display:grid;
-  grid-template-columns:auto 1fr;
-  gap:20px 28px;
+  grid-template-columns:1fr;
+  gap:18px;
   align-items:start;
 }
 .hero-panel.wide .id-block{
-  max-width:340px;
+  max-width:none;
+  width:100%;
+}
+.hero-panel.wide .id-block h1,
+.hero-panel.wide .id-block p{
+  width:100%;
+  max-width:none;
 }
 .hero-panel.wide .hero-stats{
-  grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+  width:100%;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  align-items:stretch;
 }
 .hero-head{
   display:flex;
@@ -850,6 +863,40 @@ label[for="templateFiles"] {
   .task-sub-grid{grid-template-columns:1fr !important}
 }
 
+
+.top-hero-copy{display:grid;gap:8px;width:100%}
+.top-hero-copy .project-line,
+.top-hero-copy .hero-desc{
+  width:100%;
+  max-width:none;
+}
+.top-hero-copy .project-line{
+  font-weight:900;
+  color:var(--text-strong);
+  font-size:clamp(1rem,1.8vw,1.16rem);
+  line-height:1.45;
+  word-break:break-word;
+}
+.top-hero-copy .hero-desc{
+  color:var(--muted);
+  font-size:clamp(.92rem,1.3vw,1rem);
+  line-height:1.75;
+}
+.top-hero-copy .hero-desc.jp{
+  color:var(--text);
+}
+.hero-stats .stat-box,
+.hero-stats .btn{
+  width:100%;
+}
+.hero-stats .btn.manual-btn{
+  min-height:44px;
+  justify-content:center;
+  text-align:center;
+  padding:10px 12px;
+  white-space:normal;
+}
+
 /* ── モバイル対応 (480px以下) ── */
 @media (max-width:480px){
   /* 全体余白 */
@@ -868,10 +915,14 @@ label[for="templateFiles"] {
     grid-template-columns:1fr !important;
   }
 
-  /* hero-stats は常に 3×3 グリッドを維持 */
+  /* hero-stats は端末幅に応じて自動調整 */
   .hero-stats{
-    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    grid-template-columns:repeat(auto-fit,minmax(110px,1fr)) !important;
     gap:8px;
+  }
+  .hero-panel.wide .hero-head{
+    grid-template-columns:1fr !important;
+    gap:14px;
   }
   .hero-stats .stat-box{
     padding:10px 8px;
@@ -1605,12 +1656,12 @@ label[for="templateFiles"] {
   <section class="hero-panel wide" id="topControlPanel">
     <div class="corner-label">Dual Theme Control UI</div>
       <div class="hero-head">
-        <div class="id-block">
+        <div class="id-block top-hero-copy">
           <div class="kicker">Clinical Research Training Control</div>
           <h1>▌ Clinical Research Training Dashboard ▌</h1>
-          <p>20XX年_臨床研究研修会計画_project_2501</p>
-          <p>It serves as an operation platform that centrally manages training session planning, and the light theme provides a bright, Notion-like business UI that is easy to read.</p>
-          <p>オペレーション_プラットフォームとして研修会開催計画を一元管理することができる / ライトテーマは Notion 風の明るく読みやすい業務UIとなっている</p>
+          <p class="project-line">20XX年_臨床研究研修会計画_project_2501</p>
+          <p class="hero-desc">It serves as an operation platform that centrally manages training session planning, and the light theme provides a bright, Notion-like business UI that is easy to read.</p>
+          <p class="hero-desc jp">オペレーション_プラットフォームとして研修会開催計画を一元管理することができる / ライトテーマは Notion 風の明るく読みやすい業務UIとなっている</p>
         </div>
         <div class="hero-stats">
           <div class="stat-box"><span>Records</span><b id="sumAllTop">0</b></div>
@@ -5185,5 +5236,20 @@ window.loadDummyData=loadDummyData;
 
 
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('a[href="#topControlPanel"]').forEach(link=>{
+    link.addEventListener('click',e=>{
+      const target=document.getElementById('topControlPanel');
+      if(!target) return;
+      e.preventDefault();
+      target.scrollIntoView({behavior:'smooth',block:'start'});
+      if(history.replaceState){ history.replaceState(null,'','#topControlPanel'); }
+    });
+  });
+});
+</script>
+
 </body>
 </html>

@@ -266,6 +266,31 @@ async function startProcess(){
     log(`所属施設正規化: ${normCount}件`, normCount>0?'warn':'ok'); setStep(4,'done');
     setStep(5,'active'); setProgress(75,'STEP 5: 時刻・聴講時間計算'); await sleep(200);
     dataRows = dataRows.map(row => { const r = {...row}; const joinStr = r['参加時間'] || ''; const exitStr = r['退出時間'] || ''; const joinRaw = hhmmToMin(joinStr); const exitRaw = hhmmToMin(exitStr); if(joinRaw === null || exitRaw === null){ r['参加時刻'] = joinStr; r['退出時刻'] = exitStr; r['聴講時間'] = ''; r['判定'] = ''; return r; } const joinResult = (joinRaw < startMin) ? startMin : joinRaw; r['参加時刻'] = minToHHMM(joinResult); const exitResult = (exitRaw > endMin) ? endMin : exitRaw; r['退出時刻'] = minToHHMM(exitResult); const listenSec = exitResult - joinResult; const listenClamped = listenSec >= 0 ? listenSec : 0; r['聴講時間'] = secToHHMMSS(listenClamped); r['判定'] = listenClamped >= certMin ? 1 : 0; return r; });
+    for(let i = 0; i < dataRows.length - 1; i++){
+  const curr = dataRows[i];
+  const next = dataRows[i + 1];
+
+  const currMail = String(curr['メール'] ?? '').trim().toLowerCase();
+  const nextMail = String(next['メール'] ?? '').trim().toLowerCase();
+
+  if(!currMail || !nextMail || currMail !== nextMail) continue;
+
+  const currExit = hhmmssToSec(String(curr['退出時刻'] || ''));
+  const nextJoin = hhmmssToSec(String(next['参加時刻'] || ''));
+
+  if(currExit === null || nextJoin === null) continue;
+
+  if(nextJoin < currExit){
+    next['参加時刻'] = secToHHMMSS(currExit);
+
+    const nextExit = hhmmssToSec(String(next['退出時刻'] || ''));
+    if(nextExit !== null){
+      const listenSec = Math.max(0, nextExit - currExit);
+      next['聴講時間'] = secToHHMMSS(listenSec);
+      next['判定'] = listenSec >= certMin ? 1 : 0;
+    }
+  }
+}
     log(`聴講時間・判定算出完了`, 'ok'); setStep(5,'done');
     setStep(6,'active'); setProgress(90,'STEP 6: 列整列・CSV準備'); await sleep(200);
     const actualKeys = dataRows.length > 0 ? Object.keys(dataRows[0]) : [];

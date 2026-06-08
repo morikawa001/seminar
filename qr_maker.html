@@ -450,11 +450,11 @@
 
     function getDensitySize() {
   const mode = document.getElementById("densitySelect").value;
-  if (mode === "fine") return 420;
-  if (mode === "normal") return 360;
-  if (mode === "rough") return 300;
-  if (mode === "very-rough") return 240;
-  return 360;
+  if (mode === "fine") return 320;
+  if (mode === "normal") return 240;
+  if (mode === "rough") return 160;
+  if (mode === "very-rough") return 120;
+  return 240;
 }
 
     function getBackgroundMode() {
@@ -509,7 +509,7 @@
         height: size,
         colorDark: "#000000",
         colorLight: colorLight,
-        correctLevel: QRCode.CorrectLevel.H
+        correctLevel: QRCode.CorrectLevel.M
       });
     }
 

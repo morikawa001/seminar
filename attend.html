@@ -107,7 +107,6 @@ td.ok{color:var(--accent);}
     </div>
   </div>
 
-  <!-- 1行目：左＝出席者処理／右＝アンケート結合 -->
   <div class="grid-2" style="margin-top:12px;">
     <div>
       <button class="btn btn-primary" id="btnProcess" disabled>
@@ -121,7 +120,6 @@ td.ok{color:var(--accent);}
     </div>
   </div>
 
-  <!-- 2行目：左＝処理済み出席者CSV／右＝空 -->
   <div class="grid-2" style="margin-top:8px;">
     <div>
       <button class="btn btn-success" id="btnProcessExport" disabled>
@@ -131,7 +129,6 @@ td.ok{color:var(--accent);}
     <div></div>
   </div>
 
-  <!-- 3行目：左＝認定者集計CSV／右＝空 -->
   <div class="grid-2" style="margin-top:8px;">
     <div>
       <button class="btn btn-success" id="btnJobSummaryExport" disabled>
@@ -226,30 +223,20 @@ function normalizeText(v){
     .trim();
 }
 
-function classifyJob(rawJob, rawRole=''){
-  const job = normalizeText(rawJob);
-  const role = normalizeText(rawRole);
-  const text = `${job} ${role}`;
+function classifyJobFromShokushu(rawShokushu=''){
+  const text = normalizeText(rawShokushu);
 
-  const isDental = /歯科/.test(text);
-  const isIRB = /IRB|委員会/.test(text);
-  const isDoctor = /医師/.test(text);
-  const isResident = /専攻医/.test(text);
-  const isClinicalResident = /臨床研修医/.test(text);
-  const isPharmacist = /薬剤師/.test(text);
-  const isNurse = /看護師/.test(text);
-  const isLabTech = /臨床検査技師/.test(text);
-
-  if(isIRB) return 'IRB等委員＊';
-  if(isClinicalResident && isDental) return '(うち歯科医師)臨床研修医';
-  if(isClinicalResident) return '臨床研修医';
-  if(isResident && isDental) return '(うち歯科医師)専攻医';
-  if(isResident) return '専攻医';
-  if(isDoctor && isDental) return '歯科医師';
-  if(isDoctor) return '医師';
-  if(isPharmacist) return '薬剤師';
-  if(isNurse) return '看護師';
-  if(isLabTech) return '臨床検査技師';
+  if(!text) return 'その他';
+  if(/IRB|委員会/.test(text)) return 'IRB等委員＊';
+  if(/臨床研修医/.test(text) && /歯科/.test(text)) return '(うち歯科医師)臨床研修医';
+  if(/臨床研修医/.test(text)) return '臨床研修医';
+  if(/専攻医/.test(text) && /歯科/.test(text)) return '(うち歯科医師)専攻医';
+  if(/専攻医/.test(text)) return '専攻医';
+  if(/歯科医師/.test(text)) return '歯科医師';
+  if(/医師/.test(text)) return '医師';
+  if(/薬剤師/.test(text)) return '薬剤師';
+  if(/看護師/.test(text)) return '看護師';
+  if(/臨床検査技師/.test(text)) return '臨床検査技師';
   return 'その他';
 }
 
@@ -270,7 +257,7 @@ function buildJobSummaryData(){
 
   const uniqueRows = Array.from(uniqueByMail.values()).map(row => ({
     ...row,
-    job: classifyJob(row['職種'], row['役割'])
+    summary_job: classifyJobFromShokushu(row['職種'])
   }));
 
   const categories = [
@@ -295,8 +282,14 @@ function buildJobSummaryData(){
 
   uniqueRows.forEach(row => {
     const group = row['facility_group'] === 'scc' ? 'scc' : 'other';
-    const job = row['job'];
+    const job = row['summary_job'];
+
+    if(job === 'IRB等委員＊'){
+      return;
+    }
+
     counts[group]['小計']++;
+
     if(counts[group][job] !== undefined){
       counts[group][job]++;
     }else{
@@ -312,6 +305,7 @@ function buildJobSummaryData(){
 
   log(`認定者抽出: ${passedRows.length}件`,'ok');
   log(`メール重複削除後: ${uniqueRows.length}件`,'ok');
+  log('職種列ベースで集計完了（IRB等委員＊は集計対象外）','ok');
   log(`集計CSV作成: ${jobSummaryData.length}行`,'ok');
 
   return jobSummaryData;
@@ -505,7 +499,6 @@ async function startProcess(){
       '所属部署':String(row[deptCol]||'').replace(/\u3000/g,' ').trim(),
       'メール':row[mailCol]||'',
       '職種':String(row[shokuCol]||'').trim(),
-      job: classifyJob(row[shokuCol], row[yakuCol]),
       '役割':row[yakuCol]||'',
       '登録時間':excelSerialToDateTime(row[torokuCol]),
       '承認ステータス':row[approveCol]||'',

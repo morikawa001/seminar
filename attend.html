@@ -449,7 +449,6 @@ function mergeSurveyData(){
     const surveyMailCol=surveyKeys.find(k=>k==='メール'||k.toLowerCase()==='email');
     const surveyNameCol=surveyKeys.find(k=>k==='氏名');
     if(!surveyMailCol) throw new Error('アンケート結果に「メール」列がありません');
-    if(!surveyNameCol) throw new Error('アンケート結果に「氏名」列がありません');
 
     const processedMap=new Map();
     const totalListenMap=new Map();
@@ -462,8 +461,8 @@ function mergeSurveyData(){
 
     let matched=0, seq=1;
     mergedData=surveyRows
-      .filter(row=>!isBlankValue(row[surveyNameCol]))
-      .map(row=>{
+.filter(row=>!isBlankValue(row['受講証']))
+.map(row=>{
         const surveyMail=normalizeMail(row[surveyMailCol]);
         const base=processedMap.get(surveyMail)||{};
         const totalSec=totalListenMap.get(surveyMail)||0;

@@ -314,6 +314,16 @@
       align-items: center;
       justify-content: center;
     }
+    
+    #qrcode canvas,
+#qrcode img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  -ms-interpolation-mode: nearest-neighbor;
+}
 
     .hint {
       margin-top: 10px;
@@ -439,13 +449,13 @@
     }
 
     function getDensitySize() {
-      const mode = document.getElementById("densitySelect").value;
-      if (mode === "fine") return 260;
-      if (mode === "normal") return 230;
-      if (mode === "rough") return 190;
-      if (mode === "very-rough") return 150;
-      return 230;
-    }
+  const mode = document.getElementById("densitySelect").value;
+  if (mode === "fine") return 420;
+  if (mode === "normal") return 360;
+  if (mode === "rough") return 300;
+  if (mode === "very-rough") return 240;
+  return 360;
+}
 
     function getBackgroundMode() {
       const radios = document.querySelectorAll('input[name="bgMode"]');

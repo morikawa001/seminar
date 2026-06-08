@@ -472,20 +472,21 @@ function mergeSurveyData(){
         const reason=permit==='✕'?'聴講時間不足':'';
         if(processedMap.has(surveyMail)) matched++;
         return {
-          '番号':seq++,
-          '氏名':!isBlankValue(base['氏名'])?base['氏名']:(row[surveyNameCol]||''),
-          '所属施設':base['所属施設']||'',
-          '所属部署':base['所属部署']||'',
-          'メール':base['メール']||row[surveyMailCol]||'',
-          '職種':base['職種']||'',
-          '役割':base['役割']||'',
-          '交付の可否':permit,
-          '交付不可の理由':reason,
-          '参加時刻':base['参加時刻']||'',
-          '退出時刻':base['退出時刻']||'',
-          '聴講時間':base['聴講時間']||'',
-          '聴講時間合計':secToHHMMSS(totalSec)
-        };
+  '番号': seq++,
+  '受講証': '受講証',  // ★ 追加（氏名の左隣） 
+  '氏名': !isBlankValue(base['氏名']) ? base['氏名'] : (row[surveyNameCol] || ''),
+  '所属施設': base['所属施設'] || '',
+  '所属部署': base['所属部署'] || '',
+  'メール': base['メール'] || row[surveyMailCol] || '',
+  '職種': base['職種'] || '',
+  '役割': base['役割'] || '',
+  '交付の可否': permit,
+  '交付不可の理由': reason,
+  '参加時刻': base['参加時刻'] || '',
+  '退出時刻': base['退出時刻'] || '',
+  '聴講時間': base['聴講時間'] || '',
+  '聴講時間合計': secToHHMMSS(totalSec)
+};
       });
 
     setStep(7,'done');

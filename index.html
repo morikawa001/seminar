@@ -4499,6 +4499,39 @@ function editSpareUrl(num){
 }
 window.editSpareUrl = editSpareUrl;
 
+// ▼ Task Checklist 共通ボタン（案1）のイベント設定
+document.addEventListener('DOMContentLoaded', function(){
+  const commitSaveBtn = document.getElementById('commitSaveBtn');
+  const exportCsvBtn  = document.getElementById('exportCsvBtn');
+
+  // 「この内容で保存」
+  if (commitSaveBtn) {
+    commitSaveBtn.addEventListener('click', function(){
+      // 既存の保存処理の関数名に合わせて1つだけ残す
+      if (typeof commitCurrentRecord === 'function') {
+        commitCurrentRecord();
+      } else if (typeof saveCurrentRecord === 'function') {
+        saveCurrentRecord();
+      } else {
+        console.warn('保存処理の関数が未定義です (commitCurrentRecord / saveCurrentRecord)');
+      }
+    });
+  }
+
+  // 「更新CSVをダウンロード」
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', function(){
+      // 既存のCSVダウンロード処理の関数名に合わせて1つだけ残す
+      if (typeof downloadUpdatedCsv === 'function') {
+        downloadUpdatedCsv();
+      } else if (typeof exportCurrentCsv === 'function') {
+        exportCurrentCsv();
+      } else {
+        console.warn('CSVダウンロード処理の関数が未定義です (downloadUpdatedCsv / exportCurrentCsv)');
+      }
+    });
+  }
+});
 
 // ===== 追加機能 JS =====
 

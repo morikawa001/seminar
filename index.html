@@ -2275,40 +2275,32 @@ label[for="templateFiles"] {
   </div><!-- /Commit+Export row -->
 
   <!-- ===== ROW 8: Task Checklist (全幅) ===== -->
-    <!-- ===== ROW 8: Task Checklist (全幅) ===== -->
   <section class="panel" id="taskChecklistPanel">
-    <div class="corner-label">Task Checklist</div>
-    <div class="panel-head">
-      <div>
-        <h2>Task Checklist</h2>
-        <p>研修会運営の全タスクチェックリストです。CSV保存時にチェック状態を保持します。</p>
+        <div class="corner-label">Task Checklist</div>
+        <div class="panel-head">
+          <div>
+            <h2>Task Checklist</h2>
+            <p>研修会運営の全タスクチェックリストです。CSV保存時にチェック状態を保持します。</p>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <button class="btn small" id="taskResetBtn" onclick="resetAllTasks()">全リセット</button>
+            <button class="task-toggle-btn" id="taskToggleBtn" onclick="toggleTaskBody()">
+              <i class="toggle-icon">&#9660;</i><span id="taskToggleLabel">開く</span>
+            </button>
+          </div>
+        <div class="panel-nav-actions">
+          <a class="btn small manual-btn" href="#topControlPanel">Dual Theme Control UI</a>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-        <button class="btn small" id="taskResetBtn" onclick="resetAllTasks()">全リセット</button>
-        <button class="task-toggle-btn" id="taskToggleBtn" onclick="toggleTaskBody()">
-          <i class="toggle-icon">&#9660;</i><span id="taskToggleLabel">開く</span>
-        </button>
-      </div>
-      <div class="panel-nav-actions">
-        <a class="btn small manual-btn" href="#topControlPanel">Dual Theme Control UI</a>
-      </div>
-    </div>
-
-    <!-- ▼ Taskパネル全体を task-main-grid で包む -->
-    <div class="task-main-grid">
-      <div class="mini-grid" style="margin-bottom:4px">
-        <div class="mini-box"><span>完了タスク</span><b id="taskDoneCount">0</b></div>
-        <div class="mini-box"><span>残りタスク</span><b id="taskRemainCount">33</b></div>
-        <div class="mini-box"><span>進捗</span><b id="taskProgressPct">0%</b></div>
-      </div>
-
-      <div class="progress-shell" style="margin-bottom:8px">
-        <div class="progress-bar" id="taskProgressBar"></div>
-      </div>
-
-      <div id="taskBody" class="collapsed">
+        <div class="mini-grid" style="margin-bottom:4px">
+          <div class="mini-box"><span>完了タスク</span><b id="taskDoneCount">0</b></div>
+          <div class="mini-box"><span>残りタスク</span><b id="taskRemainCount">33</b></div>
+          <div class="mini-box"><span>進捗</span><b id="taskProgressPct">0%</b></div>
+        </div>
+        <div class="progress-shell" style="margin-bottom:8px"><div class="progress-bar" id="taskProgressBar"></div></div>
+        <div id="taskBody" class="collapsed">
         <div class="schedule-list" id="taskCheckList">
-          <div class="task-phase-label"><span class="small-label">準備フェーズ（開催前〜起案1）</span></div>
+<div class="task-phase-label"><span class="small-label">準備フェーズ（開催前〜起案1）</span></div>
           <div class="schedule-card" id="taskcard_task01">
             <div class="schedule-left">
               <span class="small-label">Task 01</span>
@@ -2344,8 +2336,7 @@ label[for="templateFiles"] {
             </div>
             <label class="schedule-check"><input type="checkbox" id="ck_task05" onchange="updateTaskProgress()"><span>完了</span></label>
           </div>
-
-          <div class="task-phase-label"><span class="small-label">広報・HP公開フェーズ</span></div>
+<div class="task-phase-label"><span class="small-label">広報・HP公開フェーズ</span></div>
           <div class="schedule-card" id="taskcard_task06">
             <div class="schedule-left">
               <span class="small-label">Task 06</span>
@@ -2381,8 +2372,7 @@ label[for="templateFiles"] {
             </div>
             <label class="schedule-check"><input type="checkbox" id="ck_task10" onchange="updateTaskProgress()"><span>完了</span></label>
           </div>
-
-          <div class="task-phase-label"><span class="small-label">チラシ・講師対応フェーズ</span></div>
+<div class="task-phase-label"><span class="small-label">チラシ・講師対応フェーズ</span></div>
           <div class="schedule-card" id="taskcard_task11">
             <div class="schedule-left">
               <span class="small-label">Task 11</span>
@@ -2418,8 +2408,7 @@ label[for="templateFiles"] {
             </div>
             <label class="schedule-check"><input type="checkbox" id="ck_task15" onchange="updateTaskProgress()"><span>完了</span></label>
           </div>
-
-          <div class="task-phase-label"><span class="small-label">起案2・資料準備フェーズ</span></div>
+<div class="task-phase-label"><span class="small-label">起案2・資料準備フェーズ</span></div>
           <div class="schedule-card" id="taskcard_task16">
             <div class="schedule-left">
               <span class="small-label">Task 16</span>
@@ -2455,8 +2444,7 @@ label[for="templateFiles"] {
             </div>
             <label class="schedule-check"><input type="checkbox" id="ck_task20" onchange="updateTaskProgress()"><span>完了</span></label>
           </div>
-
-          <div class="task-phase-label"><span class="small-label">当日直前・本番フェーズ</span></div>
+<div class="task-phase-label"><span class="small-label">当日直前・本番フェーズ</span></div>
           <div class="schedule-card" id="taskcard_task21">
             <div class="schedule-left">
               <span class="small-label">Task 21</span>
@@ -2485,8 +2473,7 @@ label[for="templateFiles"] {
             </div>
             <label class="schedule-check"><input type="checkbox" id="ck_task24" onchange="updateTaskProgress()"><span>完了</span></label>
           </div>
-
-          <div class="task-phase-label"><span class="small-label">事後処理フェーズ（起案3〜完了）</span></div>
+<div class="task-phase-label"><span class="small-label">事後処理フェーズ（起案3〜完了）</span></div>
           <div class="schedule-card" id="taskcard_task25">
             <div class="schedule-left">
               <span class="small-label">Task 25</span>
@@ -2551,22 +2538,9 @@ label[for="templateFiles"] {
             <label class="schedule-check"><input type="checkbox" id="ck_task33" onchange="updateTaskProgress()"><span>完了</span></label>
           </div>
         </div>
-        <div class="hint-box">
-          各タスクを完了したらチェックを入れてください。CSV保存時に状態が保持されます。
+        <div class="hint-box">各タスクを完了したらチェックを入れてください。CSV保存時に状態が保持されます。</div>
         </div>
-      </div>
-
-      <!-- ▼ 共通ボタン（案1） -->
-      <div class="footer-actions">
-        <button class="btn primary" id="commitSaveBtn">
-          この内容で保存
-        </button>
-        <button class="btn" id="exportCsvBtn">
-          更新CSVをダウンロード
-        </button>
-      </div>
-    </div><!-- /.task-main-grid -->
-  </section>
+  </section><!-- /taskChecklistPanel -->
 
   <section class="panel" id="templateInjectionSection">
     <div class="corner-label">Template Merge</div>
@@ -4499,56 +4473,6 @@ function editSpareUrl(num){
 }
 window.editSpareUrl = editSpareUrl;
 
-// ▼ CSV文字列を「更新CSV.csv」としてダウンロードする汎用関数
-function downloadUpdatedCsv(csvText) {
-  if (!csvText || typeof csvText !== 'string') {
-    alert('CSVデータがまだ生成されていません。');
-    return;
-  }
-  const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = '更新CSV.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}// ▼ Task Checklist 共通ボタン（案1）のイベント設定
-// ▼ Task Checklist 共通ボタン（案1）のイベント設定（本番用）
-document.addEventListener('DOMContentLoaded', function(){
-  const commitSaveBtn = document.getElementById('commitSaveBtn');
-  const exportCsvBtn  = document.getElementById('exportCsvBtn');
-
-  console.log('Task buttons init:', { commitSaveBtn, exportCsvBtn });
-
-  // 「この内容で保存」
-  if (commitSaveBtn) {
-    commitSaveBtn.addEventListener('click', function(){
-      // TODO: ここは後で本当の保存処理に差し替える
-      console.log('commitSaveBtn clicked');
-      alert('「この内容で保存」の処理はまだ仮の状態です');
-      // 例：実際は commitCurrentRecord(); などに置き換える
-    });
-  }
-
-  // 「更新CSVをダウンロード」
-  if (exportCsvBtn) {
-    exportCsvBtn.addEventListener('click', function(){
-      console.log('exportCsvBtn clicked');
-
-      // ★ ここが本番処理：CSV文字列を取得して downloadUpdatedCsv に渡す
-      if (typeof getCurrentCsvText === 'function') {
-        const csvText = getCurrentCsvText();  // あなたのコードに合わせる
-        downloadUpdatedCsv(csvText);
-      } else if (typeof currentCsvData === 'string') {
-        downloadUpdatedCsv(currentCsvData);   // グローバル変数に入っている場合
-      } else {
-        alert('CSVデータの取得方法がまだ実装されていません。');
-      }
-    });
-  }
-});
 
 // ===== 追加機能 JS =====
 

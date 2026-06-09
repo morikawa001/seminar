@@ -4499,25 +4499,53 @@ function editSpareUrl(num){
 }
 window.editSpareUrl = editSpareUrl;
 
-// ▼ Task Checklist 共通ボタン（案1）のイベント設定
-// ▼ Task Checklist 共通ボタン（案1）のイベント設定（動作確認版）
+// ▼ CSV文字列を「更新CSV.csv」としてダウンロードする汎用関数
+function downloadUpdatedCsv(csvText) {
+  if (!csvText || typeof csvText !== 'string') {
+    alert('CSVデータがまだ生成されていません。');
+    return;
+  }
+  const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '更新CSV.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}// ▼ Task Checklist 共通ボタン（案1）のイベント設定
+// ▼ Task Checklist 共通ボタン（案1）のイベント設定（本番用）
 document.addEventListener('DOMContentLoaded', function(){
   const commitSaveBtn = document.getElementById('commitSaveBtn');
   const exportCsvBtn  = document.getElementById('exportCsvBtn');
 
   console.log('Task buttons init:', { commitSaveBtn, exportCsvBtn });
 
+  // 「この内容で保存」
   if (commitSaveBtn) {
     commitSaveBtn.addEventListener('click', function(){
+      // TODO: ここは後で本当の保存処理に差し替える
       console.log('commitSaveBtn clicked');
-      alert('「この内容で保存」ボタンがクリックされました（テスト）');
+      alert('「この内容で保存」の処理はまだ仮の状態です');
+      // 例：実際は commitCurrentRecord(); などに置き換える
     });
   }
 
+  // 「更新CSVをダウンロード」
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', function(){
       console.log('exportCsvBtn clicked');
-      alert('「更新CSVをダウンロード」ボタンがクリックされました（テスト）');
+
+      // ★ ここが本番処理：CSV文字列を取得して downloadUpdatedCsv に渡す
+      if (typeof getCurrentCsvText === 'function') {
+        const csvText = getCurrentCsvText();  // あなたのコードに合わせる
+        downloadUpdatedCsv(csvText);
+      } else if (typeof currentCsvData === 'string') {
+        downloadUpdatedCsv(currentCsvData);   // グローバル変数に入っている場合
+      } else {
+        alert('CSVデータの取得方法がまだ実装されていません。');
+      }
     });
   }
 });

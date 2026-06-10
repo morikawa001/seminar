@@ -2763,7 +2763,7 @@ const fullKeys={
   task02:'講師にメールで確認_CHECK',
   task03:'HPブランチ作成依頼_CHECK',
   task04:'WordPress設定予約投稿_CHECK',
-  task04a: '講師依頼状兼業依頼提出CHECK',
+  task04a:'講師依頼状兼業依頼提出CHECK',
   task05:'起案1_開催_CHECK',
   task06:'HP公開設定依頼_CHECK',
   task07:'HP公開受付開始_CHECK',
@@ -3317,7 +3317,7 @@ function createNewDatabase(){
   els.recordSelect.value='';
   stagedRow=null;
   lastSaveMode='';
-  ensureAdditionalHeaders();
+  currentHeaders = ensureAdditionalHeaders(currentHeaders);
   fields.no.value='1';
   fields.cohost.value=COHOST_OPTION_NONE;
   syncCohostFields();
@@ -5362,9 +5362,8 @@ function loadDummyData(){
   const dummy3=makeRow(3,dayM7,'研究倫理・インフォームドコンセント','鈴木 倫理','https://zoom.us/j/88888888888','67890','888 8888 8888',{[fullKeys.checkK1]:'1',[fullKeys.checkHp]:'1',[fullKeys.checkK2]:'1',[fullKeys.task25]:'1'}); // 開催済みzoom済み、事後処理一部残
   const dummy4=makeRow(4,day45,'統計解析の基礎と実践（演習付き）','山田 統計子','','',''); // 遠い将来
 
-  currentHeaders=[...DEFAULT_HEADERS];
-  ensureAdditionalHeaders();
-  rawRows=[dummy1,dummy2,dummy3,dummy4].map(r=>normalizeRowShape(r));
+  currentHeaders = ensureAdditionalHeaders(currentHeaders && currentHeaders.length ? currentHeaders : [...DEFAULT_HEADERS]);
+rawRows=[dummy1,dummy2,dummy3,dummy4].map(r=>normalizeRowShape(r));
   dataRows=buildDisplayRowsFromRaw(rawRows);
   renderRecordOptions();
   renderTable();

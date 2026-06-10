@@ -2914,7 +2914,25 @@ els.recordSelect.addEventListener('change',handleSelectRecord);
 els.loadSelectedBtn.addEventListener('click',loadSelectedIntoForm);
 els.prefillBtn.addEventListener('click',prefillFromLast);
 els.appendBtn.addEventListener('click',stageDraft);
-els.openConfirmBtn.addEventListener('click',()=>{stageDraft();const el=document.getElementById('entryConsoleSection');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});
+els.openConfirmBtn.addEventListener('click', () => {
+  if (!els.recordSelect || !String(els.recordSelect.value || '').trim()) {
+    alert('先に No を選択してください。');
+    return;
+  }
+
+  // Quick Operation で選択中の No を内部選択にも反映
+  if (typeof selectRecordByNo === 'function') {
+    selectRecordByNo(els.recordSelect.value);
+  }
+
+  // Entry Console の「選択Noを反映」と同じ処理を実行
+  if (els.loadSelectedBtn) {
+    els.loadSelectedBtn.click();
+  }
+
+  const el = document.getElementById('entryConsoleSection');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
 els.confirmAppendBtn.addEventListener('click',commitDraft);
 els.downloadBtn.addEventListener('click',downloadCsv);
 els.backBtn.addEventListener('click',()=>{setStatus('入力内容を調整できます。必要なら項目を修正してください。');const el=document.getElementById('entryConsoleSection');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});

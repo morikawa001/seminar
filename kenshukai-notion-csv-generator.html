@@ -876,7 +876,7 @@
             tbody.innerHTML = '';
             data.slice(0, maxRows).forEach((row, index) => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${index+1}</td><td>${row['氏名']||'-'}</td><td>${row['所属']||'-'}</td><td>${row['メールアドレス']||'-'}</td><td>${row['ステータス']||'-'}</td>`;
+                tr.innerHTML = `<td>${index+1}</td><td>${row['氏名']||'-'}</td><td>${row['所属施設']||'-'}</td><td>${row['メール']||'-'}</td><td>${row['承認ステータス']||'-'}</td>`;
                 tbody.appendChild(tr);
             });
             if(data.length > maxRows){

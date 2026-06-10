@@ -16,12 +16,13 @@
 
 
 function updateTaskProgress(){
-  const total=33;
+  const total=34;
   let done=0;
-    const _tp_task01=document.getElementById('ck_task01');if(_tp_task01&&_tp_task01.checked)done++;
+  const _tp_task01=document.getElementById('ck_task01');if(_tp_task01&&_tp_task01.checked)done++;
   const _tp_task02=document.getElementById('ck_task02');if(_tp_task02&&_tp_task02.checked)done++;
   const _tp_task03=document.getElementById('ck_task03');if(_tp_task03&&_tp_task03.checked)done++;
   const _tp_task04=document.getElementById('ck_task04');if(_tp_task04&&_tp_task04.checked)done++;
+  const _tp_task04a=document.getElementById('ck_task04a');if(_tp_task04a&&_tp_task04a.checked)done++;
   const _tp_task05=document.getElementById('ck_task05');if(_tp_task05&&_tp_task05.checked)done++;
   const _tp_task06=document.getElementById('ck_task06');if(_tp_task06&&_tp_task06.checked)done++;
   const _tp_task07=document.getElementById('ck_task07');if(_tp_task07&&_tp_task07.checked)done++;
@@ -65,6 +66,7 @@ function updateTaskProgress(){
   const _tc_task02=document.getElementById('taskcard_task02');const _cb_task02=document.getElementById('ck_task02');if(_tc_task02)_tc_task02.classList.toggle('done',_cb_task02?.checked||false);
   const _tc_task03=document.getElementById('taskcard_task03');const _cb_task03=document.getElementById('ck_task03');if(_tc_task03)_tc_task03.classList.toggle('done',_cb_task03?.checked||false);
   const _tc_task04=document.getElementById('taskcard_task04');const _cb_task04=document.getElementById('ck_task04');if(_tc_task04)_tc_task04.classList.toggle('done',_cb_task04?.checked||false);
+  const _tc_task04a=document.getElementById('taskcard_task04a');const _cb_task04a=document.getElementById('ck_task04a');if(_tc_task04a)_tc_task04a.classList.toggle('done',_cb_task04a?.checked||false);
   const _tc_task05=document.getElementById('taskcard_task05');const _cb_task05=document.getElementById('ck_task05');if(_tc_task05)_tc_task05.classList.toggle('done',_cb_task05?.checked||false);
   const _tc_task06=document.getElementById('taskcard_task06');const _cb_task06=document.getElementById('ck_task06');if(_tc_task06)_tc_task06.classList.toggle('done',_cb_task06?.checked||false);
   const _tc_task07=document.getElementById('taskcard_task07');const _cb_task07=document.getElementById('ck_task07');if(_tc_task07)_tc_task07.classList.toggle('done',_cb_task07?.checked||false);
@@ -100,6 +102,7 @@ function resetAllTasks(){
   const _ra_task02=document.getElementById('ck_task02');if(_ra_task02)_ra_task02.checked=false;
   const _ra_task03=document.getElementById('ck_task03');if(_ra_task03)_ra_task03.checked=false;
   const _ra_task04=document.getElementById('ck_task04');if(_ra_task04)_ra_task04.checked=false;
+  const _ra_task04a=document.getElementById('ck_task04a');if(_ra_task04a)_ra_task04a.checked=false;
   const _ra_task05=document.getElementById('ck_task05');if(_ra_task05)_ra_task05.checked=false;
   const _ra_task06=document.getElementById('ck_task06');if(_ra_task06)_ra_task06.checked=false;
   const _ra_task07=document.getElementById('ck_task07');if(_ra_task07)_ra_task07.checked=false;
@@ -2333,6 +2336,16 @@ label[for="templateFiles"] {
             </div>
             <label class="schedule-check"><input type="checkbox" id="ck_task04" onchange="updateTaskProgress()"><span>完了</span></label>
           </div>
+          <div class="schedule-card" id="taskcard_task04a">
+  <div class="schedule-left">
+    <span class="small-label">Task 04-2</span>
+    <strong>講師依頼状（兼業依頼）提出</strong>
+  </div>
+  <label class="schedule-check">
+    <input type="checkbox" id="ck_task04a" onchange="updateTaskProgress()">
+    <span>完了</span>
+  </label>
+</div>
           <div class="schedule-card" id="taskcard_task05">
             <div class="schedule-left">
               <span class="small-label">Task 05</span>
@@ -2750,6 +2763,7 @@ const fullKeys={
   task02:'講師にメールで確認_CHECK',
   task03:'HPブランチ作成依頼_CHECK',
   task04:'WordPress設定予約投稿_CHECK',
+  task04a: '講師依頼状兼業依頼提出CHECK',
   task05:'起案1_開催_CHECK',
   task06:'HP公開設定依頼_CHECK',
   task07:'HP公開受付開始_CHECK',
@@ -3010,6 +3024,7 @@ function ensureAdditionalHeaders(headers){
     fullKeys.task02,
     fullKeys.task03,
     fullKeys.task04,
+    fullKeys.task04a,
     fullKeys.task05,
     fullKeys.task06,
     fullKeys.task07,
@@ -3435,6 +3450,7 @@ function resetScheduleChecks(){
   const _r_task02=document.getElementById('ck_task02');if(_r_task02)_r_task02.checked=false;
   const _r_task03=document.getElementById('ck_task03');if(_r_task03)_r_task03.checked=false;
   const _r_task04=document.getElementById('ck_task04');if(_r_task04)_r_task04.checked=false;
+  const _r_task04a=document.getElementById('ck_task04a');if(_r_task04a)_r_task04a.checked=false;
   const _r_task05=document.getElementById('ck_task05');if(_r_task05)_r_task05.checked=false;
   const _r_task06=document.getElementById('ck_task06');if(_r_task06)_r_task06.checked=false;
   const _r_task07=document.getElementById('ck_task07');if(_r_task07)_r_task07.checked=false;
@@ -3503,6 +3519,7 @@ function applyScheduleChecksFromRow(row){
   const _el_task02=document.getElementById('ck_task02');if(_el_task02)_el_task02.checked=isCheckedValue(row?.[fullKeys.task02]);
   const _el_task03=document.getElementById('ck_task03');if(_el_task03)_el_task03.checked=isCheckedValue(row?.[fullKeys.task03]);
   const _el_task04=document.getElementById('ck_task04');if(_el_task04)_el_task04.checked=isCheckedValue(row?.[fullKeys.task04]);
+  const _el_task04a=document.getElementById('ck_task04a');if(_el_task04a)_el_task04a.checked=isCheckedValue(row?.[fullKeys.task04a]);
   const _el_task05=document.getElementById('ck_task05');if(_el_task05)_el_task05.checked=isCheckedValue(row?.[fullKeys.task05]);
   const _el_task06=document.getElementById('ck_task06');if(_el_task06)_el_task06.checked=isCheckedValue(row?.[fullKeys.task06]);
   const _el_task07=document.getElementById('ck_task07');if(_el_task07)_el_task07.checked=isCheckedValue(row?.[fullKeys.task07]);
@@ -3771,6 +3788,7 @@ function buildRow(){
   row[fullKeys.task02]=boolToCsv(document.getElementById('ck_task02')?.checked||false);
   row[fullKeys.task03]=boolToCsv(document.getElementById('ck_task03')?.checked||false);
   row[fullKeys.task04]=boolToCsv(document.getElementById('ck_task04')?.checked||false);
+  row[fullKeys.task04a]=boolToCsv(document.getElementById('ck_task04a')?.checked||false);
   row[fullKeys.task05]=boolToCsv(document.getElementById('ck_task05')?.checked||false);
   row[fullKeys.task06]=boolToCsv(document.getElementById('ck_task06')?.checked||false);
   row[fullKeys.task07]=boolToCsv(document.getElementById('ck_task07')?.checked||false);

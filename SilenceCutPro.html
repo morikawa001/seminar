@@ -99,14 +99,14 @@ body{
   inset: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
   background: transparent;
 }
 
 .app {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
 body::before {
@@ -117,20 +117,20 @@ body::before {
     0deg,
     transparent,
     transparent 2px,
-    rgba(0,255,65,.006) 2px,
-    rgba(0,255,65,.006) 4px
+    rgba(0,255,65,.004) 2px,
+    rgba(0,255,65,.004) 4px
   );
   pointer-events:none;
-  z-index:1;
+  z-index: 1;
 }
 
 body::after {
   content:'';
   position:fixed;
   inset:0;
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,255,65,.025) 0%, transparent 70%);
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,255,65,.012) 0%, transparent 70%);
   pointer-events:none;
-  z-index:0;
+  z-index: 0;
 }
 
 img,video,canvas,svg{display:block;max-width:100%;}
@@ -1176,7 +1176,7 @@ processBtn.addEventListener('click',async()=>{
   resetDrops();
 
   function draw(){
-  ctx.fillStyle='rgba(0,0,0,0.075)';
+  ctx.fillStyle='rgba(0,0,0,0.06)';
   ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.font=`${fontSize}px Share Tech Mono, monospace`;
 
@@ -1185,18 +1185,18 @@ processBtn.addEventListener('click',async()=>{
     const x=i*fontSize;
     const y=drops[i]*fontSize;
 
-    ctx.fillStyle='rgba(60,200,110,0.24)';
+    ctx.fillStyle='rgba(70,220,120,0.38)';
     ctx.fillText(text,x,y);
 
-    ctx.fillStyle='rgba(150,255,210,0.34)';
+    ctx.fillStyle='rgba(180,255,220,0.60)';
     ctx.fillText(text,x,y-1);
 
     if(y>canvas.height && Math.random()>0.975) drops[i]=0;
     else drops[i]++;
   }
+
+  requestAnimationFrame(draw);
 }
-    requestAnimationFrame(draw);
-  }
 
   window.addEventListener('resize',resetDrops);
   draw();

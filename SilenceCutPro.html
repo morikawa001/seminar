@@ -117,11 +117,11 @@ body::before {
     0deg,
     transparent,
     transparent 2px,
-    rgba(0,255,65,.010) 2px,
-    rgba(0,255,65,.010) 4px
+    rgba(0,255,65,.006) 2px,
+    rgba(0,255,65,.006) 4px
   );
   pointer-events:none;
-  z-index:9999;
+  z-index:1;
 }
 
 body::after {
@@ -1176,7 +1176,7 @@ processBtn.addEventListener('click',async()=>{
   resetDrops();
 
   function draw(){
-  ctx.fillStyle='rgba(0,0,0,0.10)';
+  ctx.fillStyle='rgba(0,0,0,0.075)';
   ctx.fillRect(0,0,canvas.width,canvas.height);
   ctx.font=`${fontSize}px Share Tech Mono, monospace`;
 
@@ -1185,9 +1185,10 @@ processBtn.addEventListener('click',async()=>{
     const x=i*fontSize;
     const y=drops[i]*fontSize;
 
-    ctx.fillStyle='rgba(0,160,70,0.18)';
+    ctx.fillStyle='rgba(60,200,110,0.24)';
     ctx.fillText(text,x,y);
-    ctx.fillStyle='rgba(120,220,160,0.24)';
+
+    ctx.fillStyle='rgba(150,255,210,0.34)';
     ctx.fillText(text,x,y-1);
 
     if(y>canvas.height && Math.random()>0.975) drops[i]=0;

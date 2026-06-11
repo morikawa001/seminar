@@ -16,129 +16,122 @@
 
 
 function updateTaskProgress(){
-  const total = 34;
-  let done = 0;
-
-  const _tp_task01 = document.getElementById('cktask01'); if(_tp_task01 && _tp_task01.checked) done++;
-  const _tp_task02 = document.getElementById('cktask02'); if(_tp_task02 && _tp_task02.checked) done++;
-  const _tp_task03 = document.getElementById('cktask03'); if(_tp_task03 && _tp_task03.checked) done++;
-  const _tp_task04 = document.getElementById('cktask04'); if(_tp_task04 && _tp_task04.checked) done++;
-  const _tp_task04a = document.getElementById('cktask04a'); if(_tp_task04a && _tp_task04a.checked) done++;
-  const _tp_task05 = document.getElementById('cktask05'); if(_tp_task05 && _tp_task05.checked) done++;
-  const _tp_task06 = document.getElementById('cktask06'); if(_tp_task06 && _tp_task06.checked) done++;
-  const _tp_task07 = document.getElementById('cktask07'); if(_tp_task07 && _tp_task07.checked) done++;
-  const _tp_task08 = document.getElementById('cktask08'); if(_tp_task08 && _tp_task08.checked) done++;
-  const _tp_task09 = document.getElementById('cktask09'); if(_tp_task09 && _tp_task09.checked) done++;
-  const _tp_task10 = document.getElementById('cktask10'); if(_tp_task10 && _tp_task10.checked) done++;
-  const _tp_task11 = document.getElementById('cktask11'); if(_tp_task11 && _tp_task11.checked) done++;
-  const _tp_task12 = document.getElementById('cktask12'); if(_tp_task12 && _tp_task12.checked) done++;
-  const _tp_task13 = document.getElementById('cktask13'); if(_tp_task13 && _tp_task13.checked) done++;
-  const _tp_task14 = document.getElementById('cktask14'); if(_tp_task14 && _tp_task14.checked) done++;
-  const _tp_task15 = document.getElementById('cktask15'); if(_tp_task15 && _tp_task15.checked) done++;
-  const _tp_task16 = document.getElementById('cktask16'); if(_tp_task16 && _tp_task16.checked) done++;
-  const _tp_task17 = document.getElementById('cktask17'); if(_tp_task17 && _tp_task17.checked) done++;
-  const _tp_task18 = document.getElementById('cktask18'); if(_tp_task18 && _tp_task18.checked) done++;
-  const _tp_task19 = document.getElementById('cktask19'); if(_tp_task19 && _tp_task19.checked) done++;
-  const _tp_task20 = document.getElementById('cktask20'); if(_tp_task20 && _tp_task20.checked) done++;
-  const _tp_task21 = document.getElementById('cktask21'); if(_tp_task21 && _tp_task21.checked) done++;
-  const _tp_task22 = document.getElementById('cktask22'); if(_tp_task22 && _tp_task22.checked) done++;
-  const _tp_task23 = document.getElementById('cktask23'); if(_tp_task23 && _tp_task23.checked) done++;
-  const _tp_task24 = document.getElementById('cktask24'); if(_tp_task24 && _tp_task24.checked) done++;
-  const _tp_task25 = document.getElementById('cktask25'); if(_tp_task25 && _tp_task25.checked) done++;
-  const _tp_task26 = document.getElementById('cktask26'); if(_tp_task26 && _tp_task26.checked) done++;
-  const _tp_task27 = document.getElementById('cktask27'); if(_tp_task27 && _tp_task27.checked) done++;
-  const _tp_task28 = document.getElementById('cktask28'); if(_tp_task28 && _tp_task28.checked) done++;
-  const _tp_task29 = document.getElementById('cktask29'); if(_tp_task29 && _tp_task29.checked) done++;
-  const _tp_task30 = document.getElementById('cktask30'); if(_tp_task30 && _tp_task30.checked) done++;
-  const _tp_task31 = document.getElementById('cktask31'); if(_tp_task31 && _tp_task31.checked) done++;
-  const _tp_task32 = document.getElementById('cktask32'); if(_tp_task32 && _tp_task32.checked) done++;
-  const _tp_task33 = document.getElementById('cktask33'); if(_tp_task33 && _tp_task33.checked) done++;
-
-  const remain = total - done;
-  const pct = Math.round(done / total * 100);
-
-  const doneEl = document.getElementById('taskDoneCount');
-  const remEl  = document.getElementById('taskRemainCount');
-  const pctEl  = document.getElementById('taskProgressPct');
-  const barEl  = document.getElementById('taskProgressBar');
-
-  if(doneEl) doneEl.textContent = String(done);
-  if(remEl)  remEl.textContent  = String(remain);
-  if(pctEl)  pctEl.textContent  = pct + '%';
-  if(barEl)  barEl.style.width  = pct + '%';
-
-  const _tc_task01 = document.getElementById('taskcardtask01'); const _cb_task01 = document.getElementById('cktask01'); if(_tc_task01) _tc_task01.classList.toggle('done', _cb_task01?.checked || false);
-  const _tc_task02 = document.getElementById('taskcardtask02'); const _cb_task02 = document.getElementById('cktask02'); if(_tc_task02) _tc_task02.classList.toggle('done', _cb_task02?.checked || false);
-  const _tc_task03 = document.getElementById('taskcardtask03'); const _cb_task03 = document.getElementById('cktask03'); if(_tc_task03) _tc_task03.classList.toggle('done', _cb_task03?.checked || false);
-  const _tc_task04 = document.getElementById('taskcardtask04'); const _cb_task04 = document.getElementById('cktask04'); if(_tc_task04) _tc_task04.classList.toggle('done', _cb_task04?.checked || false);
-  const _tc_task04a= document.getElementById('taskcardtask04a');const _cb_task04a= document.getElementById('cktask04a');if(_tc_task04a)_tc_task04a.classList.toggle('done', _cb_task04a?.checked || false);
-  const _tc_task05 = document.getElementById('taskcardtask05'); const _cb_task05 = document.getElementById('cktask05'); if(_tc_task05) _tc_task05.classList.toggle('done', _cb_task05?.checked || false);
-  const _tc_task06 = document.getElementById('taskcardtask06'); const _cb_task06 = document.getElementById('cktask06'); if(_tc_task06) _tc_task06.classList.toggle('done', _cb_task06?.checked || false);
-  const _tc_task07 = document.getElementById('taskcardtask07'); const _cb_task07 = document.getElementById('cktask07'); if(_tc_task07) _tc_task07.classList.toggle('done', _cb_task07?.checked || false);
-  const _tc_task08 = document.getElementById('taskcardtask08'); const _cb_task08 = document.getElementById('cktask08'); if(_tc_task08) _tc_task08.classList.toggle('done', _cb_task08?.checked || false);
-  const _tc_task09 = document.getElementById('taskcardtask09'); const _cb_task09 = document.getElementById('cktask09'); if(_tc_task09) _tc_task09.classList.toggle('done', _cb_task09?.checked || false);
-  const _tc_task10 = document.getElementById('taskcardtask10'); const _cb_task10 = document.getElementById('cktask10'); if(_tc_task10) _tc_task10.classList.toggle('done', _cb_task10?.checked || false);
-  const _tc_task11 = document.getElementById('taskcardtask11'); const _cb_task11 = document.getElementById('cktask11'); if(_tc_task11) _tc_task11.classList.toggle('done', _cb_task11?.checked || false);
-  const _tc_task12 = document.getElementById('taskcardtask12'); const _cb_task12 = document.getElementById('cktask12'); if(_tc_task12) _tc_task12.classList.toggle('done', _cb_task12?.checked || false);
-  const _tc_task13 = document.getElementById('taskcardtask13'); const _cb_task13 = document.getElementById('cktask13'); if(_tc_task13) _tc_task13.classList.toggle('done', _cb_task13?.checked || false);
-  const _tc_task14 = document.getElementById('taskcardtask14'); const _cb_task14 = document.getElementById('cktask14'); if(_tc_task14) _tc_task14.classList.toggle('done', _cb_task14?.checked || false);
-  const _tc_task15 = document.getElementById('taskcardtask15'); const _cb_task15 = document.getElementById('cktask15'); if(_tc_task15) _tc_task15.classList.toggle('done', _cb_task15?.checked || false);
-  const _tc_task16 = document.getElementById('taskcardtask16'); const _cb_task16 = document.getElementById('cktask16'); if(_tc_task16) _tc_task16.classList.toggle('done', _cb_task16?.checked || false);
-  const _tc_task17 = document.getElementById('taskcardtask17'); const _cb_task17 = document.getElementById('cktask17'); if(_tc_task17) _tc_task17.classList.toggle('done', _cb_task17?.checked || false);
-  const _tc_task18 = document.getElementById('taskcardtask18'); const _cb_task18 = document.getElementById('cktask18'); if(_tc_task18) _tc_task18.classList.toggle('done', _cb_task18?.checked || false);
-  const _tc_task19 = document.getElementById('taskcardtask19'); const _cb_task19 = document.getElementById('cktask19'); if(_tc_task19) _tc_task19.classList.toggle('done', _cb_task19?.checked || false);
-  const _tc_task20 = document.getElementById('taskcardtask20'); const _cb_task20 = document.getElementById('cktask20'); if(_tc_task20) _tc_task20.classList.toggle('done', _cb_task20?.checked || false);
-  const _tc_task21 = document.getElementById('taskcardtask21'); const _cb_task21 = document.getElementById('cktask21'); if(_tc_task21) _tc_task21.classList.toggle('done', _cb_task21?.checked || false);
-  const _tc_task22 = document.getElementById('taskcardtask22'); const _cb_task22 = document.getElementById('cktask22'); if(_tc_task22) _tc_task22.classList.toggle('done', _cb_task22?.checked || false);
-  const _tc_task23 = document.getElementById('taskcardtask23'); const _cb_task23 = document.getElementById('cktask23'); if(_tc_task23) _tc_task23.classList.toggle('done', _cb_task23?.checked || false);
-  const _tc_task24 = document.getElementById('taskcardtask24'); const _cb_task24 = document.getElementById('cktask24'); if(_tc_task24) _tc_task24.classList.toggle('done', _cb_task24?.checked || false);
-  const _tc_task25 = document.getElementById('taskcardtask25'); const _cb_task25 = document.getElementById('cktask25'); if(_tc_task25) _tc_task25.classList.toggle('done', _cb_task25?.checked || false);
-  const _tc_task26 = document.getElementById('taskcardtask26'); const _cb_task26 = document.getElementById('cktask26'); if(_tc_task26) _tc_task26.classList.toggle('done', _cb_task26?.checked || false);
-  const _tc_task27 = document.getElementById('taskcardtask27'); const _cb_task27 = document.getElementById('cktask27'); if(_tc_task27) _tc_task27.classList.toggle('done', _cb_task27?.checked || false);
-  const _tc_task28 = document.getElementById('taskcardtask28'); const _cb_task28 = document.getElementById('cktask28'); if(_tc_task28) _tc_task28.classList.toggle('done', _cb_task28?.checked || false);
-  const _tc_task29 = document.getElementById('taskcardtask29'); const _cb_task29 = document.getElementById('cktask29'); if(_tc_task29) _tc_task29.classList.toggle('done', _cb_task29?.checked || false);
-  const _tc_task30 = document.getElementById('taskcardtask30'); const _cb_task30 = document.getElementById('cktask30'); if(_tc_task30) _tc_task30.classList.toggle('done', _cb_task30?.checked || false);
-  const _tc_task31 = document.getElementById('taskcardtask31'); const _cb_task31 = document.getElementById('cktask31'); if(_tc_task31) _tc_task31.classList.toggle('done', _cb_task31?.checked || false);
-  const _tc_task32 = document.getElementById('taskcardtask32'); const _cb_task32 = document.getElementById('cktask32'); if(_tc_task32) _tc_task32.classList.toggle('done', _cb_task32?.checked || false);
-  const _tc_task33 = document.getElementById('taskcardtask33'); const _cb_task33 = document.getElementById('cktask33'); if(_tc_task33) _tc_task33.classList.toggle('done', _cb_task33?.checked || false);
+  const total=34;
+  let done=0;
+  const _tp_task01=document.getElementById('ck_task01');if(_tp_task01&&_tp_task01.checked)done++;
+  const _tp_task02=document.getElementById('ck_task02');if(_tp_task02&&_tp_task02.checked)done++;
+  const _tp_task03=document.getElementById('ck_task03');if(_tp_task03&&_tp_task03.checked)done++;
+  const _tp_task04=document.getElementById('ck_task04');if(_tp_task04&&_tp_task04.checked)done++;
+  const _tp_task04a=document.getElementById('ck_task04a');if(_tp_task04a&&_tp_task04a.checked)done++;
+  const _tp_task05=document.getElementById('ck_task05');if(_tp_task05&&_tp_task05.checked)done++;
+  const _tp_task06=document.getElementById('ck_task06');if(_tp_task06&&_tp_task06.checked)done++;
+  const _tp_task07=document.getElementById('ck_task07');if(_tp_task07&&_tp_task07.checked)done++;
+  const _tp_task08=document.getElementById('ck_task08');if(_tp_task08&&_tp_task08.checked)done++;
+  const _tp_task09=document.getElementById('ck_task09');if(_tp_task09&&_tp_task09.checked)done++;
+  const _tp_task10=document.getElementById('ck_task10');if(_tp_task10&&_tp_task10.checked)done++;
+  const _tp_task11=document.getElementById('ck_task11');if(_tp_task11&&_tp_task11.checked)done++;
+  const _tp_task12=document.getElementById('ck_task12');if(_tp_task12&&_tp_task12.checked)done++;
+  const _tp_task13=document.getElementById('ck_task13');if(_tp_task13&&_tp_task13.checked)done++;
+  const _tp_task14=document.getElementById('ck_task14');if(_tp_task14&&_tp_task14.checked)done++;
+  const _tp_task15=document.getElementById('ck_task15');if(_tp_task15&&_tp_task15.checked)done++;
+  const _tp_task16=document.getElementById('ck_task16');if(_tp_task16&&_tp_task16.checked)done++;
+  const _tp_task17=document.getElementById('ck_task17');if(_tp_task17&&_tp_task17.checked)done++;
+  const _tp_task18=document.getElementById('ck_task18');if(_tp_task18&&_tp_task18.checked)done++;
+  const _tp_task19=document.getElementById('ck_task19');if(_tp_task19&&_tp_task19.checked)done++;
+  const _tp_task20=document.getElementById('ck_task20');if(_tp_task20&&_tp_task20.checked)done++;
+  const _tp_task21=document.getElementById('ck_task21');if(_tp_task21&&_tp_task21.checked)done++;
+  const _tp_task22=document.getElementById('ck_task22');if(_tp_task22&&_tp_task22.checked)done++;
+  const _tp_task23=document.getElementById('ck_task23');if(_tp_task23&&_tp_task23.checked)done++;
+  const _tp_task24=document.getElementById('ck_task24');if(_tp_task24&&_tp_task24.checked)done++;
+  const _tp_task25=document.getElementById('ck_task25');if(_tp_task25&&_tp_task25.checked)done++;
+  const _tp_task26=document.getElementById('ck_task26');if(_tp_task26&&_tp_task26.checked)done++;
+  const _tp_task27=document.getElementById('ck_task27');if(_tp_task27&&_tp_task27.checked)done++;
+  const _tp_task28=document.getElementById('ck_task28');if(_tp_task28&&_tp_task28.checked)done++;
+  const _tp_task29=document.getElementById('ck_task29');if(_tp_task29&&_tp_task29.checked)done++;
+  const _tp_task30=document.getElementById('ck_task30');if(_tp_task30&&_tp_task30.checked)done++;
+  const _tp_task31=document.getElementById('ck_task31');if(_tp_task31&&_tp_task31.checked)done++;
+  const _tp_task32=document.getElementById('ck_task32');if(_tp_task32&&_tp_task32.checked)done++;
+  const _tp_task33=document.getElementById('ck_task33');if(_tp_task33&&_tp_task33.checked)done++;
+  const remain=total-done;
+  const pct=Math.round(done/total*100);
+  const doneEl=document.getElementById('taskDoneCount');
+  const remEl=document.getElementById('taskRemainCount');
+  const pctEl=document.getElementById('taskProgressPct');
+  const barEl=document.getElementById('taskProgressBar');
+  if(doneEl)doneEl.textContent=String(done);
+  if(remEl)remEl.textContent=String(remain);
+  if(pctEl)pctEl.textContent=pct+'%';
+  if(barEl)barEl.style.width=pct+'%';
+    const _tc_task01=document.getElementById('taskcard_task01');const _cb_task01=document.getElementById('ck_task01');if(_tc_task01)_tc_task01.classList.toggle('done',_cb_task01?.checked||false);
+  const _tc_task02=document.getElementById('taskcard_task02');const _cb_task02=document.getElementById('ck_task02');if(_tc_task02)_tc_task02.classList.toggle('done',_cb_task02?.checked||false);
+  const _tc_task03=document.getElementById('taskcard_task03');const _cb_task03=document.getElementById('ck_task03');if(_tc_task03)_tc_task03.classList.toggle('done',_cb_task03?.checked||false);
+  const _tc_task04=document.getElementById('taskcard_task04');const _cb_task04=document.getElementById('ck_task04');if(_tc_task04)_tc_task04.classList.toggle('done',_cb_task04?.checked||false);
+  const _tc_task04a=document.getElementById('taskcard_task04a');const _cb_task04a=document.getElementById('ck_task04a');if(_tc_task04a)_tc_task04a.classList.toggle('done',_cb_task04a?.checked||false);
+  const _tc_task05=document.getElementById('taskcard_task05');const _cb_task05=document.getElementById('ck_task05');if(_tc_task05)_tc_task05.classList.toggle('done',_cb_task05?.checked||false);
+  const _tc_task06=document.getElementById('taskcard_task06');const _cb_task06=document.getElementById('ck_task06');if(_tc_task06)_tc_task06.classList.toggle('done',_cb_task06?.checked||false);
+  const _tc_task07=document.getElementById('taskcard_task07');const _cb_task07=document.getElementById('ck_task07');if(_tc_task07)_tc_task07.classList.toggle('done',_cb_task07?.checked||false);
+  const _tc_task08=document.getElementById('taskcard_task08');const _cb_task08=document.getElementById('ck_task08');if(_tc_task08)_tc_task08.classList.toggle('done',_cb_task08?.checked||false);
+  const _tc_task09=document.getElementById('taskcard_task09');const _cb_task09=document.getElementById('ck_task09');if(_tc_task09)_tc_task09.classList.toggle('done',_cb_task09?.checked||false);
+  const _tc_task10=document.getElementById('taskcard_task10');const _cb_task10=document.getElementById('ck_task10');if(_tc_task10)_tc_task10.classList.toggle('done',_cb_task10?.checked||false);
+  const _tc_task11=document.getElementById('taskcard_task11');const _cb_task11=document.getElementById('ck_task11');if(_tc_task11)_tc_task11.classList.toggle('done',_cb_task11?.checked||false);
+  const _tc_task12=document.getElementById('taskcard_task12');const _cb_task12=document.getElementById('ck_task12');if(_tc_task12)_tc_task12.classList.toggle('done',_cb_task12?.checked||false);
+  const _tc_task13=document.getElementById('taskcard_task13');const _cb_task13=document.getElementById('ck_task13');if(_tc_task13)_tc_task13.classList.toggle('done',_cb_task13?.checked||false);
+  const _tc_task14=document.getElementById('taskcard_task14');const _cb_task14=document.getElementById('ck_task14');if(_tc_task14)_tc_task14.classList.toggle('done',_cb_task14?.checked||false);
+  const _tc_task15=document.getElementById('taskcard_task15');const _cb_task15=document.getElementById('ck_task15');if(_tc_task15)_tc_task15.classList.toggle('done',_cb_task15?.checked||false);
+  const _tc_task16=document.getElementById('taskcard_task16');const _cb_task16=document.getElementById('ck_task16');if(_tc_task16)_tc_task16.classList.toggle('done',_cb_task16?.checked||false);
+  const _tc_task17=document.getElementById('taskcard_task17');const _cb_task17=document.getElementById('ck_task17');if(_tc_task17)_tc_task17.classList.toggle('done',_cb_task17?.checked||false);
+  const _tc_task18=document.getElementById('taskcard_task18');const _cb_task18=document.getElementById('ck_task18');if(_tc_task18)_tc_task18.classList.toggle('done',_cb_task18?.checked||false);
+  const _tc_task19=document.getElementById('taskcard_task19');const _cb_task19=document.getElementById('ck_task19');if(_tc_task19)_tc_task19.classList.toggle('done',_cb_task19?.checked||false);
+  const _tc_task20=document.getElementById('taskcard_task20');const _cb_task20=document.getElementById('ck_task20');if(_tc_task20)_tc_task20.classList.toggle('done',_cb_task20?.checked||false);
+  const _tc_task21=document.getElementById('taskcard_task21');const _cb_task21=document.getElementById('ck_task21');if(_tc_task21)_tc_task21.classList.toggle('done',_cb_task21?.checked||false);
+  const _tc_task22=document.getElementById('taskcard_task22');const _cb_task22=document.getElementById('ck_task22');if(_tc_task22)_tc_task22.classList.toggle('done',_cb_task22?.checked||false);
+  const _tc_task23=document.getElementById('taskcard_task23');const _cb_task23=document.getElementById('ck_task23');if(_tc_task23)_tc_task23.classList.toggle('done',_cb_task23?.checked||false);
+  const _tc_task24=document.getElementById('taskcard_task24');const _cb_task24=document.getElementById('ck_task24');if(_tc_task24)_tc_task24.classList.toggle('done',_cb_task24?.checked||false);
+  const _tc_task25=document.getElementById('taskcard_task25');const _cb_task25=document.getElementById('ck_task25');if(_tc_task25)_tc_task25.classList.toggle('done',_cb_task25?.checked||false);
+  const _tc_task26=document.getElementById('taskcard_task26');const _cb_task26=document.getElementById('ck_task26');if(_tc_task26)_tc_task26.classList.toggle('done',_cb_task26?.checked||false);
+  const _tc_task27=document.getElementById('taskcard_task27');const _cb_task27=document.getElementById('ck_task27');if(_tc_task27)_tc_task27.classList.toggle('done',_cb_task27?.checked||false);
+  const _tc_task28=document.getElementById('taskcard_task28');const _cb_task28=document.getElementById('ck_task28');if(_tc_task28)_tc_task28.classList.toggle('done',_cb_task28?.checked||false);
+  const _tc_task29=document.getElementById('taskcard_task29');const _cb_task29=document.getElementById('ck_task29');if(_tc_task29)_tc_task29.classList.toggle('done',_cb_task29?.checked||false);
+  const _tc_task30=document.getElementById('taskcard_task30');const _cb_task30=document.getElementById('ck_task30');if(_tc_task30)_tc_task30.classList.toggle('done',_cb_task30?.checked||false);
+  const _tc_task31=document.getElementById('taskcard_task31');const _cb_task31=document.getElementById('ck_task31');if(_tc_task31)_tc_task31.classList.toggle('done',_cb_task31?.checked||false);
+  const _tc_task32=document.getElementById('taskcard_task32');const _cb_task32=document.getElementById('ck_task32');if(_tc_task32)_tc_task32.classList.toggle('done',_cb_task32?.checked||false);
+  const _tc_task33=document.getElementById('taskcard_task33');const _cb_task33=document.getElementById('ck_task33');if(_tc_task33)_tc_task33.classList.toggle('done',_cb_task33?.checked||false);
 }
-
 function resetAllTasks(){
-  const _ra_task01 = document.getElementById('cktask01'); if(_ra_task01) _ra_task01.checked = false;
-  const _ra_task02 = document.getElementById('cktask02'); if(_ra_task02) _ra_task02.checked = false;
-  const _ra_task03 = document.getElementById('cktask03'); if(_ra_task03) _ra_task03.checked = false;
-  const _ra_task04 = document.getElementById('cktask04'); if(_ra_task04) _ra_task04.checked = false;
-  const _ra_task04a= document.getElementById('cktask04a');if(_ra_task04a)_ra_task04a.checked = false;
-  const _ra_task05 = document.getElementById('cktask05'); if(_ra_task05) _ra_task05.checked = false;
-  const _ra_task06 = document.getElementById('cktask06'); if(_ra_task06) _ra_task06.checked = false;
-  const _ra_task07 = document.getElementById('cktask07'); if(_ra_task07) _ra_task07.checked = false;
-  const _ra_task08 = document.getElementById('cktask08'); if(_ra_task08) _ra_task08.checked = false;
-  const _ra_task09 = document.getElementById('cktask09'); if(_ra_task09) _ra_task09.checked = false;
-  const _ra_task10 = document.getElementById('cktask10'); if(_ra_task10) _ra_task10.checked = false;
-  const _ra_task11 = document.getElementById('cktask11'); if(_ra_task11) _ra_task11.checked = false;
-  const _ra_task12 = document.getElementById('cktask12'); if(_ra_task12) _ra_task12.checked = false;
-  const _ra_task13 = document.getElementById('cktask13'); if(_ra_task13) _ra_task13.checked = false;
-  const _ra_task14 = document.getElementById('cktask14'); if(_ra_task14) _ra_task14.checked = false;
-  const _ra_task15 = document.getElementById('cktask15'); if(_ra_task15) _ra_task15.checked = false;
-  const _ra_task16 = document.getElementById('cktask16'); if(_ra_task16) _ra_task16.checked = false;
-  const _ra_task17 = document.getElementById('cktask17'); if(_ra_task17) _ra_task17.checked = false;
-  const _ra_task18 = document.getElementById('cktask18'); if(_ra_task18) _ra_task18.checked = false;
-  const _ra_task19 = document.getElementById('cktask19'); if(_ra_task19) _ra_task19.checked = false;
-  const _ra_task20 = document.getElementById('cktask20'); if(_ra_task20) _ra_task20.checked = false;
-  const _ra_task21 = document.getElementById('cktask21'); if(_ra_task21) _ra_task21.checked = false;
-  const _ra_task22 = document.getElementById('cktask22'); if(_ra_task22) _ra_task22.checked = false;
-  const _ra_task23 = document.getElementById('cktask23'); if(_ra_task23) _ra_task23.checked = false;
-  const _ra_task24 = document.getElementById('cktask24'); if(_ra_task24) _ra_task24.checked = false;
-  const _ra_task25 = document.getElementById('cktask25'); if(_ra_task25) _ra_task25.checked = false;
-  const _ra_task26 = document.getElementById('cktask26'); if(_ra_task26) _ra_task26.checked = false;
-  const _ra_task27 = document.getElementById('cktask27'); if(_ra_task27) _ra_task27.checked = false;
-  const _ra_task28 = document.getElementById('cktask28'); if(_ra_task28) _ra_task28.checked = false;
-  const _ra_task29 = document.getElementById('cktask29'); if(_ra_task29) _ra_task29.checked = false;
-  const _ra_task30 = document.getElementById('cktask30'); if(_ra_task30) _ra_task30.checked = false;
-  const _ra_task31 = document.getElementById('cktask31'); if(_ra_task31) _ra_task31.checked = false;
-  const _ra_task32 = document.getElementById('cktask32'); if(_ra_task32) _ra_task32.checked = false;
-  const _ra_task33 = document.getElementById('cktask33'); if(_ra_task33) _ra_task33.checked = false;
-
+    const _ra_task01=document.getElementById('ck_task01');if(_ra_task01)_ra_task01.checked=false;
+  const _ra_task02=document.getElementById('ck_task02');if(_ra_task02)_ra_task02.checked=false;
+  const _ra_task03=document.getElementById('ck_task03');if(_ra_task03)_ra_task03.checked=false;
+  const _ra_task04=document.getElementById('ck_task04');if(_ra_task04)_ra_task04.checked=false;
+  const _ra_task04a=document.getElementById('ck_task04a');if(_ra_task04a)_ra_task04a.checked=false;
+  const _ra_task05=document.getElementById('ck_task05');if(_ra_task05)_ra_task05.checked=false;
+  const _ra_task06=document.getElementById('ck_task06');if(_ra_task06)_ra_task06.checked=false;
+  const _ra_task07=document.getElementById('ck_task07');if(_ra_task07)_ra_task07.checked=false;
+  const _ra_task08=document.getElementById('ck_task08');if(_ra_task08)_ra_task08.checked=false;
+  const _ra_task09=document.getElementById('ck_task09');if(_ra_task09)_ra_task09.checked=false;
+  const _ra_task10=document.getElementById('ck_task10');if(_ra_task10)_ra_task10.checked=false;
+  const _ra_task11=document.getElementById('ck_task11');if(_ra_task11)_ra_task11.checked=false;
+  const _ra_task12=document.getElementById('ck_task12');if(_ra_task12)_ra_task12.checked=false;
+  const _ra_task13=document.getElementById('ck_task13');if(_ra_task13)_ra_task13.checked=false;
+  const _ra_task14=document.getElementById('ck_task14');if(_ra_task14)_ra_task14.checked=false;
+  const _ra_task15=document.getElementById('ck_task15');if(_ra_task15)_ra_task15.checked=false;
+  const _ra_task16=document.getElementById('ck_task16');if(_ra_task16)_ra_task16.checked=false;
+  const _ra_task17=document.getElementById('ck_task17');if(_ra_task17)_ra_task17.checked=false;
+  const _ra_task18=document.getElementById('ck_task18');if(_ra_task18)_ra_task18.checked=false;
+  const _ra_task19=document.getElementById('ck_task19');if(_ra_task19)_ra_task19.checked=false;
+  const _ra_task20=document.getElementById('ck_task20');if(_ra_task20)_ra_task20.checked=false;
+  const _ra_task21=document.getElementById('ck_task21');if(_ra_task21)_ra_task21.checked=false;
+  const _ra_task22=document.getElementById('ck_task22');if(_ra_task22)_ra_task22.checked=false;
+  const _ra_task23=document.getElementById('ck_task23');if(_ra_task23)_ra_task23.checked=false;
+  const _ra_task24=document.getElementById('ck_task24');if(_ra_task24)_ra_task24.checked=false;
+  const _ra_task25=document.getElementById('ck_task25');if(_ra_task25)_ra_task25.checked=false;
+  const _ra_task26=document.getElementById('ck_task26');if(_ra_task26)_ra_task26.checked=false;
+  const _ra_task27=document.getElementById('ck_task27');if(_ra_task27)_ra_task27.checked=false;
+  const _ra_task28=document.getElementById('ck_task28');if(_ra_task28)_ra_task28.checked=false;
+  const _ra_task29=document.getElementById('ck_task29');if(_ra_task29)_ra_task29.checked=false;
+  const _ra_task30=document.getElementById('ck_task30');if(_ra_task30)_ra_task30.checked=false;
+  const _ra_task31=document.getElementById('ck_task31');if(_ra_task31)_ra_task31.checked=false;
+  const _ra_task32=document.getElementById('ck_task32');if(_ra_task32)_ra_task32.checked=false;
+  const _ra_task33=document.getElementById('ck_task33');if(_ra_task33)_ra_task33.checked=false;
   updateTaskProgress();
 }
 // 初期化時にも進捗を反映
@@ -3011,25 +3004,78 @@ function getRowByNo(no){return dataRows.find(r=>String(r[fullKeys.no]||'').trim(
 
 function ensureAdditionalHeaders(headers){
   const extraHeaders = [
-    fullKeys.lectureStart, fullKeys.qaDeadline, fullKeys.qaTime, fullKeys.preMeeting,
-    fullKeys.deadline3, fullKeys.cost, fullKeys.dataDeadline, fullKeys.date2,
-    fullKeys.subject2, fullKeys.name, fullKeys.cohost3, fullKeys.head1, fullKeys.closing1,
-    fullKeys.checkK1, fullKeys.checkHp, fullKeys.checkK2, fullKeys.checkK3,
-    fullKeys.task01, fullKeys.task02, fullKeys.task03, fullKeys.task04, fullKeys.task04a,
-    fullKeys.task05, fullKeys.task06, fullKeys.task07, fullKeys.task08, fullKeys.task09,
-    fullKeys.task10, fullKeys.task11, fullKeys.task12, fullKeys.task13, fullKeys.task14,
-    fullKeys.task15, fullKeys.task16, fullKeys.task17, fullKeys.task18, fullKeys.task19,
-    fullKeys.task20, fullKeys.task21, fullKeys.task22, fullKeys.task23, fullKeys.task24,
-    fullKeys.task25, fullKeys.task26, fullKeys.task27, fullKeys.task28, fullKeys.task29,
-    fullKeys.task30, fullKeys.task31, fullKeys.task32, fullKeys.task33,
-
-    'STATUS_K1', 'STATUS_HP', 'STATUS_K2', 'STATUS_K3',
-    'DONEAT_K1', 'DONEAT_HP', 'DONEAT_K2', 'DONEAT_K3',
-    'UPDATEDAT_K1', 'UPDATEDAT_HP', 'UPDATEDAT_K2', 'UPDATEDAT_K3',
-    'HISTORY_K1', 'HISTORY_HP', 'HISTORY_K2', 'HISTORY_K3'
+    fullKeys.lectureStart,
+    fullKeys.qaDeadline,
+    fullKeys.qaTime,
+    fullKeys.preMeeting,
+    fullKeys.deadline3,
+    fullKeys.cost,
+    fullKeys.dataDeadline,
+    fullKeys.date2,
+    fullKeys.subject2,
+    fullKeys.name,
+    fullKeys.cohost3,
+    fullKeys.head1,
+    fullKeys.closing1,
+    fullKeys.checkK1,
+    fullKeys.checkHp,
+    fullKeys.checkK2,
+    fullKeys.checkK3,
+    fullKeys.task01,
+    fullKeys.task02,
+    fullKeys.task03,
+    fullKeys.task04,
+    fullKeys.task04a,
+    fullKeys.task05,
+    fullKeys.task06,
+    fullKeys.task07,
+    fullKeys.task08,
+    fullKeys.task09,
+    fullKeys.task10,
+    fullKeys.task11,
+    fullKeys.task12,
+    fullKeys.task13,
+    fullKeys.task14,
+    fullKeys.task15,
+    fullKeys.task16,
+    fullKeys.task17,
+    fullKeys.task18,
+    fullKeys.task19,
+    fullKeys.task20,
+    fullKeys.task21,
+    fullKeys.task22,
+    fullKeys.task23,
+    fullKeys.task24,
+    fullKeys.task25,
+    fullKeys.task26,
+    fullKeys.task27,
+    fullKeys.task28,
+    fullKeys.task29,
+    fullKeys.task30,
+    fullKeys.task31,
+    fullKeys.task32,
+    fullKeys.task33,
+    'STATUS_K1',
+    'STATUS_HP',
+    'STATUS_K2',
+    'STATUS_K3',
+    'DONEAT_K1',
+    'DONEAT_HP',
+    'DONEAT_K2',
+    'DONEAT_K3',
+    'UPDATEDAT_K1',
+    'UPDATEDAT_HP',
+    'UPDATEDAT_K2',
+    'UPDATEDAT_K3',
+    'HISTORY_K1',
+    'HISTORY_HP',
+    'HISTORY_K2',
+    'HISTORY_K3'
   ];
 
-  const set = new Set(headers.map(h => String(h).trim()).filter(Boolean));
+  const set = new Set(
+    headers.map(h => String(h).trim()).filter(Boolean)
+  );
   extraHeaders.forEach(h => set.add(h));
   return Array.from(set);
 }
@@ -3470,42 +3516,40 @@ function applyScheduleChecksFromRow(row){
   els.ckHp.checked = isCheckedValue(row?.[fullKeys.checkHp]) || String(row?.['STATUS_HP'] || '').trim().toUpperCase() === 'DONE';
   els.ckK2.checked = isCheckedValue(row?.[fullKeys.checkK2]) || String(row?.['STATUS_K2'] || '').trim().toUpperCase() === 'DONE';
   els.ckK3.checked = isCheckedValue(row?.[fullKeys.checkK3]) || String(row?.['STATUS_K3'] || '').trim().toUpperCase() === 'DONE';
-
-  const eltask01=document.getElementById('cktask01'); if(eltask01) eltask01.checked=isCheckedValue(row?.[fullKeys.task01]);
-  const eltask02=document.getElementById('cktask02'); if(eltask02) eltask02.checked=isCheckedValue(row?.[fullKeys.task02]);
-  const eltask03=document.getElementById('cktask03'); if(eltask03) eltask03.checked=isCheckedValue(row?.[fullKeys.task03]);
-  const eltask04=document.getElementById('cktask04'); if(eltask04) eltask04.checked=isCheckedValue(row?.[fullKeys.task04]);
-  const eltask04a=document.getElementById('cktask04a'); if(eltask04a) eltask04a.checked=isCheckedValue(row?.[fullKeys.task04a]);
-  const eltask05=document.getElementById('cktask05'); if(eltask05) eltask05.checked=isCheckedValue(row?.[fullKeys.task05]);
-  const eltask06=document.getElementById('cktask06'); if(eltask06) eltask06.checked=isCheckedValue(row?.[fullKeys.task06]);
-  const eltask07=document.getElementById('cktask07'); if(eltask07) eltask07.checked=isCheckedValue(row?.[fullKeys.task07]);
-  const eltask08=document.getElementById('cktask08'); if(eltask08) eltask08.checked=isCheckedValue(row?.[fullKeys.task08]);
-  const eltask09=document.getElementById('cktask09'); if(eltask09) eltask09.checked=isCheckedValue(row?.[fullKeys.task09]);
-  const eltask10=document.getElementById('cktask10'); if(eltask10) eltask10.checked=isCheckedValue(row?.[fullKeys.task10]);
-  const eltask11=document.getElementById('cktask11'); if(eltask11) eltask11.checked=isCheckedValue(row?.[fullKeys.task11]);
-  const eltask12=document.getElementById('cktask12'); if(eltask12) eltask12.checked=isCheckedValue(row?.[fullKeys.task12]);
-  const eltask13=document.getElementById('cktask13'); if(eltask13) eltask13.checked=isCheckedValue(row?.[fullKeys.task13]);
-  const eltask14=document.getElementById('cktask14'); if(eltask14) eltask14.checked=isCheckedValue(row?.[fullKeys.task14]);
-  const eltask15=document.getElementById('cktask15'); if(eltask15) eltask15.checked=isCheckedValue(row?.[fullKeys.task15]);
-  const eltask16=document.getElementById('cktask16'); if(eltask16) eltask16.checked=isCheckedValue(row?.[fullKeys.task16]);
-  const eltask17=document.getElementById('cktask17'); if(eltask17) eltask17.checked=isCheckedValue(row?.[fullKeys.task17]);
-  const eltask18=document.getElementById('cktask18'); if(eltask18) eltask18.checked=isCheckedValue(row?.[fullKeys.task18]);
-  const eltask19=document.getElementById('cktask19'); if(eltask19) eltask19.checked=isCheckedValue(row?.[fullKeys.task19]);
-  const eltask20=document.getElementById('cktask20'); if(eltask20) eltask20.checked=isCheckedValue(row?.[fullKeys.task20]);
-  const eltask21=document.getElementById('cktask21'); if(eltask21) eltask21.checked=isCheckedValue(row?.[fullKeys.task21]);
-  const eltask22=document.getElementById('cktask22'); if(eltask22) eltask22.checked=isCheckedValue(row?.[fullKeys.task22]);
-  const eltask23=document.getElementById('cktask23'); if(eltask23) eltask23.checked=isCheckedValue(row?.[fullKeys.task23]);
-  const eltask24=document.getElementById('cktask24'); if(eltask24) eltask24.checked=isCheckedValue(row?.[fullKeys.task24]);
-  const eltask25=document.getElementById('cktask25'); if(eltask25) eltask25.checked=isCheckedValue(row?.[fullKeys.task25]);
-  const eltask26=document.getElementById('cktask26'); if(eltask26) eltask26.checked=isCheckedValue(row?.[fullKeys.task26]);
-  const eltask27=document.getElementById('cktask27'); if(eltask27) eltask27.checked=isCheckedValue(row?.[fullKeys.task27]);
-  const eltask28=document.getElementById('cktask28'); if(eltask28) eltask28.checked=isCheckedValue(row?.[fullKeys.task28]);
-  const eltask29=document.getElementById('cktask29'); if(eltask29) eltask29.checked=isCheckedValue(row?.[fullKeys.task29]);
-  const eltask30=document.getElementById('cktask30'); if(eltask30) eltask30.checked=isCheckedValue(row?.[fullKeys.task30]);
-  const eltask31=document.getElementById('cktask31'); if(eltask31) eltask31.checked=isCheckedValue(row?.[fullKeys.task31]);
-  const eltask32=document.getElementById('cktask32'); if(eltask32) eltask32.checked=isCheckedValue(row?.[fullKeys.task32]);
-  const eltask33=document.getElementById('cktask33'); if(eltask33) eltask33.checked=isCheckedValue(row?.[fullKeys.task33]);
-
+  const _el_task01=document.getElementById('ck_task01');if(_el_task01)_el_task01.checked=isCheckedValue(row?.[fullKeys.task01]);
+  const _el_task02=document.getElementById('ck_task02');if(_el_task02)_el_task02.checked=isCheckedValue(row?.[fullKeys.task02]);
+  const _el_task03=document.getElementById('ck_task03');if(_el_task03)_el_task03.checked=isCheckedValue(row?.[fullKeys.task03]);
+  const _el_task04=document.getElementById('ck_task04');if(_el_task04)_el_task04.checked=isCheckedValue(row?.[fullKeys.task04]);
+  const _el_task04a=document.getElementById('ck_task04a');if(_el_task04a)_el_task04a.checked=isCheckedValue(row?.[fullKeys.task04a]);
+  const _el_task05=document.getElementById('ck_task05');if(_el_task05)_el_task05.checked=isCheckedValue(row?.[fullKeys.task05]);
+  const _el_task06=document.getElementById('ck_task06');if(_el_task06)_el_task06.checked=isCheckedValue(row?.[fullKeys.task06]);
+  const _el_task07=document.getElementById('ck_task07');if(_el_task07)_el_task07.checked=isCheckedValue(row?.[fullKeys.task07]);
+  const _el_task08=document.getElementById('ck_task08');if(_el_task08)_el_task08.checked=isCheckedValue(row?.[fullKeys.task08]);
+  const _el_task09=document.getElementById('ck_task09');if(_el_task09)_el_task09.checked=isCheckedValue(row?.[fullKeys.task09]);
+  const _el_task10=document.getElementById('ck_task10');if(_el_task10)_el_task10.checked=isCheckedValue(row?.[fullKeys.task10]);
+  const _el_task11=document.getElementById('ck_task11');if(_el_task11)_el_task11.checked=isCheckedValue(row?.[fullKeys.task11]);
+  const _el_task12=document.getElementById('ck_task12');if(_el_task12)_el_task12.checked=isCheckedValue(row?.[fullKeys.task12]);
+  const _el_task13=document.getElementById('ck_task13');if(_el_task13)_el_task13.checked=isCheckedValue(row?.[fullKeys.task13]);
+  const _el_task14=document.getElementById('ck_task14');if(_el_task14)_el_task14.checked=isCheckedValue(row?.[fullKeys.task14]);
+  const _el_task15=document.getElementById('ck_task15');if(_el_task15)_el_task15.checked=isCheckedValue(row?.[fullKeys.task15]);
+  const _el_task16=document.getElementById('ck_task16');if(_el_task16)_el_task16.checked=isCheckedValue(row?.[fullKeys.task16]);
+  const _el_task17=document.getElementById('ck_task17');if(_el_task17)_el_task17.checked=isCheckedValue(row?.[fullKeys.task17]);
+  const _el_task18=document.getElementById('ck_task18');if(_el_task18)_el_task18.checked=isCheckedValue(row?.[fullKeys.task18]);
+  const _el_task19=document.getElementById('ck_task19');if(_el_task19)_el_task19.checked=isCheckedValue(row?.[fullKeys.task19]);
+  const _el_task20=document.getElementById('ck_task20');if(_el_task20)_el_task20.checked=isCheckedValue(row?.[fullKeys.task20]);
+  const _el_task21=document.getElementById('ck_task21');if(_el_task21)_el_task21.checked=isCheckedValue(row?.[fullKeys.task21]);
+  const _el_task22=document.getElementById('ck_task22');if(_el_task22)_el_task22.checked=isCheckedValue(row?.[fullKeys.task22]);
+  const _el_task23=document.getElementById('ck_task23');if(_el_task23)_el_task23.checked=isCheckedValue(row?.[fullKeys.task23]);
+  const _el_task24=document.getElementById('ck_task24');if(_el_task24)_el_task24.checked=isCheckedValue(row?.[fullKeys.task24]);
+  const _el_task25=document.getElementById('ck_task25');if(_el_task25)_el_task25.checked=isCheckedValue(row?.[fullKeys.task25]);
+  const _el_task26=document.getElementById('ck_task26');if(_el_task26)_el_task26.checked=isCheckedValue(row?.[fullKeys.task26]);
+  const _el_task27=document.getElementById('ck_task27');if(_el_task27)_el_task27.checked=isCheckedValue(row?.[fullKeys.task27]);
+  const _el_task28=document.getElementById('ck_task28');if(_el_task28)_el_task28.checked=isCheckedValue(row?.[fullKeys.task28]);
+  const _el_task29=document.getElementById('ck_task29');if(_el_task29)_el_task29.checked=isCheckedValue(row?.[fullKeys.task29]);
+  const _el_task30=document.getElementById('ck_task30');if(_el_task30)_el_task30.checked=isCheckedValue(row?.[fullKeys.task30]);
+  const _el_task31=document.getElementById('ck_task31');if(_el_task31)_el_task31.checked=isCheckedValue(row?.[fullKeys.task31]);
+  const _el_task32=document.getElementById('ck_task32');if(_el_task32)_el_task32.checked=isCheckedValue(row?.[fullKeys.task32]);
+  const _el_task33=document.getElementById('ck_task33');if(_el_task33)_el_task33.checked=isCheckedValue(row?.[fullKeys.task33]);
   updateTaskProgress();
 }
 function isCheckedValue(v){
@@ -3514,52 +3558,6 @@ function isCheckedValue(v){
 }
 function boolToCsv(v){return v?'1':'0'}
 
-  function taskCheckDone(taskKey, checked){
-  if(!selectedRow || !selectedRow[fullKeys.no]) {
-    updateTaskProgress();
-    return;
-  }
-
-  const no = String(selectedRow[fullKeys.no]).trim();
-  const csvKeyName = taskKey;
-
-  const flagKey = fullKeys[csvKeyName];
-  if(!flagKey) {
-    console.warn('[TASK CHECK] flagKey not found for', csvKeyName);
-    updateTaskProgress();
-    return;
-  }
-
-  ensureHeader(flagKey);
-
-  const row = rawRows.find(r =>
-    String(r[fullKeys.no] || '').trim() === no
-  );
-  if(!row) {
-    console.warn('[TASK CHECK] row not found for no=', no);
-    updateTaskProgress();
-    return;
-  }
-
-  row[flagKey] = boolToCsv(checked);
-
-  const drow = dataRows.find(r =>
-    String(r[fullKeys.no] || '').trim() === no
-  );
-  if(drow){
-    drow[flagKey] = row[flagKey];
-  }
-
-  updateTaskProgress();
-  renderTodayCommand();
-  renderExceptionQueue();
-  renderAlerts();
-  renderTable();
-  renderStats();
-  showCsvSavedToast();
-}
-window.taskCheckDone = taskCheckDone;
-  
 function prefillFromLast(){
   const last=dataRows[dataRows.length-1];
   if(!last)return;
@@ -3739,15 +3737,7 @@ function buildRow(){
   const auto=calcAutoDates(base);
   const row={};
   currentHeaders.forEach(h=>row[h]='');
-
-  const existingNo=String(fields.no.value||'').trim();
-  const existingRawIndex=getRawRowIndexByNo(existingNo);
-  const existingRawRow=existingRawIndex>=0?rawRows[existingRawIndex]:null;
-  if(existingRawRow){
-    currentHeaders.forEach(h=>row[h]=existingRawRow[h]??'');
-  }
-
-  row[fullKeys.no]=existingNo;
+  row[fullKeys.no]=String(fields.no.value||'').trim();
   row[fullKeys.year]=fields.year.value;
   row[fullKeys.date]=formatDate1Short(fields.date.value);
   row[fullKeys.day]=fields.day.value;
@@ -3787,53 +3777,49 @@ function buildRow(){
   row[fullKeys.intro2]=fields.intro2.value;
   row[fullKeys.intro3]=fields.intro3.value;
   row[fullKeys.dataDeadline]=fields.dataDeadline.value;
-
-  row[fullKeys.checkK1] = boolToCsv(els.ckK1.checked);
-row[fullKeys.checkHp] = boolToCsv(els.ckHp.checked);
-row[fullKeys.checkK2] = boolToCsv(els.ckK2.checked);
-row[fullKeys.checkK3] = boolToCsv(els.ckK3.checked);
-
-row['STATUS_K1'] = els.ckK1.checked ? 'DONE' : '';
-row['STATUS_HP'] = els.ckHp.checked ? 'DONE' : '';
-row['STATUS_K2'] = els.ckK2.checked ? 'DONE' : '';
-row['STATUS_K3'] = els.ckK3.checked ? 'DONE' : '';
-
-row[fullKeys.task01] = boolToCsv(document.getElementById('cktask01')?.checked || false);
-row[fullKeys.task02] = boolToCsv(document.getElementById('cktask02')?.checked || false);
-row[fullKeys.task03] = boolToCsv(document.getElementById('cktask03')?.checked || false);
-row[fullKeys.task04] = boolToCsv(document.getElementById('cktask04')?.checked || false);
-row[fullKeys.task04a] = boolToCsv(document.getElementById('cktask04a')?.checked || false);
-row[fullKeys.task05] = boolToCsv(document.getElementById('cktask05')?.checked || false);
-row[fullKeys.task06] = boolToCsv(document.getElementById('cktask06')?.checked || false);
-row[fullKeys.task07] = boolToCsv(document.getElementById('cktask07')?.checked || false);
-row[fullKeys.task08] = boolToCsv(document.getElementById('cktask08')?.checked || false);
-row[fullKeys.task09] = boolToCsv(document.getElementById('cktask09')?.checked || false);
-row[fullKeys.task10] = boolToCsv(document.getElementById('cktask10')?.checked || false);
-row[fullKeys.task11] = boolToCsv(document.getElementById('cktask11')?.checked || false);
-row[fullKeys.task12] = boolToCsv(document.getElementById('cktask12')?.checked || false);
-row[fullKeys.task13] = boolToCsv(document.getElementById('cktask13')?.checked || false);
-row[fullKeys.task14] = boolToCsv(document.getElementById('cktask14')?.checked || false);
-row[fullKeys.task15] = boolToCsv(document.getElementById('cktask15')?.checked || false);
-row[fullKeys.task16] = boolToCsv(document.getElementById('cktask16')?.checked || false);
-row[fullKeys.task17] = boolToCsv(document.getElementById('cktask17')?.checked || false);
-row[fullKeys.task18] = boolToCsv(document.getElementById('cktask18')?.checked || false);
-row[fullKeys.task19] = boolToCsv(document.getElementById('cktask19')?.checked || false);
-row[fullKeys.task20] = boolToCsv(document.getElementById('cktask20')?.checked || false);
-row[fullKeys.task21] = boolToCsv(document.getElementById('cktask21')?.checked || false);
-row[fullKeys.task22] = boolToCsv(document.getElementById('cktask22')?.checked || false);
-row[fullKeys.task23] = boolToCsv(document.getElementById('cktask23')?.checked || false);
-row[fullKeys.task24] = boolToCsv(document.getElementById('cktask24')?.checked || false);
-row[fullKeys.task25] = boolToCsv(document.getElementById('cktask25')?.checked || false);
-row[fullKeys.task26] = boolToCsv(document.getElementById('cktask26')?.checked || false);
-row[fullKeys.task27] = boolToCsv(document.getElementById('cktask27')?.checked || false);
-row[fullKeys.task28] = boolToCsv(document.getElementById('cktask28')?.checked || false);
-row[fullKeys.task29] = boolToCsv(document.getElementById('cktask29')?.checked || false);
-row[fullKeys.task30] = boolToCsv(document.getElementById('cktask30')?.checked || false);
-row[fullKeys.task31] = boolToCsv(document.getElementById('cktask31')?.checked || false);
-row[fullKeys.task32] = boolToCsv(document.getElementById('cktask32')?.checked || false);
-row[fullKeys.task33] = boolToCsv(document.getElementById('cktask33')?.checked || false);
-
-return row;
+  row[fullKeys.checkK1]=boolToCsv(els.ckK1.checked);
+  row[fullKeys.checkHp]=boolToCsv(els.ckHp.checked);
+  row[fullKeys.checkK2]=boolToCsv(els.ckK2.checked);
+  row[fullKeys.checkK3]=boolToCsv(els.ckK3.checked);
+  row['STATUS_K1'] = els.ckK1.checked ? 'DONE' : '';
+  row['STATUS_HP'] = els.ckHp.checked ? 'DONE' : '';
+  row['STATUS_K2'] = els.ckK2.checked ? 'DONE' : '';
+  row['STATUS_K3'] = els.ckK3.checked ? 'DONE' : '';
+  row[fullKeys.task01]=boolToCsv(document.getElementById('ck_task01')?.checked||false);
+  row[fullKeys.task02]=boolToCsv(document.getElementById('ck_task02')?.checked||false);
+  row[fullKeys.task03]=boolToCsv(document.getElementById('ck_task03')?.checked||false);
+  row[fullKeys.task04]=boolToCsv(document.getElementById('ck_task04')?.checked||false);
+  row[fullKeys.task04a]=boolToCsv(document.getElementById('ck_task04a')?.checked||false);
+  row[fullKeys.task05]=boolToCsv(document.getElementById('ck_task05')?.checked||false);
+  row[fullKeys.task06]=boolToCsv(document.getElementById('ck_task06')?.checked||false);
+  row[fullKeys.task07]=boolToCsv(document.getElementById('ck_task07')?.checked||false);
+  row[fullKeys.task08]=boolToCsv(document.getElementById('ck_task08')?.checked||false);
+  row[fullKeys.task09]=boolToCsv(document.getElementById('ck_task09')?.checked||false);
+  row[fullKeys.task10]=boolToCsv(document.getElementById('ck_task10')?.checked||false);
+  row[fullKeys.task11]=boolToCsv(document.getElementById('ck_task11')?.checked||false);
+  row[fullKeys.task12]=boolToCsv(document.getElementById('ck_task12')?.checked||false);
+  row[fullKeys.task13]=boolToCsv(document.getElementById('ck_task13')?.checked||false);
+  row[fullKeys.task14]=boolToCsv(document.getElementById('ck_task14')?.checked||false);
+  row[fullKeys.task15]=boolToCsv(document.getElementById('ck_task15')?.checked||false);
+  row[fullKeys.task16]=boolToCsv(document.getElementById('ck_task16')?.checked||false);
+  row[fullKeys.task17]=boolToCsv(document.getElementById('ck_task17')?.checked||false);
+  row[fullKeys.task18]=boolToCsv(document.getElementById('ck_task18')?.checked||false);
+  row[fullKeys.task19]=boolToCsv(document.getElementById('ck_task19')?.checked||false);
+  row[fullKeys.task20]=boolToCsv(document.getElementById('ck_task20')?.checked||false);
+  row[fullKeys.task21]=boolToCsv(document.getElementById('ck_task21')?.checked||false);
+  row[fullKeys.task22]=boolToCsv(document.getElementById('ck_task22')?.checked||false);
+  row[fullKeys.task23]=boolToCsv(document.getElementById('ck_task23')?.checked||false);
+  row[fullKeys.task24]=boolToCsv(document.getElementById('ck_task24')?.checked||false);
+  row[fullKeys.task25]=boolToCsv(document.getElementById('ck_task25')?.checked||false);
+  row[fullKeys.task26]=boolToCsv(document.getElementById('ck_task26')?.checked||false);
+  row[fullKeys.task27]=boolToCsv(document.getElementById('ck_task27')?.checked||false);
+  row[fullKeys.task28]=boolToCsv(document.getElementById('ck_task28')?.checked||false);
+  row[fullKeys.task29]=boolToCsv(document.getElementById('ck_task29')?.checked||false);
+  row[fullKeys.task30]=boolToCsv(document.getElementById('ck_task30')?.checked||false);
+  row[fullKeys.task31]=boolToCsv(document.getElementById('ck_task31')?.checked||false);
+  row[fullKeys.task32]=boolToCsv(document.getElementById('ck_task32')?.checked||false);
+  row[fullKeys.task33]=boolToCsv(document.getElementById('ck_task33')?.checked||false);
+  return row;
 }
 
 function commitDraft(){
@@ -4128,45 +4114,27 @@ function renderResult(done=false){
 }
 
 function downloadCsv(){
-  if(!currentHeaders.length){
-    setStatus('CSVがありません');
-    return;
-  }
-
-  const currentNo = String(fields.no?.value || els.recordSelect?.value || '').trim();
-
-  if(currentNo){
-    const latestRow = buildRow();
-    const rawIndex = getRawRowIndexByNo(currentNo);
-    if(rawIndex >= 0){
-      rawRows[rawIndex] = normalizeRowShape(latestRow);
-    }
-    rawRows = compactRawRows(rawRows);
-  }
-
+  if(!currentHeaders.length){setStatus('ダウンロード対象のマスターがありません。');return}
+  // rawRowsはチェック時点で即時書き込み済み→そのまま CSV 出力
+  rawRows=compactRawRows(rawRows);
+  // 開催日_DATE_1（"6月2日" 形式）を parseShortJapaneseDate で Date に変換して昇順ソート
   const sorted = [...rawRows].sort((a, b) => {
     const yearA = String(a[fullKeys.year] ?? '');
     const yearB = String(b[fullKeys.year] ?? '');
     const da = parseShortJapaneseDate(a[fullKeys.date], yearA);
     const db = parseShortJapaneseDate(b[fullKeys.date], yearB);
+    // 日付が解釈できない行は最後尾に
     if(!da && !db) return 0;
     if(!da) return 1;
     if(!db) return -1;
     return da.getTime() - db.getTime();
   });
-
-  const csv = Papa.unparse({
-  fields: currentHeaders,
-  data: sorted.map(row => currentHeaders.map(h => row[h] ?? ''))
-});
-
-// UTF-8 BOM を先頭に付ける
-const bom = '\uFEFF';
-const blob = new Blob([bom + csv], { type:'text/csv;charset=utf-8;' });
-  const a = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  a.href = url;
-  a.download = `${fields.date.value || 'clinical-master'}_${safeName(fields.title.value || 'updated')}.csv`;
+  const csv=Papa.unparse({fields:currentHeaders,data:sorted.map(row=>currentHeaders.map(h=>row[h]??''))});
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  const url=URL.createObjectURL(blob);
+  a.href=url;
+  a.download=`${fields.date.value||'clinical-master'}_${safeName(fields.title.value||'updated')}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -4854,13 +4822,13 @@ function tcCheckDone(cardId, checked){
 function writeCheckToRaw(no, csvKeyName, checked){
   if(!no || !csvKeyName){
     console.warn('[CHECK] no or csvKeyName empty', no, csvKeyName);
-    return false;
+    return;
   }
 
   const flagKey = fullKeys[csvKeyName];
   if(!flagKey){
     console.warn('[CHECK] flagKey not found for', csvKeyName);
-    return false;
+    return;
   }
 
   const phaseMap = {
@@ -4874,10 +4842,10 @@ function writeCheckToRaw(no, csvKeyName, checked){
 
   ensureHeader(flagKey);
   if(phase){
-    ensureHeader(`STATUS_${phase}`);
-    ensureHeader(`DONEAT_${phase}`);
-    ensureHeader(`UPDATEDAT_${phase}`);
-    ensureHeader(`HISTORY_${phase}`);
+    ensureHeader(`STATUS${phase}`);
+    ensureHeader(`DONEAT${phase}`);
+    ensureHeader(`UPDATEDAT${phase}`);
+    ensureHeader(`HISTORY${phase}`);
   }
 
   const row = rawRows.find(r =>
@@ -4885,7 +4853,7 @@ function writeCheckToRaw(no, csvKeyName, checked){
   );
   if(!row){
     console.warn('[CHECK] row not found for no=', no, 'rawRows=', rawRows.map(r => r[fullKeys.no]));
-    return false;
+    return;
   }
 
   const now = new Date();
@@ -4898,40 +4866,25 @@ function writeCheckToRaw(no, csvKeyName, checked){
   row[flagKey] = boolToCsv(checked);
 
   if(phase){
-    row[`STATUS_${phase}`] = checked ? 'DONE' : 'PENDING';
-    row[`UPDATEDAT_${phase}`] = timestamp;
+    row[`STATUS${phase}`] = checked ? 'DONE' : 'PENDING';
+    row[`UPDATEDAT${phase}`] = timestamp;
 
     if(checked){
-      row[`DONEAT_${phase}`] = timestamp;
-      const prev = String(row[`HISTORY_${phase}`] || '').trim();
-      row[`HISTORY_${phase}`] = prev
+      row[`DONEAT${phase}`] = timestamp;
+      const prev = String(row[`HISTORY${phase}`] || '').trim();
+      row[`HISTORY${phase}`] = prev
         ? `${prev} | DONE:${timestamp}`
         : `DONE:${timestamp}`;
     }else{
-      const prev = String(row[`HISTORY_${phase}`] || '').trim();
-      row[`HISTORY_${phase}`] = prev
+      const prev = String(row[`HISTORY${phase}`] || '').trim();
+      row[`HISTORY${phase}`] = prev
         ? `${prev} | UNCHECK:${timestamp}`
         : `UNCHECK:${timestamp}`;
     }
   }
 
-  const drow = dataRows.find(r =>
-    String(r[fullKeys.no] || '').trim() === String(no).trim()
-  );
-  if(drow){
-    drow[flagKey] = row[flagKey];
-    if(phase){
-      drow[`STATUS_${phase}`] = row[`STATUS_${phase}`];
-      drow[`DONEAT_${phase}`] = row[`DONEAT_${phase}`] || '';
-      drow[`UPDATEDAT_${phase}`] = row[`UPDATEDAT_${phase}`] || '';
-      drow[`HISTORY_${phase}`] = row[`HISTORY_${phase}`] || '';
-    }
-  }
-
   console.log('[CHECK] written: No=' + no + ' ' + flagKey + ' ' + before + '→' + row[flagKey]);
-  return true;
 }
-
 function showCsvSavedToast(){
   let t=document.getElementById('csvUpdateToast');
   if(!t){
@@ -4968,9 +4921,6 @@ function alertCheckDone(aid, checked){
   const item=document.getElementById(aid);
   if(!item) return;
 
-  const cb=item.querySelector('.alert-check');
-  if(cb) cb.checked=!!checked;
-
   if(checked){
     item.classList.add('done');
     item.title='クリックで展開/折りたたみ';
@@ -4996,8 +4946,7 @@ function alertCheckDone(aid, checked){
   const csvKeyName=item.dataset.csvkey || 'checkK1';
 
   if(no && csvKeyName){
-    const ok = writeCheckToRaw(no, csvKeyName, checked);
-    if(!ok) return;
+    writeCheckToRaw(no, csvKeyName, checked);
     dataRows = buildDisplayRowsFromRaw(rawRows);
     renderTodayCommand();
     renderExceptionQueue();

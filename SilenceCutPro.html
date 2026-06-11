@@ -106,18 +106,11 @@ body{
 }
 
 body::before {
-  content:'';
-  position:fixed;
-  inset:0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 3px,
-    rgba(0,255,65,.002) 3px,
-    rgba(0,255,65,.002) 6px
-  );
-  pointer-events:none;
-  z-index: 0;
+  content: none;
+}
+
+body::after {
+  content: none;
 }
 
 .app {
@@ -192,13 +185,13 @@ h1{
 }
 
 .card{
-  background:rgba(0,8,0,.85);
+  background:rgba(0,8,0,.55);
   border:1px solid var(--color-border);
   padding:var(--space-6);
   box-shadow:0 0 12px rgba(0,255,65,.10), inset 0 0 30px rgba(0,255,65,.015);
   margin-bottom:var(--space-5);
   position:relative;
-  backdrop-filter:blur(2px);
+  backdrop-filter:blur(1px);
 }
 .card::before,.card::after{
   content:'';
@@ -1173,37 +1166,35 @@ processBtn.addEventListener('click',async()=>{
     drops = Array.from({ length: columns }, () => Math.floor(Math.random() * -40));
   }
 
-  function draw() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.035)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+ function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.font = `bold ${fontSize}px "Share Tech Mono", monospace`;
+  ctx.textBaseline = 'top';
 
-    ctx.font = `bold ${fontSize}px "Share Tech Mono", monospace`;
-    ctx.textBaseline = 'top';
+  for(let i=0;i<drops.length;i++){
+    const text = chars[Math.floor(Math.random()*chars.length)];
+    const x = i * fontSize;
+    const y = drops[i] * fontSize;
 
-    for (let i = 0; i < drops.length; i++) {
-      const text = chars[Math.floor(Math.random() * chars.length)];
-      const x = i * fontSize;
-      const y = drops[i] * fontSize;
+    ctx.shadowColor = 'rgba(0,255,90,0.55)';
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = 'rgba(0,255,90,0.55)';
+    ctx.fillText(text, x, y);
 
-      ctx.shadowColor = 'rgba(0,255,65,0.35)';
-      ctx.shadowBlur = 6;
-      ctx.fillStyle = 'rgba(0, 255, 90, 0.32)';
-      ctx.fillText(text, x, y);
+    ctx.shadowColor = 'rgba(220,255,235,0.95)';
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = 'rgba(220,255,235,0.95)';
+    ctx.fillText(text, x, y - 1);
 
-      ctx.shadowColor = 'rgba(180,255,220,0.65)';
-      ctx.shadowBlur = 10;
-      ctx.fillStyle = 'rgba(210, 255, 230, 0.85)';
-      ctx.fillText(text, x, y - 1);
-
-      if (y > canvas.height && Math.random() > 0.975) {
-        drops[i] = 0;
-      } else {
-        drops[i]++;
-      }
+    if (y > canvas.height && Math.random() > 0.975) {
+      drops[i] = -5;
+    } else {
+      drops[i]++;
     }
-
-    requestAnimationFrame(draw);
   }
+
+  requestAnimationFrame(draw);
+}
 
   window.addEventListener('resize', resize);
   resize();

@@ -3004,78 +3004,25 @@ function getRowByNo(no){return dataRows.find(r=>String(r[fullKeys.no]||'').trim(
 
 function ensureAdditionalHeaders(headers){
   const extraHeaders = [
-    fullKeys.lectureStart,
-    fullKeys.qaDeadline,
-    fullKeys.qaTime,
-    fullKeys.preMeeting,
-    fullKeys.deadline3,
-    fullKeys.cost,
-    fullKeys.dataDeadline,
-    fullKeys.date2,
-    fullKeys.subject2,
-    fullKeys.name,
-    fullKeys.cohost3,
-    fullKeys.head1,
-    fullKeys.closing1,
-    fullKeys.checkK1,
-    fullKeys.checkHp,
-    fullKeys.checkK2,
-    fullKeys.checkK3,
-    fullKeys.task01,
-    fullKeys.task02,
-    fullKeys.task03,
-    fullKeys.task04,
-    fullKeys.task04a,
-    fullKeys.task05,
-    fullKeys.task06,
-    fullKeys.task07,
-    fullKeys.task08,
-    fullKeys.task09,
-    fullKeys.task10,
-    fullKeys.task11,
-    fullKeys.task12,
-    fullKeys.task13,
-    fullKeys.task14,
-    fullKeys.task15,
-    fullKeys.task16,
-    fullKeys.task17,
-    fullKeys.task18,
-    fullKeys.task19,
-    fullKeys.task20,
-    fullKeys.task21,
-    fullKeys.task22,
-    fullKeys.task23,
-    fullKeys.task24,
-    fullKeys.task25,
-    fullKeys.task26,
-    fullKeys.task27,
-    fullKeys.task28,
-    fullKeys.task29,
-    fullKeys.task30,
-    fullKeys.task31,
-    fullKeys.task32,
-    fullKeys.task33,
-    'STATUS_K1',
-    'STATUS_HP',
-    'STATUS_K2',
-    'STATUS_K3',
-    'DONEAT_K1',
-    'DONEAT_HP',
-    'DONEAT_K2',
-    'DONEAT_K3',
-    'UPDATEDAT_K1',
-    'UPDATEDAT_HP',
-    'UPDATEDAT_K2',
-    'UPDATEDAT_K3',
-    'HISTORY_K1',
-    'HISTORY_HP',
-    'HISTORY_K2',
-    'HISTORY_K3'
+    fullKeys.lectureStart, fullKeys.qaDeadline, fullKeys.qaTime, fullKeys.preMeeting,
+    fullKeys.deadline3, fullKeys.cost, fullKeys.dataDeadline, fullKeys.date2,
+    fullKeys.subject2, fullKeys.name, fullKeys.cohost3, fullKeys.head1, fullKeys.closing1,
+    fullKeys.checkK1, fullKeys.checkHp, fullKeys.checkK2, fullKeys.checkK3,
+    fullKeys.task01, fullKeys.task02, fullKeys.task03, fullKeys.task04, fullKeys.task04a,
+    fullKeys.task05, fullKeys.task06, fullKeys.task07, fullKeys.task08, fullKeys.task09,
+    fullKeys.task10, fullKeys.task11, fullKeys.task12, fullKeys.task13, fullKeys.task14,
+    fullKeys.task15, fullKeys.task16, fullKeys.task17, fullKeys.task18, fullKeys.task19,
+    fullKeys.task20, fullKeys.task21, fullKeys.task22, fullKeys.task23, fullKeys.task24,
+    fullKeys.task25, fullKeys.task26, fullKeys.task27, fullKeys.task28, fullKeys.task29,
+    fullKeys.task30, fullKeys.task31, fullKeys.task32, fullKeys.task33,
+
+    'STATUS_K1', 'STATUS_HP', 'STATUS_K2', 'STATUS_K3',
+    'DONEAT_K1', 'DONEAT_HP', 'DONEAT_K2', 'DONEAT_K3',
+    'UPDATEDAT_K1', 'UPDATEDAT_HP', 'UPDATEDAT_K2', 'UPDATEDAT_K3',
+    'HISTORY_K1', 'HISTORY_HP', 'HISTORY_K2', 'HISTORY_K3'
   ];
 
-  const set = new Set(
-    headers.map(h => String(h).trim()).filter(Boolean)
-  );
+  const set = new Set(headers.map(h => String(h).trim()).filter(Boolean));
   extraHeaders.forEach(h => set.add(h));
   return Array.from(set);
 }
@@ -3516,40 +3463,42 @@ function applyScheduleChecksFromRow(row){
   els.ckHp.checked = isCheckedValue(row?.[fullKeys.checkHp]) || String(row?.['STATUS_HP'] || '').trim().toUpperCase() === 'DONE';
   els.ckK2.checked = isCheckedValue(row?.[fullKeys.checkK2]) || String(row?.['STATUS_K2'] || '').trim().toUpperCase() === 'DONE';
   els.ckK3.checked = isCheckedValue(row?.[fullKeys.checkK3]) || String(row?.['STATUS_K3'] || '').trim().toUpperCase() === 'DONE';
-  const _el_task01=document.getElementById('ck_task01');if(_el_task01)_el_task01.checked=isCheckedValue(row?.[fullKeys.task01]);
-  const _el_task02=document.getElementById('ck_task02');if(_el_task02)_el_task02.checked=isCheckedValue(row?.[fullKeys.task02]);
-  const _el_task03=document.getElementById('ck_task03');if(_el_task03)_el_task03.checked=isCheckedValue(row?.[fullKeys.task03]);
-  const _el_task04=document.getElementById('ck_task04');if(_el_task04)_el_task04.checked=isCheckedValue(row?.[fullKeys.task04]);
-  const _el_task04a=document.getElementById('ck_task04a');if(_el_task04a)_el_task04a.checked=isCheckedValue(row?.[fullKeys.task04a]);
-  const _el_task05=document.getElementById('ck_task05');if(_el_task05)_el_task05.checked=isCheckedValue(row?.[fullKeys.task05]);
-  const _el_task06=document.getElementById('ck_task06');if(_el_task06)_el_task06.checked=isCheckedValue(row?.[fullKeys.task06]);
-  const _el_task07=document.getElementById('ck_task07');if(_el_task07)_el_task07.checked=isCheckedValue(row?.[fullKeys.task07]);
-  const _el_task08=document.getElementById('ck_task08');if(_el_task08)_el_task08.checked=isCheckedValue(row?.[fullKeys.task08]);
-  const _el_task09=document.getElementById('ck_task09');if(_el_task09)_el_task09.checked=isCheckedValue(row?.[fullKeys.task09]);
-  const _el_task10=document.getElementById('ck_task10');if(_el_task10)_el_task10.checked=isCheckedValue(row?.[fullKeys.task10]);
-  const _el_task11=document.getElementById('ck_task11');if(_el_task11)_el_task11.checked=isCheckedValue(row?.[fullKeys.task11]);
-  const _el_task12=document.getElementById('ck_task12');if(_el_task12)_el_task12.checked=isCheckedValue(row?.[fullKeys.task12]);
-  const _el_task13=document.getElementById('ck_task13');if(_el_task13)_el_task13.checked=isCheckedValue(row?.[fullKeys.task13]);
-  const _el_task14=document.getElementById('ck_task14');if(_el_task14)_el_task14.checked=isCheckedValue(row?.[fullKeys.task14]);
-  const _el_task15=document.getElementById('ck_task15');if(_el_task15)_el_task15.checked=isCheckedValue(row?.[fullKeys.task15]);
-  const _el_task16=document.getElementById('ck_task16');if(_el_task16)_el_task16.checked=isCheckedValue(row?.[fullKeys.task16]);
-  const _el_task17=document.getElementById('ck_task17');if(_el_task17)_el_task17.checked=isCheckedValue(row?.[fullKeys.task17]);
-  const _el_task18=document.getElementById('ck_task18');if(_el_task18)_el_task18.checked=isCheckedValue(row?.[fullKeys.task18]);
-  const _el_task19=document.getElementById('ck_task19');if(_el_task19)_el_task19.checked=isCheckedValue(row?.[fullKeys.task19]);
-  const _el_task20=document.getElementById('ck_task20');if(_el_task20)_el_task20.checked=isCheckedValue(row?.[fullKeys.task20]);
-  const _el_task21=document.getElementById('ck_task21');if(_el_task21)_el_task21.checked=isCheckedValue(row?.[fullKeys.task21]);
-  const _el_task22=document.getElementById('ck_task22');if(_el_task22)_el_task22.checked=isCheckedValue(row?.[fullKeys.task22]);
-  const _el_task23=document.getElementById('ck_task23');if(_el_task23)_el_task23.checked=isCheckedValue(row?.[fullKeys.task23]);
-  const _el_task24=document.getElementById('ck_task24');if(_el_task24)_el_task24.checked=isCheckedValue(row?.[fullKeys.task24]);
-  const _el_task25=document.getElementById('ck_task25');if(_el_task25)_el_task25.checked=isCheckedValue(row?.[fullKeys.task25]);
-  const _el_task26=document.getElementById('ck_task26');if(_el_task26)_el_task26.checked=isCheckedValue(row?.[fullKeys.task26]);
-  const _el_task27=document.getElementById('ck_task27');if(_el_task27)_el_task27.checked=isCheckedValue(row?.[fullKeys.task27]);
-  const _el_task28=document.getElementById('ck_task28');if(_el_task28)_el_task28.checked=isCheckedValue(row?.[fullKeys.task28]);
-  const _el_task29=document.getElementById('ck_task29');if(_el_task29)_el_task29.checked=isCheckedValue(row?.[fullKeys.task29]);
-  const _el_task30=document.getElementById('ck_task30');if(_el_task30)_el_task30.checked=isCheckedValue(row?.[fullKeys.task30]);
-  const _el_task31=document.getElementById('ck_task31');if(_el_task31)_el_task31.checked=isCheckedValue(row?.[fullKeys.task31]);
-  const _el_task32=document.getElementById('ck_task32');if(_el_task32)_el_task32.checked=isCheckedValue(row?.[fullKeys.task32]);
-  const _el_task33=document.getElementById('ck_task33');if(_el_task33)_el_task33.checked=isCheckedValue(row?.[fullKeys.task33]);
+
+  const eltask01=document.getElementById('cktask01'); if(eltask01) eltask01.checked=isCheckedValue(row?.[fullKeys.task01]);
+  const eltask02=document.getElementById('cktask02'); if(eltask02) eltask02.checked=isCheckedValue(row?.[fullKeys.task02]);
+  const eltask03=document.getElementById('cktask03'); if(eltask03) eltask03.checked=isCheckedValue(row?.[fullKeys.task03]);
+  const eltask04=document.getElementById('cktask04'); if(eltask04) eltask04.checked=isCheckedValue(row?.[fullKeys.task04]);
+  const eltask04a=document.getElementById('cktask04a'); if(eltask04a) eltask04a.checked=isCheckedValue(row?.[fullKeys.task04a]);
+  const eltask05=document.getElementById('cktask05'); if(eltask05) eltask05.checked=isCheckedValue(row?.[fullKeys.task05]);
+  const eltask06=document.getElementById('cktask06'); if(eltask06) eltask06.checked=isCheckedValue(row?.[fullKeys.task06]);
+  const eltask07=document.getElementById('cktask07'); if(eltask07) eltask07.checked=isCheckedValue(row?.[fullKeys.task07]);
+  const eltask08=document.getElementById('cktask08'); if(eltask08) eltask08.checked=isCheckedValue(row?.[fullKeys.task08]);
+  const eltask09=document.getElementById('cktask09'); if(eltask09) eltask09.checked=isCheckedValue(row?.[fullKeys.task09]);
+  const eltask10=document.getElementById('cktask10'); if(eltask10) eltask10.checked=isCheckedValue(row?.[fullKeys.task10]);
+  const eltask11=document.getElementById('cktask11'); if(eltask11) eltask11.checked=isCheckedValue(row?.[fullKeys.task11]);
+  const eltask12=document.getElementById('cktask12'); if(eltask12) eltask12.checked=isCheckedValue(row?.[fullKeys.task12]);
+  const eltask13=document.getElementById('cktask13'); if(eltask13) eltask13.checked=isCheckedValue(row?.[fullKeys.task13]);
+  const eltask14=document.getElementById('cktask14'); if(eltask14) eltask14.checked=isCheckedValue(row?.[fullKeys.task14]);
+  const eltask15=document.getElementById('cktask15'); if(eltask15) eltask15.checked=isCheckedValue(row?.[fullKeys.task15]);
+  const eltask16=document.getElementById('cktask16'); if(eltask16) eltask16.checked=isCheckedValue(row?.[fullKeys.task16]);
+  const eltask17=document.getElementById('cktask17'); if(eltask17) eltask17.checked=isCheckedValue(row?.[fullKeys.task17]);
+  const eltask18=document.getElementById('cktask18'); if(eltask18) eltask18.checked=isCheckedValue(row?.[fullKeys.task18]);
+  const eltask19=document.getElementById('cktask19'); if(eltask19) eltask19.checked=isCheckedValue(row?.[fullKeys.task19]);
+  const eltask20=document.getElementById('cktask20'); if(eltask20) eltask20.checked=isCheckedValue(row?.[fullKeys.task20]);
+  const eltask21=document.getElementById('cktask21'); if(eltask21) eltask21.checked=isCheckedValue(row?.[fullKeys.task21]);
+  const eltask22=document.getElementById('cktask22'); if(eltask22) eltask22.checked=isCheckedValue(row?.[fullKeys.task22]);
+  const eltask23=document.getElementById('cktask23'); if(eltask23) eltask23.checked=isCheckedValue(row?.[fullKeys.task23]);
+  const eltask24=document.getElementById('cktask24'); if(eltask24) eltask24.checked=isCheckedValue(row?.[fullKeys.task24]);
+  const eltask25=document.getElementById('cktask25'); if(eltask25) eltask25.checked=isCheckedValue(row?.[fullKeys.task25]);
+  const eltask26=document.getElementById('cktask26'); if(eltask26) eltask26.checked=isCheckedValue(row?.[fullKeys.task26]);
+  const eltask27=document.getElementById('cktask27'); if(eltask27) eltask27.checked=isCheckedValue(row?.[fullKeys.task27]);
+  const eltask28=document.getElementById('cktask28'); if(eltask28) eltask28.checked=isCheckedValue(row?.[fullKeys.task28]);
+  const eltask29=document.getElementById('cktask29'); if(eltask29) eltask29.checked=isCheckedValue(row?.[fullKeys.task29]);
+  const eltask30=document.getElementById('cktask30'); if(eltask30) eltask30.checked=isCheckedValue(row?.[fullKeys.task30]);
+  const eltask31=document.getElementById('cktask31'); if(eltask31) eltask31.checked=isCheckedValue(row?.[fullKeys.task31]);
+  const eltask32=document.getElementById('cktask32'); if(eltask32) eltask32.checked=isCheckedValue(row?.[fullKeys.task32]);
+  const eltask33=document.getElementById('cktask33'); if(eltask33) eltask33.checked=isCheckedValue(row?.[fullKeys.task33]);
+
   updateTaskProgress();
 }
 function isCheckedValue(v){

@@ -50,6 +50,15 @@
       overflow: hidden;
     }
 
+    #bgCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
     /* 縦スキャンライン（攻殻＋マトリックス風） */
     body::before {
       content: "";
@@ -369,6 +378,7 @@
   </style>
 </head>
 <body>
+  <canvas id="bgCanvas"></canvas>
   <div class="app">
     <div class="header">
       <div class="title-block">
@@ -513,7 +523,7 @@
       });
     }
 
-    function clearAll() {
+        function clearAll() {
       const container = document.getElementById("qrcode");
       const input = document.getElementById("urlInput");
       const errorMsg = document.getElementById("errorMsg");
@@ -561,6 +571,47 @@
         generateQR();
       }
     });
+
+    (function () {
+      const canvas = document.getElementById('bgCanvas');
+      if (!canvas || !(canvas instanceof HTMLCanvasElement)) return;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      const fontSize = 14;
+      const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+      let drops = [];
+
+      function resizeMatrix() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        const cols = Math.floor(canvas.width / fontSize);
+        drops = Array.from({ length: cols }, (_, i) => drops[i] ?? Math.random() * -50);
+      }
+
+      function drawMatrix() {
+        ctx.fillStyle = 'rgba(8,15,10,0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.font = fontSize + 'px "Share Tech Mono", monospace';
+
+        for (let i = 0; i < drops.length; i++) {
+          const c = chars[Math.floor(Math.random() * chars.length)];
+          ctx.fillStyle = 'rgba(0,200,83,0.85)';
+          ctx.fillText(c, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+          drops[i]++;
+        }
+      }
+
+      window.addEventListener('resize', resizeMatrix);
+      resizeMatrix();
+      setInterval(drawMatrix, 80);
+    })();
+    
   </script>
 </body>
 </html>

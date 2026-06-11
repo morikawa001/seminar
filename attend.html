@@ -384,36 +384,33 @@ async function startProcess(){
     setStep(3,'done');
 
     setStep(4,'active'); setProgress(60,'STEP 4: 所属施設正規化'); await sleep(120);
-    let normCount=0;
-    const affiliCol=dataRows[0]&&('ご所属施設' in dataRows[0])?'ご所属施設':'所属施設';
+let normCount=0;
+const affiliCol=dataRows[0]&&('ご所属施設' in dataRows[0])?'ご所属施設':'所属施設';
 
-    dataRows=dataRows.map(row=>{
-      const r={...row};
-      let v=String(r[affiliCol]||'').trim();
+dataRows=dataRows.map(row=>{
+  const r={...row};
+  let v=String(r[affiliCol]||'').trim();
 
-      const normalized = v
-        .replace(/[Ａ-Ｚａ-ｚ０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
-        .replace(/\s+/g,'')
-        .toLowerCase();
+  const normalized = v
+    .replace(/[Ａ-Ｚａ-ｚ０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+    .replace(/\s+/g,'')
+    .toLowerCase();
 
-      const hasShizuoka = v.includes('静岡');
-      const hasGanWord = v.includes('がん') || v.includes('ガン');
-      const hasCenter = v.includes('センター');
-      const hasStrictCenterName = hasShizuoka && hasGanWord && hasCenter;
+  const hasSCC = /\bscc\b/.test(normalized);
+  const hasShizugan = normalized.includes('静がん');
+  const hasShizuCancerCenter =
+    /静岡.*(?:がん|ガン|癌).*センター|静岡.*センター.*(?:がん|ガン|癌)|(?:がん|ガン|癌).*静岡.*センター|センター.*静岡.*(?:がん|ガン|癌)|(?:がん|ガン|癌).*センター.*静岡|センター.*(?:がん|ガン|癌).*静岡/.test(v);
 
-      const hasSCC = normalized.includes('scc');
-      const hasShizugan = normalized.includes('静がん');
+  const shouldCanonicalize = hasSCC || hasShizugan || hasShizuCancerCenter;
 
-      const shouldCanonicalize = hasStrictCenterName || hasSCC || hasShizugan;
+  if(shouldCanonicalize){
+    if(v!==CANONICAL) normCount++;
+    v=CANONICAL;
+  }
 
-      if(shouldCanonicalize){
-        if(v!==CANONICAL) normCount++;
-        v=CANONICAL;
-      }
-
-      r['所属施設']=v;
-      return r;
-    });
+  r['所属施設']=v;
+  return r;
+});
 
     log(`所属施設正規化: ${normCount}件`,normCount>0?'warn':'ok');
     setStep(4,'done');

@@ -952,20 +952,21 @@
                                     v = `${yyyy}/${mm}/${dd} ${hh}:${mi}`;
                                 }
                             }
-                            // 「所属施設」列の表記揺れ正規化
-                            if(newKey === '所属施設'){
-                                const norm = v.replace(/[Ａ-Ｚ]/g, c => String.fromCharCode(c.charCodeAt(0)-0xFEE0))
-                                              .toLowerCase();
-                                const hasSCC   = /\bscc\b/.test(norm);
-                                const hasShizu = v.includes('静岡');
-                                const hasGan   = /[がんガン癌]/.test(v);
-                                if(hasSCC || (hasShizu && hasGan)){
-                                    if(v !== CANONICAL_AFFILIATION) normalizeCount++;
-                                    v = CANONICAL_AFFILIATION;
-                                }
                             }
-                        }
-                        clean[newKey] = v;
+// 「所属施設」列の表記揺れ正規化
+if (newKey === '所属施設') {
+    const norm = v.replace(/[Ａ-Ｚ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+                  .toLowerCase();
+
+    const hasSCC = /\bscc\b/.test(norm);
+    const hasShizuCancer = /静岡.*(?:がん|ガン|癌)|(?:がん|ガン|癌).*静岡/.test(v);
+
+    if (hasSCC || hasShizuCancer) {
+        if (v !== CANONICAL_AFFILIATION) normalizeCount++;
+        v = CANONICAL_AFFILIATION;
+    }
+}
+clean[newKey] = v;
                     });
                     return clean;
                 });

@@ -4556,7 +4556,7 @@ function buildTodayCommands(rows){
 
     // 開催当日
     if(days===0){
-      cmds.push({no,title,urgency:'critical',csvKey:'checkK3',action:'本日開催です。当日準備を確認してください。',reason:`Task完了: ${taskDone}/33`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成',recipient:'attendee',purpose:'reminder',no}]});
+      cmds.push({no,title,urgency:'critical',csvKey:'task21',action:'本日開催です。当日準備を確認してください。',reason:`Task完了: ${taskDone}/33`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成',recipient:'attendee',purpose:'reminder',no}]});
       if(!zoomUrl||zoomUrl==='https://zoom.us/'){
         cmds.push({no,title,urgency:'critical',csvKey:'checkK3',action:'Zoom URLが未入力です。今すぐ登録してください。',reason:'当日前にZoom URLが必要です',buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no}]});
       }
@@ -4820,14 +4820,19 @@ function tcCheckDone(cardId, checked){
 }
 // rawRowsの該当行にCHECK値を書き込む（画面再描画なし）
 function writeCheckToRaw(no, csvKeyName, checked){
-  if(!no || !csvKeyName){
-    console.warn('[CHECK] no or csvKeyName empty', no, csvKeyName);
-    return;
-  }
-
+  if(!no || !csvKeyName){ ... return; }
   const flagKey = fullKeys[csvKeyName];
   if(!flagKey){
     console.warn('[CHECK] flagKey not found for', csvKeyName);
+    return;
+  }
+
+  // ── task系キーは直接rawRowsに書き込んで終了 ──
+  if(csvKeyName.startsWith('task') || !['checkK1','checkHp','checkK2','checkK3'].includes(csvKeyName)){
+    const idx = rawRows.findIndex(r => String(r[fullKeys.no]||'').trim() === String(no).trim());
+    if(idx >= 0){
+      rawRows[idx][flagKey] = checked ? '1' : '0';
+    }
     return;
   }
 
@@ -4837,6 +4842,7 @@ function writeCheckToRaw(no, csvKeyName, checked){
     checkK2: 'K2',
     checkK3: 'K3'
   };
+  // （以降 phaseMap を使った既存の書き込み処理はそのまま）
 
   const phase = phaseMap[csvKeyName] || null;
 

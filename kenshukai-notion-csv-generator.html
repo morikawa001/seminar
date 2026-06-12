@@ -955,13 +955,14 @@
                             }
 // 「所属施設」列の表記揺れ正規化
 if (newKey === '所属施設') {
-    const norm = v.replace(/[Ａ-Ｚ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
+    const norm = v.replace(/[Ａ-Ｚａ-ｚ]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
                   .toLowerCase();
 
     const hasSCC = /\bscc\b/.test(norm);
-    const hasShizuCancer = /静岡.*(?:がん|ガン|癌)|(?:がん|ガン|癌).*静岡/.test(v);
+    const hasShizuCancerJa = /静岡.*(?:がん|ガン|癌)|(?:がん|ガン|癌).*静岡/.test(v);
+    const hasShizuCancerEn = /shizuoka.*cancer|cancer.*shizuoka/.test(norm);
 
-    if (hasSCC || hasShizuCancer) {
+    if (hasSCC || hasShizuCancerJa || hasShizuCancerEn) {
         if (v !== CANONICAL_AFFILIATION) normalizeCount++;
         v = CANONICAL_AFFILIATION;
     }

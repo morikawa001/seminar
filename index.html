@@ -2910,7 +2910,7 @@ const fields={
   intro3:document.getElementById('fIntro3')
 };
 
-let currentHeaders=[],rawRows=[],dataRows=[],selectedRow=null,stagedRow=null,lastSaveMode='',selectedTemplates=[];
+let currentHeaders=[], rawRows=[], dataRows=[], selectedRow=null, stagedRow=null, lastSaveMode='', selectedTemplates=[];
 // チェック時に即時 rawRows へ書き込む方式を使用（pendingChecks廃止）
 
 const HEAD_TEXT_DEFAULT='2026年度　臨床研究研修会';
@@ -4556,7 +4556,8 @@ function buildTodayCommands(rows){
 
     // 開催当日
     if(days===0){
-      cmds.push({no,title,urgency:'critical',csvKey:'task21',action:'本日開催です。当日準備を確認してください。',reason:`Task完了: ${taskDone}/33`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成',recipient:'attendee',purpose:'reminder',no}]});
+      cmds.push({no, title, urgency:'critical', csvKey:'task21',
+  action:'本日開催です。当日準備を確認してください。',reason:`Task完了: ${taskDone}/33`,buttons:[{label:'詳細を見る',href:'#entryConsoleSection',no},{label:'メール作成',recipient:'attendee',purpose:'reminder',no}]});
       if(!zoomUrl||zoomUrl==='https://zoom.us/'){
         cmds.push({no,title,urgency:'critical',csvKey:'checkK3',action:'Zoom URLが未入力です。今すぐ登録してください。',reason:'当日前にZoom URLが必要です',buttons:[{label:'Entry Consoleで補完',href:'#entryConsoleSection',no}]});
       }
@@ -4820,19 +4821,14 @@ function tcCheckDone(cardId, checked){
 }
 // rawRowsの該当行にCHECK値を書き込む（画面再描画なし）
 function writeCheckToRaw(no, csvKeyName, checked){
-  if(!no || !csvKeyName){ ... return; }
-  const flagKey = fullKeys[csvKeyName];
-  if(!flagKey){
-    console.warn('[CHECK] flagKey not found for', csvKeyName);
+  if(!no || !csvKeyName){
+    console.warn('[CHECK] no or csvKeyName empty', no, csvKeyName);
     return;
   }
 
-  // ── task系キーは直接rawRowsに書き込んで終了 ──
-  if(csvKeyName.startsWith('task') || !['checkK1','checkHp','checkK2','checkK3'].includes(csvKeyName)){
-    const idx = rawRows.findIndex(r => String(r[fullKeys.no]||'').trim() === String(no).trim());
-    if(idx >= 0){
-      rawRows[idx][flagKey] = checked ? '1' : '0';
-    }
+  const flagKey = fullKeys[csvKeyName];
+  if(!flagKey){
+    console.warn('[CHECK] flagKey not found for', csvKeyName);
     return;
   }
 
@@ -4842,55 +4838,51 @@ function writeCheckToRaw(no, csvKeyName, checked){
     checkK2: 'K2',
     checkK3: 'K3'
   };
-  // （以降 phaseMap を使った既存の書き込み処理はそのまま）
-
   const phase = phaseMap[csvKeyName] || null;
 
   ensureHeader(flagKey);
   if(phase){
-    ensureHeader(`STATUS${phase}`);
-    ensureHeader(`DONEAT${phase}`);
-    ensureHeader(`UPDATEDAT${phase}`);
-    ensureHeader(`HISTORY${phase}`);
+    ensureHeader(`STATUS_${phase}`);
+    ensureHeader(`DONEAT_${phase}`);
+    ensureHeader(`UPDATEDAT_${phase}`);
+    ensureHeader(`HISTORY_${phase}`);
   }
 
   const row = rawRows.find(r =>
     String(r[fullKeys.no] || '').trim() === String(no).trim()
   );
   if(!row){
-    console.warn('[CHECK] row not found for no=', no, 'rawRows=', rawRows.map(r => r[fullKeys.no]));
+    console.warn('[CHECK] row not found for no=', no);
     return;
   }
 
-  const now = new Date();
-  const pad = n => String(n).padStart(2, '0');
-  const timestamp =
-    `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ` +
-    `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-
   const before = row[flagKey];
-  row[flagKey] = boolToCsv(checked);
+  row[flagKey] = boolToCsv(checked);  // ← '1'/'0' を boolToCsv で統一
 
+  // ── phase系（checkK1〜checkK3）のみ追加メタ情報を記録 ──
   if(phase){
-    row[`STATUS${phase}`] = checked ? 'DONE' : 'PENDING';
-    row[`UPDATEDAT${phase}`] = timestamp;
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const timestamp =
+      `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ` +
+      `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+
+    row[`STATUS_${phase}`]    = checked ? 'DONE' : 'PENDING';
+    row[`UPDATEDAT_${phase}`] = timestamp;
 
     if(checked){
-      row[`DONEAT${phase}`] = timestamp;
-      const prev = String(row[`HISTORY${phase}`] || '').trim();
-      row[`HISTORY${phase}`] = prev
-        ? `${prev} | DONE:${timestamp}`
-        : `DONE:${timestamp}`;
-    }else{
-      const prev = String(row[`HISTORY${phase}`] || '').trim();
-      row[`HISTORY${phase}`] = prev
-        ? `${prev} | UNCHECK:${timestamp}`
-        : `UNCHECK:${timestamp}`;
+      row[`DONEAT_${phase}`] = timestamp;
+      const prev = String(row[`HISTORY_${phase}`] || '').trim();
+      row[`HISTORY_${phase}`] = prev ? `${prev} | DONE:${timestamp}` : `DONE:${timestamp}`;
+    } else {
+      const prev = String(row[`HISTORY_${phase}`] || '').trim();
+      row[`HISTORY_${phase}`] = prev ? `${prev} | UNCHECK:${timestamp}` : `UNCHECK:${timestamp}`;
     }
   }
 
   console.log('[CHECK] written: No=' + no + ' ' + flagKey + ' ' + before + '→' + row[flagKey]);
 }
+  
 function showCsvSavedToast(){
   let t=document.getElementById('csvUpdateToast');
   if(!t){

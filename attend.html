@@ -387,28 +387,31 @@ async function startProcess(){
 let normCount=0;
 const affiliCol=dataRows[0]&&('ご所属施設' in dataRows[0])?'ご所属施設':'所属施設';
 
-dataRows=dataRows.map(row=>{
-  const r={...row};
-  let v=String(r[affiliCol]||'').trim();
+dataRows = dataRows.map(row => {
+  const r = { ...row };
+  let v = String(r[affiliCol] || '').trim();
 
   const normalized = v
     .replace(/[Ａ-Ｚａ-ｚ０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0))
-    .replace(/\s+/g,'')
+    .replace(/\s+/g, '')
     .toLowerCase();
 
   const hasSCC = /\bscc\b/.test(normalized);
   const hasShizugan = normalized.includes('静がん');
-  const hasShizuCancerCenter =
+  const hasShizuCancerCenterJa =
     /静岡.*(?:がん|ガン|癌).*センター|静岡.*センター.*(?:がん|ガン|癌)|(?:がん|ガン|癌).*静岡.*センター|センター.*静岡.*(?:がん|ガン|癌)|(?:がん|ガン|癌).*センター.*静岡|センター.*(?:がん|ガン|癌).*静岡/.test(v);
+  const hasShizuCancerEn =
+    normalized.includes('shizuoka') && normalized.includes('cancer');
 
-  const shouldCanonicalize = hasSCC || hasShizugan || hasShizuCancerCenter;
+  const shouldCanonicalize =
+    hasSCC || hasShizugan || hasShizuCancerCenterJa || hasShizuCancerEn;
 
-  if(shouldCanonicalize){
-    if(v!==CANONICAL) normCount++;
-    v=CANONICAL;
+  if (shouldCanonicalize) {
+    if (v !== CANONICAL) normCount++;
+    v = CANONICAL;
   }
 
-  r['所属施設']=v;
+  r['所属施設'] = v;
   return r;
 });
 

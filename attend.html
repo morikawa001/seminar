@@ -317,10 +317,41 @@ function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
 function isBlankValue(v){return v===null||v===undefined||String(v).trim()==='';}
 function escapeHtml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function excelSerialToDate(serial){if(typeof serial!=='number') return null; const msPerDay=86400000, epochMs=Date.UTC(1899,11,30); return new Date(epochMs+serial*msPerDay);}
-function excelSerialToDateTime(serial){if(serial===null||serial===undefined) return ''; if(typeof serial==='string'){const m=serial.match(/(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\s+(\d{1,2}):(\d{2})/); if(m) return `${m[1]}/${m[2].padStart(2,'0')}/${m[3].padStart(2,'0')} ${m[4].padStart(2,'0')}:${m[5]}`; return serial;} if(typeof serial!=='number') return ''; const d=excelSerialToDate(serial); if(!d) return ''; return `${d.getUTCFullYear()}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${String(d.getUTCDate()).padStart(2,'0')} ${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}`;}
+
+function excelSerialToDateTime(serial){
+  if(serial===null||serial===undefined) return '';
+  if(typeof serial==='string'){
+    const m=serial.match(/(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+    if(m) return `${m[1]}/${m[2].padStart(2,'0')}/${m[3].padStart(2,'0')} ${m[4].padStart(2,'0')}:${m[5].padStart(2,'0')}:${String(m[6]||'00').padStart(2,'0')}`;
+    return serial;
+  }
+  if(typeof serial!=='number') return '';
+  const d=excelSerialToDate(serial);
+  if(!d) return '';
+  return `${d.getUTCFullYear()}/${String(d.getUTCMonth()+1).padStart(2,'0')}/${String(d.getUTCDate()).padStart(2,'0')} ${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}:${String(d.getUTCSeconds()).padStart(2,'0')}`;
+}
+
 function hhmmssToSec(s){if(!s&&s!==0) return null; const m=String(s).match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?/); if(!m) return null; return parseInt(m[1],10)*3600+parseInt(m[2],10)*60+parseInt(m[3]||'0',10);}
 function secToHHMMSS(sec){if(sec===null||sec===undefined||isNaN(sec)) return ''; const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=Math.abs(sec%60); return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
-function toHHMM(v){if(v===null||v===undefined||v==='') return ''; if(typeof v==='number'){const frac=((v%1)+1)%1,totalSec=Math.round(frac*86400),h=Math.floor(totalSec/3600)%24,m=Math.floor((totalSec%3600)/60); return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');} const s=String(v); let mt=s.match(/(\d{1,2}):(\d{2})(?::\d{2})?(?:\s*$|[^:\d])/); if(!mt) mt=s.match(/(\d{1,2}):(\d{2})/); return mt?mt[1].padStart(2,'0')+':'+mt[2]:'';}
+
+function toHHMMSS(v){
+  if(v===null||v===undefined||v==='') return '';
+  if(typeof v==='number'){
+    const frac=((v%1)+1)%1,totalSec=Math.round(frac*86400)%86400,h=Math.floor(totalSec/3600),m=Math.floor((totalSec%3600)/60),s=Math.floor(totalSec%60);
+    return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  }
+  const str=String(v).trim();
+  let mt=str.match(/(\d{1,2}):(\d{2}):(\d{2})/);
+  if(mt) return mt[1].padStart(2,'0')+':'+mt[2]+':'+mt[3];
+  mt=str.match(/(\d{1,2}):(\d{2})/);
+  if(mt) return mt[1].padStart(2,'0')+':'+mt[2]+':00';
+  const d=new Date(str);
+  if(!isNaN(d.getTime())){
+    return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')+':'+String(d.getSeconds()).padStart(2,'0');
+  }
+  return '';
+}
+
 function normalizeMail(v){return String(v??'').trim().toLowerCase();}
 function calcTimeInfo(){const s=document.getElementById('inputStart').value,e=document.getElementById('inputEnd').value;if(!s||!e) return; const ss=hhmmssToSec(s), es=hhmmssToSec(e); if(ss===null||es===null) return; const semSec=es-ss, certSec=Math.floor(semSec*3/4), toMM=sec=>`${Math.floor(sec/60)}分${sec%60>0?sec%60+'秒':''}`; document.getElementById('timeInfo').textContent=`研修会時間: ${secToHHMMSS(semSec)} (${toMM(semSec)}) ／ 受講認定時間（3/4）: ${secToHHMMSS(certSec)} (${toMM(certSec)})`;}
 function resetSteps(){for(let i=1;i<=7;i++) setStep(i,''); setProgress(0,'READY');}
@@ -480,7 +511,7 @@ async function startProcess(){
       Object.entries(colMap).forEach(([ci,name])=>{obj[name]=row[parseInt(ci,10)]!==undefined?row[parseInt(ci,10)]:null;});
       dataRows.push(obj);
     }
-    dataRows=dataRows.map(row=>({...row,'参加時間':toHHMM(row['参加時間']),'退出時間':toHHMM(row['退出時間'])}));
+    dataRows=dataRows.map(row=>({...row,'参加時間':toHHMMSS(row['参加時間']),'退出時間':toHHMMSS(row['退出時間'])}));
     dataRows=fillMissingFieldsByPreviousRow(dataRows);
     log(`有効出席者: ${dataRows.length}件`,'ok');
     setStep(2,'done');

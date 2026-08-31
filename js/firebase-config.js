@@ -15,20 +15,43 @@
 
   var DB_COLLECTION = 'seminars';
   var currentUser = null;
+  var authRetryTimer = null;
+  var authDispatched = false;
+  var syncChannel = null;
+
+  function broadcastSync(){
+    try{
+      if(typeof BroadcastChannel === 'undefined') return;
+      if(!syncChannel) syncChannel = new BroadcastChannel('sm-sync-v1');
+      syncChannel.postMessage('sync');
+    }catch(e){}
+  }
 
   auth.onAuthStateChanged(function(user){
     currentUser = user;
     var loginSection = document.getElementById('loginSection');
     var appContainer = document.getElementById('appContainer');
+    if(loginSection) loginSection.style.display = user ? 'none' : '';
+    if(appContainer) appContainer.style.display = user ? '' : 'none';
+
     if(user){
-      if(loginSection) loginSection.style.display = 'none';
-      if(appContainer) appContainer.style.display = '';
-      if(typeof onFirebaseLogin === 'function') onFirebaseLogin(user);
-    } else {
-      if(loginSection) loginSection.style.display = '';
-      if(appContainer) appContainer.style.display = 'none';
+      authDispatched = false;
+      dispatchAuth();
     }
   });
+
+  // onFirebase ハンドラがまだ未定義（スクリプト読込順序）で発火した場合、
+  // 定義されるまで再評価して取りこぼさずに送出する（各ページの再チェックは不要）
+  function dispatchAuth(){
+    if(!currentUser || authDispatched) return;
+    if(typeof onFirebaseLogin !== 'function' || typeof onFirebaseLogout !== 'function'){
+      clearTimeout(authRetryTimer);
+      authRetryTimer = setTimeout(dispatchAuth, 100);
+      return;
+    }
+    authDispatched = true;
+    onFirebaseLogin(currentUser);
+  }
 
   function getEmail(){ return (document.getElementById('loginEmail')||{}).value || ''; }
   function getPassword(){ return (document.getElementById('loginPassword')||{}).value || ''; }
@@ -74,6 +97,7 @@
           var data = doc.data();
           var row = {};
           (headers || []).forEach(function(h){ row[h] = data[h] || ''; });
+          Object.keys(data || {}).forEach(function(k){ if(row[k]===undefined) row[k] = data[k]; });
           row.__docId = doc.id;
           row._order = data._order;
           row.updatedAt = data.updatedAt || '';
@@ -94,17 +118,22 @@
     data.createdBy = currentUser.uid;
     data.updatedAt = new Date().toISOString();
     if(row._order!==undefined)data._order=Number(row._order);
+    var p;
     if(row.__docId){
-      return db.collection(DB_COLLECTION).doc(row.__docId).set(data);
+      p = db.collection(DB_COLLECTION).doc(row.__docId).set(data);
     } else {
       data.createdAt = new Date().toISOString();
-      return db.collection(DB_COLLECTION).add(data);
+      p = db.collection(DB_COLLECTION).add(data);
     }
+    p.then(function(){ broadcastSync(); });
+    return p;
   }
 
   function deleteFromFirestore(docId){
     if(!currentUser || !docId) return Promise.reject('Invalid params');
-    return db.collection(DB_COLLECTION).doc(docId).delete();
+    var p = db.collection(DB_COLLECTION).doc(docId).delete();
+    p.then(function(){ broadcastSync(); });
+    return p;
   }
 
   window.FirebaseApp = {
